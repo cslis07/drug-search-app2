@@ -776,6 +776,9 @@ td.mono { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(
     <button class="tab-btn" id="btnHosp" onclick="setTab('hosp')">
       <span class="tab-icon">🏥</span> 병의원 검색
     </button>
+    <button class="tab-btn" id="btnPharm" onclick="setTab('pharm')">
+      <span class="tab-icon">💊</span> 약국 검색
+    </button>
   </div>
 
   <!-- 단건 검색 탭 -->
@@ -994,6 +997,87 @@ td.mono { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(
     </div>
 
   </div><!-- /tab-hosp -->
+  <!-- ── 약국 검색 탭 ── -->
+  <div class="tab" id="tab-pharm">
+
+    <div style="margin-bottom:20px">
+      <div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:4px">약국 검색</div>
+      <div style="font-size:13px;color:var(--text3)">심평원 약국기본목록 — 약국명·주소·전화번호·요양기호를 확인하세요.</div>
+    </div>
+
+    <div class="search-card">
+      <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap">
+        <div>
+          <div style="font-size:11px;font-weight:600;color:var(--text3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.6px">지역</div>
+          <select id="pharmSido" style="height:44px;padding:0 32px 0 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;color:var(--text);background:var(--surface);cursor:pointer;appearance:auto;min-width:120px">
+            <option value="">전체 지역</option>
+            <option value="110000">서울</option>
+            <option value="210000">부산</option>
+            <option value="220000">대구</option>
+            <option value="230000">인천</option>
+            <option value="240000">광주</option>
+            <option value="250000">대전</option>
+            <option value="260000">울산</option>
+            <option value="290000">세종</option>
+            <option value="310000">경기</option>
+            <option value="320000">강원</option>
+            <option value="330000">충북</option>
+            <option value="340000">충남</option>
+            <option value="350000">전북</option>
+            <option value="360000">전남</option>
+            <option value="370000">경북</option>
+            <option value="380000">경남</option>
+            <option value="390000">제주</option>
+          </select>
+        </div>
+        <div style="flex:1;min-width:180px">
+          <div style="font-size:11px;font-weight:600;color:var(--text3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.6px">약국명</div>
+          <input class="sinput" id="pharmQ" placeholder="약국명을 입력하세요"
+            onkeydown="if(event.key==='Enter')searchPharm()" style="height:44px">
+        </div>
+        <button class="btn btn-primary" onclick="searchPharm()" id="pharmBtn" style="height:44px;padding:0 24px">검색</button>
+      </div>
+    </div>
+
+    <div id="pharmMsg" style="display:none;padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:14px"></div>
+
+    <div id="pharmResultWrap" style="display:none">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+        <div>
+          <div class="recent-title" id="pharmResultTitle">결과</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:2px" id="pharmResultSub"></div>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="clearPharmResult()">← 검색창으로</button>
+      </div>
+
+      <!-- 테이블 -->
+      <div class="tbl-wrap-outer">
+        <div class="tbl-scroll">
+          <table id="pharmTable">
+            <thead>
+              <tr>
+                <th>약국명</th>
+                <th>주소</th>
+                <th style="width:110px">전화번호</th>
+                <th style="width:110px">요양기호</th>
+              </tr>
+            </thead>
+            <tbody id="pharmTableBody">
+              <tr><td colspan="4" style="text-align:center;padding:32px;color:var(--text3)">
+                검색어를 입력하세요.
+              </td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div id="pharmPagination" style="display:flex;justify-content:center;align-items:center;gap:6px;margin-top:14px;flex-wrap:wrap"></div>
+
+      <!-- 상세 패널 -->
+      <div id="pharmDetail" style="display:none;margin-top:16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--shadow)"></div>
+    </div>
+
+  </div><!-- /tab-pharm -->
+
 
 </div><!-- /wrap -->
 
@@ -2317,6 +2401,253 @@ function renderBizFallback(inner, fallbackUrl) {
     + '</div>';
 }
 
+
+
+/* ══════════════════════════════════════════════
+   약국 검색 기능
+   API: 건강보험심사평가원 pharmacyInfoService
+   엔드포인트: getParmacyBasisList
+   응답 필드: yadmNm, addr, telno, ykiho,
+     sidoCdNm, sgguCdNm, emdongNm, estbDd,
+     XPos, YPos (대문자 주의)
+   검색 파라미터: yadmNm, sidoCd, _type=json
+══════════════════════════════════════════════ */
+var EP_PHARM    = 'https://apis.data.go.kr/B551182/pharmacyInfoService/getParmacyBasisList';
+var pharmItems  = [];
+var pharmCurPg  = 1;
+var PHARM_PG_SZ = 10;
+
+/* ── 파싱 ── */
+function parsePharmJSON(j) {
+  var body  = (j && j.response && j.response.body) ? j.response.body
+            : (j && j.body ? j.body : {});
+  var total = parseInt(body.totalCount || 0);
+  var raw   = null;
+  if (body.items && body.items.item !== undefined) raw = body.items.item;
+  else if (Array.isArray(body.items)) raw = body.items;
+  else raw = [];
+  var items = Array.isArray(raw) ? raw : (raw && typeof raw === 'object' && Object.keys(raw).length ? [raw] : []);
+  console.log('[약국JSON] total=' + total + ' items=' + items.length,
+    items.length > 0 ? Object.keys(items[0]) : '없음');
+  return { items: items, total: total };
+}
+
+function parsePharmXML(txt) {
+  var parser = new DOMParser();
+  var xml    = parser.parseFromString(txt, 'application/xml');
+  var errEl  = xml.getElementsByTagName('errMsg')[0];
+  if (errEl && errEl.textContent.indexOf('NORMAL') < 0) {
+    console.warn('[약국XML에러]', errEl.textContent);
+    return { items: [], total: 0 };
+  }
+  var tcEl  = xml.getElementsByTagName('totalCount')[0];
+  var total = tcEl ? parseInt(tcEl.textContent) : 0;
+  var nodes = xml.getElementsByTagName('item');
+  var items = [];
+  for (var i = 0; i < nodes.length; i++) {
+    var obj = {}, ch = nodes[i].childNodes;
+    for (var j = 0; j < ch.length; j++) {
+      if (ch[j].nodeType === 1) obj[ch[j].tagName] = ch[j].textContent.trim();
+    }
+    items.push(obj);
+  }
+  return { items: items, total: total || items.length };
+}
+
+/* ── API 호출 ── */
+function fetchPharm(params, rows) {
+  var base = EP_PHARM + '?serviceKey=' + KEY
+    + '&numOfRows=' + (rows || 100) + '&pageNo=1&_type=json';
+  var pkeys = Object.keys(params || {});
+  for (var i = 0; i < pkeys.length; i++) {
+    base += '&' + pkeys[i] + '=' + encodeURIComponent(params[pkeys[i]]);
+  }
+  return fetch(base)
+    .then(function(r) { return r.text(); })
+    .then(function(txt) {
+      console.log('[약국API] 앞200:', txt.substring(0, 200));
+      var t = txt.trim();
+      if (t.charAt(0) === '{' || t.charAt(0) === '[') {
+        try { return parsePharmJSON(JSON.parse(txt)); } catch(e) {}
+      }
+      return parsePharmXML(txt);
+    })
+    .catch(function(e) {
+      console.error('[약국API 오류]', e.message);
+      return { items: [], total: 0, error: e.message };
+    });
+}
+
+/* ── 테이블 렌더링 ── */
+function renderPharmTable() {
+  var start = (pharmCurPg - 1) * PHARM_PG_SZ;
+  var end   = Math.min(start + PHARM_PG_SZ, pharmItems.length);
+  var rows  = '';
+  for (var i = start; i < end; i++) {
+    var it   = pharmItems[i];
+    var nm   = esc(it.yadmNm  || '-');
+    var addr = esc(it.addr    || '-');
+    var tel  = esc(it.telno   || '-');
+    var yk   = esc(it.ykiho   || '-');
+    rows += '<tr style="cursor:pointer" onclick="showPharmDetail(pharmItems[' + i + '], this)">'
+      + '<td style="font-weight:600">' + nm + '</td>'
+      + '<td style="font-size:12px;color:var(--text2)">' + addr + '</td>'
+      + '<td style="font-size:12px">' + tel + '</td>'
+      + '<td style="color:var(--primary);font-size:11px;font-family:monospace;max-width:100px;overflow:hidden;text-overflow:ellipsis">' + yk + '</td>'
+      + '</tr>';
+  }
+  document.getElementById('pharmTableBody').innerHTML = rows
+    || '<tr><td colspan="4" style="text-align:center;padding:24px;color:var(--text3)">결과 없음</td></tr>';
+  renderPharmPaging();
+}
+
+/* ── 페이지네이션 ── */
+function renderPharmPaging() {
+  var totalPg = Math.ceil(pharmItems.length / PHARM_PG_SZ);
+  var el = document.getElementById('pharmPagination');
+  if (totalPg <= 1) { el.innerHTML = ''; return; }
+  var bs = 'padding:6px 12px;border:1px solid var(--border);border-radius:6px;background:var(--surface);cursor:pointer;font-family:inherit;font-size:13px;';
+  var as = 'padding:6px 12px;border:1px solid var(--primary);border-radius:6px;background:var(--primary);color:#fff;cursor:default;font-family:inherit;font-size:13px;';
+  var html = '<button style="' + bs + '" onclick="goPharmPg(' + (pharmCurPg-1) + ')"' + (pharmCurPg===1?' disabled':'') + '>◀</button>';
+  var shown = {}, pages = [];
+  for (var p = 1; p <= Math.min(3,totalPg); p++) shown[p]=1;
+  for (var p = Math.max(1,pharmCurPg-2); p <= Math.min(totalPg,pharmCurPg+2); p++) shown[p]=1;
+  for (var p = Math.max(1,totalPg-2); p <= totalPg; p++) shown[p]=1;
+  for (var k in shown) pages.push(parseInt(k));
+  pages.sort(function(a,b){return a-b;});
+  var prev = 0;
+  for (var i = 0; i < pages.length; i++) {
+    var pg = pages[i];
+    if (prev && pg - prev > 1) html += '<span style="padding:0 4px;color:var(--text3)">…</span>';
+    html += '<button onclick="goPharmPg('+pg+')" style="'+(pg===pharmCurPg?as:bs)+'">'+pg+'</button>';
+    prev = pg;
+  }
+  html += '<button style="'+bs+'" onclick="goPharmPg('+(pharmCurPg+1)+')"'+(pharmCurPg===totalPg?' disabled':'')+'>▶</button>';
+  html += '<span style="font-size:12px;color:var(--text3);margin-left:8px">'+pharmCurPg+' / '+totalPg+'페이지 (총 '+pharmItems.length+'건)</span>';
+  el.innerHTML = html;
+}
+
+function goPharmPg(pg) {
+  var totalPg = Math.ceil(pharmItems.length / PHARM_PG_SZ);
+  if (pg < 1 || pg > totalPg) return;
+  pharmCurPg = pg;
+  document.getElementById('pharmDetail').style.display = 'none';
+  renderPharmTable();
+  document.getElementById('pharmTable').scrollIntoView({ behavior:'smooth', block:'nearest' });
+}
+
+/* ── 검색 ── */
+function searchPharm() {
+  var q    = document.getElementById('pharmQ').value.trim();
+  var sido = document.getElementById('pharmSido').value;
+  if (!q) { alert('약국명을 입력해주세요.'); return; }
+
+  var btn = document.getElementById('pharmBtn');
+  btn.disabled = true; btn.textContent = '검색 중...';
+  document.getElementById('pharmDetail').style.display = 'none';
+  document.getElementById('pharmMsg').style.display = 'none';
+  document.getElementById('pharmResultWrap').style.display = 'block';
+  document.getElementById('pharmTableBody').innerHTML =
+    '<tr><td colspan="4" style="text-align:center;padding:32px"><span class="spinner"></span> 조회 중...</td></tr>';
+
+  var params = { yadmNm: q };
+  if (sido) params.sidoCd = sido;
+
+  fetchPharm(params, 100).then(function(result) {
+    pharmItems  = result.items || [];
+    pharmCurPg  = 1;
+    var msg     = document.getElementById('pharmMsg');
+    msg.style.display = 'block';
+
+    if (result.error) {
+      msg.textContent = '오류: ' + result.error;
+      msg.style.cssText = 'display:block;padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:14px;background:#fef2f2;color:#dc2626;border:1px solid #fca5a5';
+      document.getElementById('pharmTableBody').innerHTML = '<tr><td colspan="4" style="text-align:center;padding:32px;color:var(--danger)">조회 실패</td></tr>';
+    } else if (!pharmItems.length) {
+      msg.textContent = '검색 결과가 없습니다.';
+      msg.style.cssText = 'display:block;padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:14px;background:#fff7ed;color:#9a3412;border:1px solid #fed7aa';
+      document.getElementById('pharmTableBody').innerHTML = '<tr><td colspan="4" style="text-align:center;padding:32px;color:var(--text3)">결과 없음</td></tr>';
+    } else {
+      msg.textContent = '총 ' + result.total.toLocaleString() + '건 · ' + pharmItems.length + '건 표시. 클릭하면 상세 정보를 확인합니다.';
+      msg.style.cssText = 'display:block;padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:14px;background:#f0fdf4;color:#166534;border:1px solid #bbf7d0';
+      document.getElementById('pharmResultTitle').textContent = '"' + esc(q) + '" 검색 결과';
+      document.getElementById('pharmResultSub').textContent = pharmItems.length + '건';
+      renderPharmTable();
+    }
+    btn.disabled = false; btn.textContent = '검색';
+  });
+}
+
+function clearPharmResult() {
+  document.getElementById('pharmResultWrap').style.display = 'none';
+  document.getElementById('pharmMsg').style.display = 'none';
+  document.getElementById('pharmQ').value = '';
+  pharmItems = [];
+}
+
+/* ── 상세 패널 ── */
+function showPharmDetail(it, trEl) {
+  var trs = document.querySelectorAll('#pharmTable tbody tr');
+  for (var r = 0; r < trs.length; r++) trs[r].style.background = '';
+  if (trEl) trEl.style.background = 'var(--hover)';
+
+  var nm      = esc(it.yadmNm    || '-');
+  var addr    = esc(it.addr      || '-');
+  var tel     = esc(it.telno     || '-');
+  var yk      = esc(it.ykiho     || '-');
+  var sido    = esc(it.sidoCdNm  || '');
+  var sggu    = esc(it.sgguCdNm  || '');
+  var dong    = esc(it.emdongNm  || '');
+  var estb    = fmtDate(it.estbDd|| '');
+  var xPos    = it.XPos || it.xPos || '';
+  var yPos    = it.YPos || it.yPos || '';
+
+  var kakaoUrl = 'https://map.kakao.com/?q=' + encodeURIComponent((addr || '') + ' ' + (it.yadmNm || ''));
+  var naverUrl = '';
+  if (xPos && yPos) {
+    naverUrl = 'https://map.naver.com/?query=' + encodeURIComponent(it.yadmNm || '');
+  }
+
+  function row(label, val) {
+    if (!val || val === '-' || val === '') return '';
+    return '<div style="padding:11px 18px;border-bottom:1px solid var(--border)">'
+      + '<div style="font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--text3);margin-bottom:4px">' + label + '</div>'
+      + '<div style="font-size:13px;font-weight:600">' + val + '</div></div>';
+  }
+
+  var html =
+    '<div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:var(--hover);border-bottom:1px solid var(--border)">'
+    + '<div>'
+    +   '<div style="font-size:16px;font-weight:700">💊 ' + nm + '</div>'
+    +   '<div style="font-size:12px;color:var(--text2);margin-top:2px">' + (sido?sido+' ':'') + (sggu?sggu+' ':'') + dong + '</div>'
+    + '</div>'
+    + '<button onclick="closePharmPanel()" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:16px;padding:4px 8px">닫기 ✕</button>'
+    + '</div>'
+    + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:0">'
+    + '<div style="border-right:1px solid var(--border)">'
+    +   row('약국명', nm)
+    +   row('주소', addr)
+    +   row('전화번호', tel)
+    +   row('개설일자', estb)
+    + '</div>'
+    + '<div>'
+    +   '<div style="padding:10px 18px 6px;font-size:11px;font-weight:700;color:var(--primary);border-bottom:1px solid var(--border)">🏷️ 요양기호</div>'
+    +   '<div style="padding:12px 18px;font-size:11px;font-family:monospace;color:var(--text2);word-break:break-all;line-height:1.6">' + yk + '</div>'
+    + '</div>'
+    + '</div>'
+    + '<div style="padding:12px 20px;display:flex;gap:14px;flex-wrap:wrap;border-top:1px solid var(--border)">'
+    + '<a href="' + kakaoUrl + '" target="_blank" style="font-size:12px;color:var(--primary);font-weight:500;text-decoration:none">🗺️ 카카오맵 →</a>'
+    + '</div>';
+
+  var panel = document.getElementById('pharmDetail');
+  panel.innerHTML = html;
+  panel.style.display = 'block';
+  setTimeout(function() { panel.scrollIntoView({ behavior:'smooth', block:'nearest' }); }, 50);
+}
+
+function closePharmPanel() {
+  document.getElementById('pharmDetail').style.display = 'none';
+}
 
 
 window.onload = function() {
