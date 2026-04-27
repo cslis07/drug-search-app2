@@ -2193,7 +2193,6 @@ function showHospDetail(it, trEl) {
   var estb     = fmtDate(it.estbDd || '');
   var drTot    = esc(it.drTotCnt  || '');
   var hospUrl  = esc(it.hospUrl   || '');
-  var autoCheck = document.getElementById('hospAutoYkiho').checked;
 
   var kakaoUrl = 'https://map.kakao.com/?q=' + encodeURIComponent((it.addr || '') + ' ' + (it.yadmNm || ''));
   var hiraUrl  = 'https://www.hira.or.kr/ra/hosp/getHospList.do?yadmNm=' + encodeURIComponent(it.yadmNm || '');
@@ -2207,11 +2206,14 @@ function showHospDetail(it, trEl) {
       + '</div>';
   }
 
-  var bizHtml = autoCheck
-    ? '<div style="padding:16px 18px;text-align:center"><span class="spinner"></span>'
-      + '<div style="font-size:12px;color:var(--text3);margin-top:6px">조회 중...</div></div>'
-    : '<div style="padding:14px 18px;font-size:12px;color:var(--text3)">'
-      + '자동 조회 비활성화<br><a href="' + biznoUrl + '" target="_blank" style="color:var(--primary)">비즈노 →</a></div>';
+  var bizHtml = '<div style="padding:20px 18px;text-align:center">'
+    + '<div style="font-size:12px;color:var(--text3);margin-bottom:14px;line-height:1.7">'
+    + '사업자 정보는<br>비즈노에서 확인하세요</div>'
+    + '<a href="' + biznoUrl + '" target="_blank" '
+    + 'style="display:inline-flex;align-items:center;gap:6px;padding:9px 16px;'
+    + 'background:var(--primary);color:#fff;border-radius:8px;'
+    + 'font-size:13px;font-weight:600;text-decoration:none">'
+    + '📋 비즈노에서 확인 →</a></div>';
 
   var html =
     '<div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:var(--hover);border-bottom:1px solid var(--border)">'
@@ -2250,47 +2252,36 @@ function closeHospPanel() {
   document.getElementById('hospDetail').style.display = 'none';
 }
 
-/* ── 사업자 정보 (Vercel API Route 프록시)
-   /api/biz?company=병원명 → Vercel 서버 → bizno.net
-   CORS 없이 서버사이드에서 조회
-── */
+/* ── 사업자 정보 (비즈노 직접 링크) ── */
 function fetchHospBiz(hospNm, fallbackUrl) {
   var box   = document.getElementById('hospBizBox');
   var inner = box ? box.querySelector('div:last-child') : null;
   if (!inner) return;
 
-  /* 5초 타임아웃 설정 */
-  var controller = new AbortController();
-  var timer = setTimeout(function() { controller.abort(); }, 5000);
-
-  fetch('/api/biz?company=' + encodeURIComponent(hospNm), { signal: controller.signal })
-    .then(function(r) {
-      clearTimeout(timer);
-      if (!r.ok) throw new Error('HTTP ' + r.status);
-      return r.json();
-    })
-    .then(function(j) {
-      /* 최신 inner 참조 */
-      var b = document.getElementById('hospBizBox');
-      var el = b ? b.querySelector('div:last-child') : null;
-      if (el) renderBizInfo(j, el, fallbackUrl);
-    })
-    .catch(function(e) {
-      clearTimeout(timer);
-      console.warn('[bizno]', e.message);
-      var b = document.getElementById('hospBizBox');
-      var el = b ? b.querySelector('div:last-child') : null;
-      if (el) renderBizFallback(el, fallbackUrl);
-    });
+  inner.innerHTML =
+    '<div style="padding:20px 18px;text-align:center">'
+    + '<div style="font-size:12px;color:var(--text3);margin-bottom:14px;line-height:1.7">'
+    + '사업자 정보는<br>비즈노에서 확인하세요</div>'
+    + '<a href="' + fallbackUrl + '" target="_blank" '
+    + 'style="display:inline-flex;align-items:center;gap:6px;padding:9px 16px;'
+    + 'background:var(--primary);color:#fff;border-radius:8px;'
+    + 'font-size:13px;font-weight:600;text-decoration:none">'
+    + '📋 비즈노에서 확인 →</a>'
+    + '</div>';
 }
 
 function renderBizInfo(j, inner, fallbackUrl) {
+  /* bizno fapi 실제 응답 필드:
+     bno(사업자번호), cno(법인번호), company(회사명),
+     BSttCd(상태코드), bstt(상태명칭), TaxTypeCd(과세코드),
+     taxtype(과세유형명칭), EndDt(폐업일YYYYMMDD) */
   var items = [];
-  if (j && j.items)     items = Array.isArray(j.items) ? j.items : [j.items];
-  else if (j && j.item) items = Array.isArray(j.item)  ? j.item  : [j.item];
+  if (j && Array.isArray(j.items))      items = j.items;
+  else if (j && j.items && j.items.item) items = Array.isArray(j.items.item) ? j.items.item : [j.items.item];
+  else if (j && j.item)                  items = Array.isArray(j.item) ? j.item : [j.item];
   var it = items.length ? items[0] : null;
 
-  if (!it || (!it.bno && !it.bzno)) {
+  if (!it || !it.bno) {
     renderBizFallback(inner, fallbackUrl);
     return;
   }
@@ -2300,13 +2291,17 @@ function renderBizInfo(j, inner, fallbackUrl) {
       + '<div style="font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--text3);margin-bottom:4px">' + label + '</div>'
       + '<div style="font-size:13px;font-weight:600">' + esc(val) + '</div></div>';
   }
-  var sMap = {'01':'계속사업자','02':'폐업자','03':'휴업자'};
+  /* 폐업일 포맷: YYYYMMDD → YYYY.MM.DD */
+  var endDt = '';
+  if (it.EndDt && it.EndDt.length === 8) {
+    endDt = it.EndDt.substring(0,4) + '.' + it.EndDt.substring(4,6) + '.' + it.EndDt.substring(6,8);
+  }
   inner.innerHTML =
-      brow('사업자번호', it.bno  || it.bzno || '')
-    + brow('법인번호',   it.cno  || '')
-    + brow('과세유형',   it.taxtype || it.taxTypeCd || '')
-    + brow('사업자상태', sMap[it.statusCd] || it.bum || '')
-    + brow('폐업일',     it.EndDt || '');
+      brow('사업자번호', it.bno)
+    + brow('법인번호',   it.cno || '')
+    + brow('과세유형',   it.taxtype || '')
+    + brow('사업자상태', it.bstt || '')
+    + brow('폐업일',     endDt);
 }
 
 function renderBizFallback(inner, fallbackUrl) {
