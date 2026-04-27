@@ -2259,11 +2259,29 @@ function fetchHospBiz(hospNm, fallbackUrl) {
   var inner = box ? box.querySelector('div:last-child') : null;
   if (!inner) return;
 
-  /* Vercel 서버리스 함수 호출 */
-  fetch('/api/biz?company=' + encodeURIComponent(hospNm))
-    .then(function(r) { return r.json(); })
-    .then(function(j) { renderBizInfo(j, inner, fallbackUrl); })
-    .catch(function()  { renderBizFallback(inner, fallbackUrl); });
+  /* 5초 타임아웃 설정 */
+  var controller = new AbortController();
+  var timer = setTimeout(function() { controller.abort(); }, 5000);
+
+  fetch('/api/biz?company=' + encodeURIComponent(hospNm), { signal: controller.signal })
+    .then(function(r) {
+      clearTimeout(timer);
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    })
+    .then(function(j) {
+      /* 최신 inner 참조 */
+      var b = document.getElementById('hospBizBox');
+      var el = b ? b.querySelector('div:last-child') : null;
+      if (el) renderBizInfo(j, el, fallbackUrl);
+    })
+    .catch(function(e) {
+      clearTimeout(timer);
+      console.warn('[bizno]', e.message);
+      var b = document.getElementById('hospBizBox');
+      var el = b ? b.querySelector('div:last-child') : null;
+      if (el) renderBizFallback(el, fallbackUrl);
+    });
 }
 
 function renderBizInfo(j, inner, fallbackUrl) {
