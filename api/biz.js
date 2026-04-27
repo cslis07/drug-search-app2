@@ -1,4 +1,5 @@
 // api/biz.js - bizno.net 프록시 함수
+// 상호명 검색: gb 파라미터 없이 q만 사용
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -10,28 +11,25 @@ export default async function handler(req, res) {
 
   const BIZNO_KEY = 'IcbnGhSMGT9rEc5OKTzrlTBoIwdN';
 
-  /* bizno fapi 파라미터: txt 또는 cmpnm 으로 상호명 검색 */
-  const params = new URLSearchParams({
-    key:     BIZNO_KEY,
-    type:    'json',
-    pagecnt: '1',
-    cmpnm:   company   /* 상호명 검색 파라미터 */
-  });
+  // 상호명 검색: gb 없이 q=검색어만 사용
+  const url = 'https://bizno.net/api/fapi'
+    + '?key=' + BIZNO_KEY
+    + '&q=' + encodeURIComponent(company)
+    + '&type=json'
+    + '&pagecnt=1';
 
-  const url = `https://bizno.net/api/fapi?${params.toString()}`;
+  console.log('[biz.js] URL:', url);
 
   try {
     const response = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' } });
     const text = await response.text();
-    console.log('[biz.js] URL:', url);
-    console.log('[biz.js] 응답:', text.substring(0, 200));
-
+    console.log('[biz.js] 응답:', text.substring(0, 300));
     try {
       return res.status(200).json(JSON.parse(text));
     } catch {
-      return res.status(200).send(text);
+      return res.status(200).json({ raw: text });
     }
   } catch (err) {
-    return res.status(500).json({ error: '조회 실패', detail: err.message });
+    return res.status(500).json({ error: err.message });
   }
 }
