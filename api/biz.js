@@ -2,9 +2,12 @@
 // Vercel 서버에서 bizno.net을 호출해서 CORS 문제 우회
 
 export default async function handler(req, res) {
-  // CORS 헤더 설정 (브라우저에서 이 함수를 호출할 수 있게)
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
 
   const { company } = req.query;
 
@@ -16,9 +19,23 @@ export default async function handler(req, res) {
   const url = `https://bizno.net/api/fapi?key=${BIZNO_KEY}&company=${encodeURIComponent(company)}&type=json&pagecnt=1`;
 
   try {
-    const response = await fetch(url);
-    const data = await response.json();
-    return res.status(200).json(data);
+    const response = await fetch(url, {
+      headers: { 'User-Agent': 'Mozilla/5.0' }
+    });
+
+    if (!response.ok) {
+      return res.status(502).json({ error: 'bizno 응답 오류', status: response.status });
+    }
+
+    const text = await response.text();
+
+    try {
+      const data = JSON.parse(text);
+      return res.status(200).json(data);
+    } catch (e) {
+      return res.status(200).send(text);
+    }
+
   } catch (err) {
     return res.status(500).json({ error: '조회 실패', detail: err.message });
   }
