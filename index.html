@@ -726,6 +726,23 @@ td.mono { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(
   #hospDetail > div:nth-child(2) { grid-template-columns: 1fr !important; }
   #hospDetail > div:nth-child(2) > div:first-child { border-right: none !important; border-bottom: 1px solid var(--border); }
 }
+
+/* ─── Sub Tab ───────────────────────────────── */
+.sub-tab-bar {
+  display: flex; gap: 6px; flex-wrap: wrap;
+  padding: 0 0 20px; border-bottom: 1px solid var(--border); margin-bottom: 24px;
+}
+.sub-tab {
+  padding: 8px 18px; border-radius: 20px; font-size: 13px; font-weight: 600;
+  border: 1.5px solid var(--border); background: var(--surface);
+  color: var(--text2); cursor: pointer; font-family: inherit;
+}
+.sub-tab:hover { border-color: var(--primary); color: var(--primary); }
+.sub-tab.on { border-color: var(--primary); background: var(--primary); color: #fff; }
+@media (max-width: 640px) {
+  .sub-tab { padding: 7px 14px; font-size: 12px; }
+}
+
 </style>
 </head>
 <body>
@@ -764,34 +781,27 @@ td.mono { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(
 
   <!-- 탭 -->
   <div class="tab-row">
-    <button class="tab-btn on" id="btnSingle" onclick="setTab('single')">
-      <span class="tab-icon">🔍</span> 단건 검색
+    <button class="tab-btn on" id="btnSearch" onclick="setTab('search')">
+      <span class="tab-icon">🔍</span> 의약품 검색
     </button>
-    <button class="tab-btn" id="btnBulk" onclick="setTab('bulk')">
-      <span class="tab-icon">📂</span> 엑셀 일괄 조회
+    <button class="tab-btn" id="btnSafety" onclick="setTab('safety')">
+      <span class="tab-icon">⚠️</span> 안전정보
     </button>
-    <button class="tab-btn" id="btnRecall" onclick="setTab('recall')">
-      <span class="tab-icon">🚨</span> 회수·폐기 확인
+    <button class="tab-btn" id="btnMedical" onclick="setTab('medical')">
+      <span class="tab-icon">🏥</span> 의료기관
     </button>
-    <button class="tab-btn" id="btnHosp" onclick="setTab('hosp')">
-      <span class="tab-icon">🏥</span> 병의원 검색
-    </button>
-    <button class="tab-btn" id="btnPharm" onclick="setTab('pharm')">
-      <span class="tab-icon">💊</span> 약국 검색
-    </button>
-    <button class="tab-btn" id="btnAdmin" onclick="setTab('admin')">
-      <span class="tab-icon">⚖️</span> 행정처분
-    </button>
-    <button class="tab-btn" id="btnLicense" onclick="setTab('license')">
-      <span class="tab-icon">📄</span> 허가정보
-    </button>
-    <button class="tab-btn" id="btnDur" onclick="setTab('dur')">
-      <span class="tab-icon">⚕️</span> DUR 안전정보
+    <button class="tab-btn" id="btnInfo" onclick="setTab('info')">
+      <span class="tab-icon">📋</span> 의약품 정보
     </button>
   </div>
 
-  <!-- 단건 검색 탭 -->
-  <div class="tab on" id="tab-single">
+  <!-- ══ 의약품 검색 탭 ══ -->
+  <div class="tab on" id="tab-search">
+    <div class="sub-tab-bar">
+      <button class="sub-tab" data-parent="search" data-sub="single" onclick="setSubTab('search','single')">🔍 단건 검색</button>
+      <button class="sub-tab" data-parent="search" data-sub="bulk" onclick="setSubTab('search','bulk')">📂 엑셀 일괄 조회</button>
+      </div>
+    <div class="sub-content" data-parent="search" data-sub="single" style="display:none">
     <div class="search-card">
       <div class="search-row">
         <input class="sinput" id="q"
@@ -801,10 +811,9 @@ td.mono { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(
       </div>
     </div>
     <div id="result"></div>
-  </div>
-
-  <!-- 엑셀 일괄 조회 탭 -->
-  <div class="tab" id="tab-bulk">
+  
+    </div>
+    <div class="sub-content" data-parent="search" data-sub="bulk" style="display:none">
     <div class="excel-card">
       <div class="drop-zone" id="dropZone">
         <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" onchange="onFile(event)">
@@ -829,11 +838,17 @@ td.mono { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(
       <div class="prog-bar"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
     </div>
     <div id="bulkResult"></div>
+  
+    </div>
   </div>
 
-
-  <!-- ── 회수·판매중지 확인 탭 ── -->
-  <div class="tab" id="tab-recall">
+  <!-- ══ 안전정보 탭 ══ -->
+  <div class="tab" id="tab-safety">
+    <div class="sub-tab-bar">
+      <button class="sub-tab" data-parent="safety" data-sub="recall" onclick="setSubTab('safety','recall')">🚨 회수·판매중지</button>
+      <button class="sub-tab" data-parent="safety" data-sub="admin" onclick="setSubTab('safety','admin')">⚖️ 행정처분</button>
+      </div>
+    <div class="sub-content" data-parent="safety" data-sub="recall" style="display:none">
 
     <div class="recall-notice">
       ⚠️ <span><strong>식약처 의약품 회수·판매중지 정보</strong> — 회수명령·자진회수·판매중지 품목을 조회합니다.
@@ -930,11 +945,55 @@ td.mono { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(
     </div>
     <div id="recallBulkResult"></div>
 
-  </div><!-- /tab-recall -->
+  
+    </div>
+    <div class="sub-content" data-parent="safety" data-sub="admin" style="display:none">
+    <div style="margin-bottom:20px">
+      <div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:4px">의약품 행정처분 조회</div>
+      <div style="font-size:13px;color:var(--text3)">식약처 의약품 행정처분 정보 — 제품명 또는 업체명으로 검색하세요.</div>
+    </div>
+    <div class="search-card">
+      <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap">
+        <div style="flex:1;min-width:160px">
+          <div style="font-size:11px;font-weight:600;color:var(--text3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.6px">제품명</div>
+          <input class="sinput" id="adminItemQ" placeholder="제품명 (예: 타이레놀)"
+            onkeydown="if(event.key==='Enter')searchAdmin()" style="height:44px">
+        </div>
+        <div style="flex:1;min-width:160px">
+          <div style="font-size:11px;font-weight:600;color:var(--text3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.6px">업체명</div>
+          <input class="sinput" id="adminEntpQ" placeholder="업체명 (예: 한국얀센)"
+            onkeydown="if(event.key==='Enter')searchAdmin()" style="height:44px">
+        </div>
+        <button class="btn btn-primary" onclick="searchAdmin()" id="adminBtn" style="height:44px;padding:0 24px">검색</button>
+        <button class="btn btn-ghost" onclick="loadAdminRecent()" style="height:44px;white-space:nowrap">📋 최근 처분</button>
+      </div>
+    </div>
+    <div id="adminMsg" style="display:none;padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:14px"></div>
+    <div id="adminResultWrap" style="display:none">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+        <div><div class="recent-title" id="adminResultTitle">결과</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:2px" id="adminResultSub"></div></div>
+        <button class="btn btn-ghost btn-sm" onclick="clearAdminResult()">← 검색창으로</button>
+      </div>
+      <div class="tbl-wrap-outer"><div class="tbl-scroll">
+        <table id="adminTable">
+          <thead><tr><th>제품명</th><th style="width:130px">업소명</th><th>행정처분명</th><th style="width:96px">처분일자</th><th style="width:96px">공개종료일</th></tr></thead>
+          <tbody id="adminTableBody"><tr><td colspan="5" style="text-align:center;padding:32px;color:var(--text3)">검색어를 입력하거나 최근 처분을 조회하세요.</td></tr></tbody>
+        </table>
+      </div></div>
+      <div id="adminPagination" style="display:flex;justify-content:center;align-items:center;gap:6px;margin-top:14px;flex-wrap:wrap"></div>
+      <div id="adminDetail" style="display:none;margin-top:16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--shadow)"></div>
+    </div>
+    </div>
+  </div>
 
-
-  <!-- ── 병의원 통합 검색 탭 ── -->
-  <div class="tab" id="tab-hosp">
+  <!-- ══ 의료기관 탭 ══ -->
+  <div class="tab" id="tab-medical">
+    <div class="sub-tab-bar">
+      <button class="sub-tab" data-parent="medical" data-sub="hosp" onclick="setSubTab('medical','hosp')">🏥 병의원</button>
+      <button class="sub-tab" data-parent="medical" data-sub="pharm" onclick="setSubTab('medical','pharm')">💊 약국</button>
+      </div>
+    <div class="sub-content" data-parent="medical" data-sub="hosp" style="display:none">
 
     <div style="margin-bottom:20px">
       <div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:4px">병의원 통합 검색기</div>
@@ -1005,37 +1064,27 @@ td.mono { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(
       <div id="hospPagination" style="display:flex;justify-content:center;align-items:center;gap:6px;margin-top:14px;flex-wrap:wrap"></div>
     </div>
 
-  </div><!-- /tab-hosp -->
-  <!-- ── 약국 검색 탭 ── -->
-  <div class="tab" id="tab-pharm">
-
+  
+    </div>
+    <div class="sub-content" data-parent="medical" data-sub="pharm" style="display:none">
     <div style="margin-bottom:20px">
       <div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:4px">약국 검색</div>
       <div style="font-size:13px;color:var(--text3)">심평원 약국기본목록 — 약국명·주소·전화번호·요양기호를 확인하세요.</div>
     </div>
-
     <div class="search-card">
       <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap">
         <div>
           <div style="font-size:11px;font-weight:600;color:var(--text3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.6px">지역</div>
           <select id="pharmSido" style="height:44px;padding:0 32px 0 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;color:var(--text);background:var(--surface);cursor:pointer;appearance:auto;min-width:120px">
             <option value="">전체 지역</option>
-            <option value="110000">서울</option>
-            <option value="210000">부산</option>
-            <option value="220000">대구</option>
-            <option value="230000">인천</option>
-            <option value="240000">광주</option>
-            <option value="250000">대전</option>
-            <option value="260000">울산</option>
-            <option value="290000">세종</option>
-            <option value="310000">경기</option>
-            <option value="320000">강원</option>
-            <option value="330000">충북</option>
-            <option value="340000">충남</option>
-            <option value="350000">전북</option>
-            <option value="360000">전남</option>
-            <option value="370000">경북</option>
-            <option value="380000">경남</option>
+            <option value="110000">서울</option><option value="210000">부산</option>
+            <option value="220000">대구</option><option value="230000">인천</option>
+            <option value="240000">광주</option><option value="250000">대전</option>
+            <option value="260000">울산</option><option value="290000">세종</option>
+            <option value="310000">경기</option><option value="320000">강원</option>
+            <option value="330000">충북</option><option value="340000">충남</option>
+            <option value="350000">전북</option><option value="360000">전남</option>
+            <option value="370000">경북</option><option value="380000">경남</option>
             <option value="390000">제주</option>
           </select>
         </div>
@@ -1047,114 +1096,36 @@ td.mono { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(
         <button class="btn btn-primary" onclick="searchPharm()" id="pharmBtn" style="height:44px;padding:0 24px">검색</button>
       </div>
     </div>
-
     <div id="pharmMsg" style="display:none;padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:14px"></div>
-
     <div id="pharmResultWrap" style="display:none">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
-        <div>
-          <div class="recent-title" id="pharmResultTitle">결과</div>
-          <div style="font-size:11px;color:var(--text3);margin-top:2px" id="pharmResultSub"></div>
-        </div>
+        <div><div class="recent-title" id="pharmResultTitle">결과</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:2px" id="pharmResultSub"></div></div>
         <button class="btn btn-ghost btn-sm" onclick="clearPharmResult()">← 검색창으로</button>
       </div>
-
-      <!-- 테이블 -->
-      <div class="tbl-wrap-outer">
-        <div class="tbl-scroll">
-          <table id="pharmTable">
-            <thead>
-              <tr>
-                <th>약국명</th>
-                <th>주소</th>
-                <th style="width:110px">전화번호</th>
-                <th style="width:110px">요양기호</th>
-              </tr>
-            </thead>
-            <tbody id="pharmTableBody">
-              <tr><td colspan="4" style="text-align:center;padding:32px;color:var(--text3)">
-                검색어를 입력하세요.
-              </td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <div class="tbl-wrap-outer"><div class="tbl-scroll">
+        <table id="pharmTable">
+          <thead><tr><th>약국명</th><th>주소</th><th style="width:110px">전화번호</th><th style="width:110px">요양기호</th></tr></thead>
+          <tbody id="pharmTableBody"><tr><td colspan="4" style="text-align:center;padding:32px;color:var(--text3)">검색어를 입력하세요.</td></tr></tbody>
+        </table>
+      </div></div>
       <div id="pharmPagination" style="display:flex;justify-content:center;align-items:center;gap:6px;margin-top:14px;flex-wrap:wrap"></div>
-
-      <!-- 상세 패널 -->
       <div id="pharmDetail" style="display:none;margin-top:16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--shadow)"></div>
     </div>
-
-  </div><!-- /tab-pharm -->
-  <!-- ── 의약품 행정처분 탭 ── -->
-  <div class="tab" id="tab-admin">
-
-    <div style="margin-bottom:20px">
-      <div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:4px">의약품 행정처분 조회</div>
-      <div style="font-size:13px;color:var(--text3)">식약처 의약품 행정처분 정보 — 제품명 또는 업체명으로 검색하세요.</div>
     </div>
+  </div>
 
-    <div class="search-card">
-      <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap">
-        <div style="flex:1;min-width:160px">
-          <div style="font-size:11px;font-weight:600;color:var(--text3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.6px">제품명</div>
-          <input class="sinput" id="adminItemQ" placeholder="제품명 (예: 타이레놀)"
-            onkeydown="if(event.key==='Enter')searchAdmin()" style="height:44px">
-        </div>
-        <div style="flex:1;min-width:160px">
-          <div style="font-size:11px;font-weight:600;color:var(--text3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.6px">업체명</div>
-          <input class="sinput" id="adminEntpQ" placeholder="업체명 (예: 한국얀센)"
-            onkeydown="if(event.key==='Enter')searchAdmin()" style="height:44px">
-        </div>
-        <button class="btn btn-primary" onclick="searchAdmin()" id="adminBtn" style="height:44px;padding:0 24px">검색</button>
-        <button class="btn btn-ghost" onclick="loadAdminRecent()" style="height:44px;white-space:nowrap">📋 최근 처분</button>
+  <!-- ══ 의약품 정보 탭 ══ -->
+  <div class="tab" id="tab-info">
+    <div class="sub-tab-bar">
+      <button class="sub-tab" data-parent="info" data-sub="license" onclick="setSubTab('info','license')">📄 허가정보</button>
+      <button class="sub-tab" data-parent="info" data-sub="dur" onclick="setSubTab('info','dur')">⚕️ DUR 안전정보</button>
       </div>
-    </div>
-
-    <div id="adminMsg" style="display:none;padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:14px"></div>
-
-    <div id="adminResultWrap" style="display:none">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
-        <div>
-          <div class="recent-title" id="adminResultTitle">결과</div>
-          <div style="font-size:11px;color:var(--text3);margin-top:2px" id="adminResultSub"></div>
-        </div>
-        <button class="btn btn-ghost btn-sm" onclick="clearAdminResult()">← 검색창으로</button>
-      </div>
-
-      <div class="tbl-wrap-outer">
-        <div class="tbl-scroll">
-          <table id="adminTable">
-            <thead>
-              <tr>
-                <th>제품명</th>
-                <th style="width:130px">업소명</th>
-                <th>행정처분명</th>
-                <th style="width:96px">처분일자</th>
-                <th style="width:96px">공개종료일</th>
-              </tr>
-            </thead>
-            <tbody id="adminTableBody">
-              <tr><td colspan="5" style="text-align:center;padding:32px;color:var(--text3)">검색어를 입력하거나 최근 처분을 조회하세요.</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-      <div id="adminPagination" style="display:flex;justify-content:center;align-items:center;gap:6px;margin-top:14px;flex-wrap:wrap"></div>
-
-      <!-- 상세 패널 -->
-      <div id="adminDetail" style="display:none;margin-top:16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--shadow)"></div>
-    </div>
-
-  </div><!-- /tab-admin -->
-  <!-- ── 의약품 허가정보 탭 ── -->
-  <div class="tab" id="tab-license">
-
+    <div class="sub-content" data-parent="info" data-sub="license" style="display:none">
     <div style="margin-bottom:20px">
       <div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:4px">의약품 허가정보 조회</div>
       <div style="font-size:13px;color:var(--text3)">식약처 의약품 제품 허가정보 — 제품명·업체명으로 검색하세요.</div>
     </div>
-
     <div class="search-card">
       <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap">
         <div style="flex:1;min-width:160px">
@@ -1170,50 +1141,28 @@ td.mono { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(
         <button class="btn btn-primary" onclick="searchLicense()" id="licBtn" style="height:44px;padding:0 24px">검색</button>
       </div>
     </div>
-
     <div id="licMsg" style="display:none;padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:14px"></div>
-
     <div id="licResultWrap" style="display:none">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
-        <div>
-          <div class="recent-title" id="licResultTitle">결과</div>
-          <div style="font-size:11px;color:var(--text3);margin-top:2px" id="licResultSub"></div>
-        </div>
+        <div><div class="recent-title" id="licResultTitle">결과</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:2px" id="licResultSub"></div></div>
         <button class="btn btn-ghost btn-sm" onclick="clearLicResult()">← 검색창으로</button>
       </div>
-
-      <div class="tbl-wrap-outer">
-        <div class="tbl-scroll">
-          <table id="licTable">
-            <thead>
-              <tr>
-                <th>제품명</th>
-                <th style="width:150px">업체명</th>
-                <th style="width:80px">제형</th>
-                <th style="width:100px">허가(변경)일</th>
-                <th style="width:100px">품목기준코드</th>
-              </tr>
-            </thead>
-            <tbody id="licTableBody">
-              <tr><td colspan="5" style="text-align:center;padding:32px;color:var(--text3)">검색어를 입력하세요.</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <div class="tbl-wrap-outer"><div class="tbl-scroll">
+        <table id="licTable">
+          <thead><tr><th>제품명</th><th style="width:150px">업체명</th><th style="width:80px">제형</th><th style="width:100px">허가(변경)일</th><th style="width:100px">품목기준코드</th></tr></thead>
+          <tbody id="licTableBody"><tr><td colspan="5" style="text-align:center;padding:32px;color:var(--text3)">검색어를 입력하세요.</td></tr></tbody>
+        </table>
+      </div></div>
       <div id="licPagination" style="display:flex;justify-content:center;align-items:center;gap:6px;margin-top:14px;flex-wrap:wrap"></div>
       <div id="licDetail" style="display:none;margin-top:16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--shadow)"></div>
     </div>
-
-  </div><!-- /tab-license -->
-  <!-- ── DUR 안전정보 탭 ── -->
-  <div class="tab" id="tab-dur">
-
+    </div>
+    <div class="sub-content" data-parent="info" data-sub="dur" style="display:none">
     <div style="margin-bottom:20px">
       <div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:4px">DUR 안전정보 조회</div>
       <div style="font-size:13px;color:var(--text3)">의약품 안전사용서비스(DUR) — 병용금기·임부금기·노인주의 등을 확인하세요.</div>
     </div>
-
-    <!-- 검색 영역 -->
     <div class="search-card">
       <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap">
         <div style="flex:1;min-width:200px">
@@ -1240,28 +1189,17 @@ td.mono { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(
         <strong>노인주의</strong>: 노인 복용 시 주의
       </div>
     </div>
-
     <div id="durMsg" style="display:none;padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:14px"></div>
-
-    <!-- 결과 영역 -->
     <div id="durResultWrap" style="display:none">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
-        <div>
-          <div class="recent-title" id="durResultTitle">결과</div>
-          <div style="font-size:11px;color:var(--text3);margin-top:2px" id="durResultSub"></div>
-        </div>
+        <div><div class="recent-title" id="durResultTitle">결과</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:2px" id="durResultSub"></div></div>
         <button class="btn btn-ghost btn-sm" onclick="clearDurResult()">← 검색창으로</button>
       </div>
-
-      <!-- DUR 카테고리별 결과 -->
       <div id="durSections"></div>
     </div>
-
-  </div><!-- /tab-dur -->
-
-
-
-
+    </div>
+  </div>
 
 </div><!-- /wrap -->
 
@@ -1315,17 +1253,30 @@ function esc(s) { var x=String(s==null?'':s); return x.replace(/&/g,'&amp;').rep
 function sleep(ms) { return new Promise(function(r){setTimeout(r,ms);}); }
 
 function setTab(t) {
-  ['btnSingle','btnBulk','btnRecall','btnHosp','btnPharm','btnAdmin','btnLicense','btnDur'].forEach(function(id,i){
+  ['btnSearch','btnSafety','btnMedical','btnInfo'].forEach(function(id,i){
     var el = document.getElementById(id);
-    var key = ['single','bulk','recall','hosp','pharm','admin','license','dur'][i];
+    var key = ['search','safety','medical','info'][i];
     if (el) el.className = 'tab-btn'+(t===key?' on':'');
   });
-  ['tab-single','tab-bulk','tab-recall','tab-hosp','tab-pharm','tab-admin','tab-license','tab-dur'].forEach(function(id,i){
+  ['tab-search','tab-safety','tab-medical','tab-info'].forEach(function(id,i){
     var el = document.getElementById(id);
-    var key = ['single','bulk','recall','hosp','pharm','admin','license','dur'][i];
+    var key = ['search','safety','medical','info'][i];
     if (el) el.className = 'tab'+(t===key?' on':'');
   });
-  if (t === 'recall' && !recallRecentLoaded) loadRecentRecall();
+  if (t === 'search'  && !document.querySelector('.sub-tab.on[data-parent="search"]'))  setSubTab('search',  'single');
+  if (t === 'safety'  && !document.querySelector('.sub-tab.on[data-parent="safety"]'))  setSubTab('safety',  'recall');
+  if (t === 'medical' && !document.querySelector('.sub-tab.on[data-parent="medical"]')) setSubTab('medical', 'hosp');
+  if (t === 'info'    && !document.querySelector('.sub-tab.on[data-parent="info"]'))    setSubTab('info',    'license');
+}
+
+function setSubTab(parent, sub) {
+  document.querySelectorAll('.sub-tab[data-parent="'+parent+'"]').forEach(function(btn){
+    btn.className = 'sub-tab' + (btn.dataset.sub === sub ? ' on' : '');
+  });
+  document.querySelectorAll('.sub-content[data-parent="'+parent+'"]').forEach(function(div){
+    div.style.display = div.dataset.sub === sub ? 'block' : 'none';
+  });
+  if (sub === 'recall' && !recallRecentLoaded) loadRecentRecall();
 }
 
 /* ══════════════════════════════════════════════
@@ -2461,6 +2412,7 @@ function showHospDetail(it, trEl) {
   var estb     = fmtDate(it.estbDd || '');
   var drTot    = esc(it.drTotCnt  || '');
   var hospUrl  = esc(it.hospUrl   || '');
+  var autoCheck = document.getElementById('hospAutoYkiho').checked;
 
   var kakaoUrl = 'https://map.kakao.com/?q=' + encodeURIComponent((it.addr || '') + ' ' + (it.yadmNm || ''));
   var hiraUrl  = 'https://www.hira.or.kr/ra/hosp/getHospList.do?yadmNm=' + encodeURIComponent(it.yadmNm || '');
@@ -2474,14 +2426,14 @@ function showHospDetail(it, trEl) {
       + '</div>';
   }
 
-  var bizHtml = '<div style="padding:20px 18px;text-align:center">'
-    + '<div style="font-size:12px;color:var(--text3);margin-bottom:14px;line-height:1.7">'
-    + '사업자 정보는<br>비즈노에서 확인하세요</div>'
+  /* bizno.net은 CORS로 브라우저 직접 조회 불가 → 링크로 대체 */
+  var bizHtml = '<div style="padding:16px 18px">'
+    + '<div style="font-size:12px;color:var(--text3);margin-bottom:12px;line-height:1.7">'
+    + 'CORS 정책으로 브라우저에서<br>직접 조회가 불가합니다.</div>'
     + '<a href="' + biznoUrl + '" target="_blank" '
-    + 'style="display:inline-flex;align-items:center;gap:6px;padding:9px 16px;'
-    + 'background:var(--primary);color:#fff;border-radius:8px;'
-    + 'font-size:13px;font-weight:600;text-decoration:none">'
-    + '📋 비즈노에서 확인 →</a></div>';
+    + 'style="display:inline-block;padding:8px 14px;background:var(--primary);color:#fff;'
+    + 'border-radius:7px;font-size:12px;font-weight:600;text-decoration:none">'
+    + '비즈노에서 확인 →</a></div>';
 
   var html =
     '<div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:var(--hover);border-bottom:1px solid var(--border)">'
@@ -2520,56 +2472,21 @@ function closeHospPanel() {
   document.getElementById('hospDetail').style.display = 'none';
 }
 
-/* ── 사업자 정보 (비즈노 직접 링크) ── */
+/* ── 사업자 정보 패널 (bizno.net 직접 링크)
+   CORS 이슈로 브라우저에서 자동 조회 불가
+   → 비즈노 링크로 바로 이동하도록 처리
+── */
+var BIZNO_KEY = 'IcbnGhSMGT9rEc5OKTzrlTBoIwdN';
+
 function fetchHospBiz(hospNm, fallbackUrl) {
   var box   = document.getElementById('hospBizBox');
   var inner = box ? box.querySelector('div:last-child') : null;
   if (!inner) return;
-
-  inner.innerHTML =
-    '<div style="padding:20px 18px;text-align:center">'
-    + '<div style="font-size:12px;color:var(--text3);margin-bottom:14px;line-height:1.7">'
-    + '사업자 정보는<br>비즈노에서 확인하세요</div>'
-    + '<a href="' + fallbackUrl + '" target="_blank" '
-    + 'style="display:inline-flex;align-items:center;gap:6px;padding:9px 16px;'
-    + 'background:var(--primary);color:#fff;border-radius:8px;'
-    + 'font-size:13px;font-weight:600;text-decoration:none">'
-    + '📋 비즈노에서 확인 →</a>'
-    + '</div>';
+  renderBizFallback(inner, fallbackUrl);
 }
 
 function renderBizInfo(j, inner, fallbackUrl) {
-  /* bizno fapi 실제 응답 필드:
-     bno(사업자번호), cno(법인번호), company(회사명),
-     BSttCd(상태코드), bstt(상태명칭), TaxTypeCd(과세코드),
-     taxtype(과세유형명칭), EndDt(폐업일YYYYMMDD) */
-  var items = [];
-  if (j && Array.isArray(j.items))      items = j.items;
-  else if (j && j.items && j.items.item) items = Array.isArray(j.items.item) ? j.items.item : [j.items.item];
-  else if (j && j.item)                  items = Array.isArray(j.item) ? j.item : [j.item];
-  var it = items.length ? items[0] : null;
-
-  if (!it || !it.bno) {
-    renderBizFallback(inner, fallbackUrl);
-    return;
-  }
-  function brow(label, val) {
-    if (!val || val === '') return '';
-    return '<div style="padding:10px 18px;border-bottom:1px solid var(--border)">'
-      + '<div style="font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--text3);margin-bottom:4px">' + label + '</div>'
-      + '<div style="font-size:13px;font-weight:600">' + esc(val) + '</div></div>';
-  }
-  /* 폐업일 포맷: YYYYMMDD → YYYY.MM.DD */
-  var endDt = '';
-  if (it.EndDt && it.EndDt.length === 8) {
-    endDt = it.EndDt.substring(0,4) + '.' + it.EndDt.substring(4,6) + '.' + it.EndDt.substring(6,8);
-  }
-  inner.innerHTML =
-      brow('사업자번호', it.bno)
-    + brow('법인번호',   it.cno || '')
-    + brow('과세유형',   it.taxtype || '')
-    + brow('사업자상태', it.bstt || '')
-    + brow('폐업일',     endDt);
+  renderBizFallback(inner, fallbackUrl);
 }
 
 function renderBizFallback(inner, fallbackUrl) {
@@ -2577,7 +2494,8 @@ function renderBizFallback(inner, fallbackUrl) {
   inner.innerHTML =
     '<div style="padding:16px 18px">'
     + '<div style="font-size:12px;color:var(--text3);margin-bottom:12px;line-height:1.7">'
-    + '자동 조회 불가<br>(로컬 파일에서는 미작동)</div>'
+    + 'CORS 정책으로 브라우저에서<br>직접 조회가 불가합니다.'
+    + '</div>'
     + '<a href="' + fallbackUrl + '" target="_blank" '
     + 'style="display:inline-block;padding:8px 14px;background:var(--primary);color:#fff;'
     + 'border-radius:7px;font-size:12px;font-weight:600;text-decoration:none">'
@@ -3610,6 +3528,11 @@ window.onload = function() {
   setupDrop();
   setupRecallDrop();
   updateFloat();
+  /* 초기 서브탭 활성화 */
+  setSubTab('search',  'single');
+  setSubTab('safety',  'recall');
+  setSubTab('medical', 'hosp');
+  setSubTab('info',    'license');
 };
 
 </script>
