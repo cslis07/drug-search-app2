@@ -1131,14 +1131,14 @@ function esc(s) { var x=String(s==null?'':s); return x.replace(/&/g,'&amp;').rep
 function sleep(ms) { return new Promise(function(r){setTimeout(r,ms);}); }
 
 function setTab(t) {
-  ['btnSingle','btnBulk','btnRecall','btnHosp'].forEach(function(id,i){
+  ['btnSingle','btnBulk','btnRecall','btnHosp','btnPharm'].forEach(function(id,i){
     var el = document.getElementById(id);
-    var key = ['single','bulk','recall','hosp'][i];
+    var key = ['single','bulk','recall','hosp','pharm'][i];
     if (el) el.className = 'tab-btn'+(t===key?' on':'');
   });
-  ['tab-single','tab-bulk','tab-recall','tab-hosp'].forEach(function(id,i){
+  ['tab-single','tab-bulk','tab-recall','tab-hosp','tab-pharm'].forEach(function(id,i){
     var el = document.getElementById(id);
-    var key = ['single','bulk','recall','hosp'][i];
+    var key = ['single','bulk','recall','hosp','pharm'][i];
     if (el) el.className = 'tab'+(t===key?' on':'');
   });
   if (t === 'recall' && !recallRecentLoaded) loadRecentRecall();
