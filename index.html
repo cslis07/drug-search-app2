@@ -782,6 +782,12 @@ td.mono { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(
     <button class="tab-btn" id="btnAdmin" onclick="setTab('admin')">
       <span class="tab-icon">⚖️</span> 행정처분
     </button>
+    <button class="tab-btn" id="btnLicense" onclick="setTab('license')">
+      <span class="tab-icon">📄</span> 허가정보
+    </button>
+    <button class="tab-btn" id="btnDur" onclick="setTab('dur')">
+      <span class="tab-icon">⚕️</span> DUR 안전정보
+    </button>
   </div>
 
   <!-- 단건 검색 탭 -->
@@ -1141,6 +1147,119 @@ td.mono { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(
     </div>
 
   </div><!-- /tab-admin -->
+  <!-- ── 의약품 허가정보 탭 ── -->
+  <div class="tab" id="tab-license">
+
+    <div style="margin-bottom:20px">
+      <div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:4px">의약품 허가정보 조회</div>
+      <div style="font-size:13px;color:var(--text3)">식약처 의약품 제품 허가정보 — 제품명·업체명으로 검색하세요.</div>
+    </div>
+
+    <div class="search-card">
+      <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap">
+        <div style="flex:1;min-width:160px">
+          <div style="font-size:11px;font-weight:600;color:var(--text3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.6px">제품명</div>
+          <input class="sinput" id="licItemQ" placeholder="제품명 (예: 타이레놀)"
+            onkeydown="if(event.key==='Enter')searchLicense()" style="height:44px">
+        </div>
+        <div style="flex:1;min-width:160px">
+          <div style="font-size:11px;font-weight:600;color:var(--text3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.6px">업체명</div>
+          <input class="sinput" id="licEntpQ" placeholder="업체명 (예: 한국존슨앤드존슨)"
+            onkeydown="if(event.key==='Enter')searchLicense()" style="height:44px">
+        </div>
+        <button class="btn btn-primary" onclick="searchLicense()" id="licBtn" style="height:44px;padding:0 24px">검색</button>
+      </div>
+    </div>
+
+    <div id="licMsg" style="display:none;padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:14px"></div>
+
+    <div id="licResultWrap" style="display:none">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+        <div>
+          <div class="recent-title" id="licResultTitle">결과</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:2px" id="licResultSub"></div>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="clearLicResult()">← 검색창으로</button>
+      </div>
+
+      <div class="tbl-wrap-outer">
+        <div class="tbl-scroll">
+          <table id="licTable">
+            <thead>
+              <tr>
+                <th>제품명</th>
+                <th style="width:150px">업체명</th>
+                <th style="width:80px">제형</th>
+                <th style="width:100px">허가(변경)일</th>
+                <th style="width:100px">품목기준코드</th>
+              </tr>
+            </thead>
+            <tbody id="licTableBody">
+              <tr><td colspan="5" style="text-align:center;padding:32px;color:var(--text3)">검색어를 입력하세요.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div id="licPagination" style="display:flex;justify-content:center;align-items:center;gap:6px;margin-top:14px;flex-wrap:wrap"></div>
+      <div id="licDetail" style="display:none;margin-top:16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--shadow)"></div>
+    </div>
+
+  </div><!-- /tab-license -->
+  <!-- ── DUR 안전정보 탭 ── -->
+  <div class="tab" id="tab-dur">
+
+    <div style="margin-bottom:20px">
+      <div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:4px">DUR 안전정보 조회</div>
+      <div style="font-size:13px;color:var(--text3)">의약품 안전사용서비스(DUR) — 병용금기·임부금기·노인주의 등을 확인하세요.</div>
+    </div>
+
+    <!-- 검색 영역 -->
+    <div class="search-card">
+      <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap">
+        <div style="flex:1;min-width:200px">
+          <div style="font-size:11px;font-weight:600;color:var(--text3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.6px">품목명</div>
+          <input class="sinput" id="durQ" placeholder="의약품명 입력 (예: 타이레놀, 아스피린)"
+            onkeydown="if(event.key==='Enter')searchDur()" style="height:44px">
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:600;color:var(--text3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.6px">검색 유형</div>
+          <select id="durType" style="height:44px;padding:0 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;color:var(--text);background:var(--surface);cursor:pointer;min-width:130px">
+            <option value="all">전체 항목</option>
+            <option value="usjnt">병용금기</option>
+            <option value="pwnm">임부금기</option>
+            <option value="odsn">노인주의</option>
+            <option value="age">특정연령대금기</option>
+            <option value="efcy">효능군중복</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" onclick="searchDur()" id="durBtn" style="height:44px;padding:0 24px">검색</button>
+      </div>
+      <div style="margin-top:10px;font-size:12px;color:var(--text3)">
+        💡 <strong>병용금기</strong>: 함께 복용하면 안 되는 약물 조합 &nbsp;|&nbsp;
+        <strong>임부금기</strong>: 임산부 복용 금지 &nbsp;|&nbsp;
+        <strong>노인주의</strong>: 노인 복용 시 주의
+      </div>
+    </div>
+
+    <div id="durMsg" style="display:none;padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:14px"></div>
+
+    <!-- 결과 영역 -->
+    <div id="durResultWrap" style="display:none">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+        <div>
+          <div class="recent-title" id="durResultTitle">결과</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:2px" id="durResultSub"></div>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="clearDurResult()">← 검색창으로</button>
+      </div>
+
+      <!-- DUR 카테고리별 결과 -->
+      <div id="durSections"></div>
+    </div>
+
+  </div><!-- /tab-dur -->
+
+
 
 
 
@@ -1196,14 +1315,14 @@ function esc(s) { var x=String(s==null?'':s); return x.replace(/&/g,'&amp;').rep
 function sleep(ms) { return new Promise(function(r){setTimeout(r,ms);}); }
 
 function setTab(t) {
-  ['btnSingle','btnBulk','btnRecall','btnHosp','btnPharm','btnAdmin'].forEach(function(id,i){
+  ['btnSingle','btnBulk','btnRecall','btnHosp','btnPharm','btnAdmin','btnLicense','btnDur'].forEach(function(id,i){
     var el = document.getElementById(id);
-    var key = ['single','bulk','recall','hosp','pharm','admin'][i];
+    var key = ['single','bulk','recall','hosp','pharm','admin','license','dur'][i];
     if (el) el.className = 'tab-btn'+(t===key?' on':'');
   });
-  ['tab-single','tab-bulk','tab-recall','tab-hosp','tab-pharm','tab-admin'].forEach(function(id,i){
+  ['tab-single','tab-bulk','tab-recall','tab-hosp','tab-pharm','tab-admin','tab-license','tab-dur'].forEach(function(id,i){
     var el = document.getElementById(id);
-    var key = ['single','bulk','recall','hosp','pharm','admin'][i];
+    var key = ['single','bulk','recall','hosp','pharm','admin','license','dur'][i];
     if (el) el.className = 'tab'+(t===key?' on':'');
   });
   if (t === 'recall' && !recallRecentLoaded) loadRecentRecall();
@@ -2991,6 +3110,499 @@ function showAdminDetail(it, trEl) {
 
 function closeAdminPanel() {
   document.getElementById('adminDetail').style.display = 'none';
+}
+
+
+/* ══════════════════════════════════════════════
+   의약품 허가정보 조회
+   API: DrugPrdtPrmsnInfoService07
+   목록: getDrugPrdtPrmsnInq07
+   상세: getDrugPrdtPrmsnDtlInq06
+   파라미터: item_name, entp_name, type=json
+   응답: ITEM_NAME, ENTP_NAME, ITEM_SEQ,
+     PERMIT_DATE, ITEM_PERMIT_DATE,
+     CANCEL_DATE, CANCEL_NAME,
+     ENTP_SEQ, CHART, DRUG_SHAPE,
+     MATERIAL_NAME, EE_DOC_DATA 등
+══════════════════════════════════════════════ */
+var EP_LIC_LIST = 'https://apis.data.go.kr/1471000/DrugPrdtPrmsnInfoService07/getDrugPrdtPrmsnInq07';
+var EP_LIC_DTL  = 'https://apis.data.go.kr/1471000/DrugPrdtPrmsnInfoService07/getDrugPrdtPrmsnDtlInq06';
+var licItems    = [];
+var licCurPg    = 1;
+var LIC_PG_SZ   = 10;
+
+/* ── 1471000 계열 JSON 파싱 ── */
+function parseLicJSON(j) {
+  if (!j || !j.body) return { items: [], total: 0 };
+  var body  = j.body;
+  var total = parseInt(body.totalCount || 0);
+  var raw   = null;
+  if (Array.isArray(body.items)) {
+    raw = body.items.map(function(w) {
+      return (w && w.item && typeof w.item === 'object') ? w.item : w;
+    });
+  } else if (body.items && body.items.item !== undefined) {
+    var r = body.items.item;
+    raw = Array.isArray(r) ? r : [r];
+  } else {
+    raw = [];
+  }
+  return { items: raw, total: total };
+}
+
+function parseLicXML(txt) {
+  var parser = new DOMParser();
+  var xml    = parser.parseFromString(txt, 'application/xml');
+  var errEl  = xml.getElementsByTagName('errMsg')[0];
+  if (errEl && errEl.textContent.indexOf('NORMAL') < 0) return { items: [], total: 0 };
+  var tcEl  = xml.getElementsByTagName('totalCount')[0];
+  var total = tcEl ? parseInt(tcEl.textContent) : 0;
+  var nodes = xml.getElementsByTagName('item');
+  var items = [];
+  for (var i = 0; i < nodes.length; i++) {
+    var obj = {}, ch = nodes[i].childNodes;
+    for (var j = 0; j < ch.length; j++) {
+      if (ch[j].nodeType === 1) obj[ch[j].tagName] = ch[j].textContent.trim();
+    }
+    items.push(obj);
+  }
+  return { items: items, total: total || items.length };
+}
+
+function fetchLic(params, rows) {
+  var url = EP_LIC_LIST + '?serviceKey=' + KEY
+    + '&numOfRows=' + (rows || 100) + '&pageNo=1&type=json';
+  var pkeys = Object.keys(params || {});
+  for (var i = 0; i < pkeys.length; i++) {
+    if (params[pkeys[i]]) url += '&' + pkeys[i] + '=' + encodeURIComponent(params[pkeys[i]]);
+  }
+  return fetch(url)
+    .then(function(r) { return r.text(); })
+    .then(function(txt) {
+      var t = txt.trim();
+      if (t.charAt(0) === '{' || t.charAt(0) === '[') {
+        try { return parseLicJSON(JSON.parse(txt)); } catch(e) {}
+      }
+      return parseLicXML(txt);
+    })
+    .catch(function(e) { return { items: [], total: 0, error: e.message }; });
+}
+
+/* 상세 API 호출 */
+function fetchLicDetail(itemSeq) {
+  var url = EP_LIC_DTL + '?serviceKey=' + KEY
+    + '&item_seq=' + encodeURIComponent(itemSeq) + '&type=json';
+  return fetch(url)
+    .then(function(r) { return r.text(); })
+    .then(function(txt) {
+      var t = txt.trim();
+      if (t.charAt(0) === '{' || t.charAt(0) === '[') {
+        try {
+          var j = JSON.parse(txt);
+          var result = parseLicJSON(j);
+          return result.items.length ? result.items[0] : null;
+        } catch(e) {}
+      }
+      return null;
+    })
+    .catch(function() { return null; });
+}
+
+/* ── 테이블 렌더링 ── */
+function renderLicTable() {
+  var start = (licCurPg - 1) * LIC_PG_SZ;
+  var end   = Math.min(start + LIC_PG_SZ, licItems.length);
+  var rows  = '';
+  for (var i = start; i < end; i++) {
+    var it   = licItems[i];
+    var nm   = esc(it.ITEM_NAME        || '-');
+    var entp = esc(it.ENTP_NAME        || '-');
+    var form = esc(it.FORM_CODE_NAME   || it.DRUG_SHAPE || '-');
+    var dt   = fmtDate(it.ITEM_PERMIT_DATE || it.PERMIT_DATE || '');
+    var seq  = esc(it.ITEM_SEQ         || '-');
+    var canceled = it.CANCEL_DATE ? ' style="opacity:.5"' : '';
+    rows += '<tr style="cursor:pointer" onclick="showLicDetail(licItems[' + i + '], this)"' + canceled + '>'
+      + '<td style="font-weight:600">' + nm + (it.CANCEL_DATE ? ' <span style="font-size:10px;color:#dc2626;font-weight:400">[취소]</span>' : '') + '</td>'
+      + '<td style="font-size:12px;color:var(--primary)">' + entp + '</td>'
+      + '<td style="font-size:12px">' + form + '</td>'
+      + '<td class="mono" style="font-size:12px">' + (dt || '-') + '</td>'
+      + '<td class="mono" style="font-size:12px">' + seq + '</td>'
+      + '</tr>';
+  }
+  document.getElementById('licTableBody').innerHTML = rows
+    || '<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--text3)">결과 없음</td></tr>';
+  renderLicPaging();
+}
+
+/* ── 페이지네이션 ── */
+function renderLicPaging() {
+  var totalPg = Math.ceil(licItems.length / LIC_PG_SZ);
+  var el = document.getElementById('licPagination');
+  if (totalPg <= 1) { el.innerHTML = ''; return; }
+  var bs = 'padding:6px 12px;border:1px solid var(--border);border-radius:6px;background:var(--surface);cursor:pointer;font-family:inherit;font-size:13px;';
+  var as = 'padding:6px 12px;border:1px solid var(--primary);border-radius:6px;background:var(--primary);color:#fff;cursor:default;font-family:inherit;font-size:13px;';
+  var html = '<button style="' + bs + '" onclick="goLicPg(' + (licCurPg-1) + ')"' + (licCurPg===1?' disabled':'') + '>◀</button>';
+  var shown = {}, pages = [];
+  for (var p = 1; p <= Math.min(3,totalPg); p++) shown[p]=1;
+  for (var p = Math.max(1,licCurPg-2); p <= Math.min(totalPg,licCurPg+2); p++) shown[p]=1;
+  for (var p = Math.max(1,totalPg-2); p <= totalPg; p++) shown[p]=1;
+  for (var k in shown) pages.push(parseInt(k));
+  pages.sort(function(a,b){return a-b;});
+  var prev=0;
+  for (var i=0;i<pages.length;i++) {
+    var pg=pages[i];
+    if (prev && pg-prev>1) html += '<span style="padding:0 4px;color:var(--text3)">…</span>';
+    html += '<button onclick="goLicPg('+pg+')" style="'+(pg===licCurPg?as:bs)+'">'+pg+'</button>';
+    prev=pg;
+  }
+  html += '<button style="'+bs+'" onclick="goLicPg('+(licCurPg+1)+')"'+(licCurPg===totalPg?' disabled':'')+'>▶</button>';
+  html += '<span style="font-size:12px;color:var(--text3);margin-left:8px">'+licCurPg+' / '+totalPg+'페이지 (총 '+licItems.length+'건)</span>';
+  el.innerHTML = html;
+}
+
+function goLicPg(pg) {
+  var totalPg = Math.ceil(licItems.length / LIC_PG_SZ);
+  if (pg < 1 || pg > totalPg) return;
+  licCurPg = pg;
+  document.getElementById('licDetail').style.display = 'none';
+  renderLicTable();
+  document.getElementById('licTable').scrollIntoView({ behavior:'smooth', block:'nearest' });
+}
+
+/* ── 검색 ── */
+function searchLicense() {
+  var itemQ = document.getElementById('licItemQ').value.trim();
+  var entpQ = document.getElementById('licEntpQ').value.trim();
+  if (!itemQ && !entpQ) { alert('제품명 또는 업체명을 입력해주세요.'); return; }
+
+  var btn = document.getElementById('licBtn');
+  btn.disabled = true; btn.textContent = '검색 중...';
+  document.getElementById('licDetail').style.display = 'none';
+  document.getElementById('licMsg').style.display = 'none';
+  document.getElementById('licResultWrap').style.display = 'block';
+  document.getElementById('licTableBody').innerHTML =
+    '<tr><td colspan="5" style="text-align:center;padding:32px"><span class="spinner"></span> 조회 중...</td></tr>';
+
+  var params = {};
+  if (itemQ) params.item_name = itemQ;
+  if (entpQ) params.entp_name = entpQ;
+
+  fetchLic(params, 100).then(function(result) {
+    licItems  = result.items || [];
+    licCurPg  = 1;
+    var msg   = document.getElementById('licMsg');
+
+    if (result.error || !licItems.length) {
+      msg.textContent = result.error ? ('오류: ' + result.error) : '검색 결과가 없습니다.';
+      msg.style.cssText = 'display:block;padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:14px;background:#fff7ed;color:#9a3412;border:1px solid #fed7aa';
+      document.getElementById('licTableBody').innerHTML =
+        '<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--text3)">결과 없음</td></tr>';
+    } else {
+      var title = '';
+      if (itemQ) title += '"' + esc(itemQ) + '"';
+      if (itemQ && entpQ) title += ' + ';
+      if (entpQ) title += '"' + esc(entpQ) + '"';
+      document.getElementById('licResultTitle').textContent = title + ' 허가정보 결과';
+      document.getElementById('licResultSub').textContent =
+        '전체 ' + result.total.toLocaleString() + '건 · ' + licItems.length + '건 표시';
+      renderLicTable();
+    }
+    btn.disabled = false; btn.textContent = '검색';
+  });
+}
+
+function clearLicResult() {
+  document.getElementById('licResultWrap').style.display = 'none';
+  document.getElementById('licMsg').style.display = 'none';
+  document.getElementById('licItemQ').value = '';
+  document.getElementById('licEntpQ').value = '';
+  licItems = [];
+}
+
+/* ── 상세 패널 ── */
+function showLicDetail(it, trEl) {
+  var trs = document.querySelectorAll('#licTable tbody tr');
+  for (var r = 0; r < trs.length; r++) trs[r].style.background = '';
+  if (trEl) trEl.style.background = 'var(--hover)';
+
+  var nm     = esc(it.ITEM_NAME        || '-');
+  var entp   = esc(it.ENTP_NAME        || '-');
+  var seq    = esc(it.ITEM_SEQ         || '');
+  var dt     = fmtDate(it.ITEM_PERMIT_DATE || it.PERMIT_DATE || '');
+  var cancel = fmtDate(it.CANCEL_DATE   || '');
+  var chart  = esc(it.CHART            || '');
+  var matNm  = esc(it.MATERIAL_NAME    || it.MAIN_ITEM_INGR || '');
+  var storM  = esc(it.STORAGE_METHOD   || '');
+  var validT = esc(it.VALID_TERM       || '');
+  var packU  = esc(it.PACK_UNIT        || '');
+  var nedruUrl = seq
+    ? 'https://nedrug.mfds.go.kr/pbp/CCBBB01/getItemDetail?itemSeq=' + seq
+    : 'https://nedrug.mfds.go.kr/pbp/CCBBB01/getList';
+
+  function lrow(label, val) {
+    if (!val || val === '-' || val === '') return '';
+    return '<div style="padding:10px 18px;border-bottom:1px solid var(--border)">'
+      + '<div style="font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--text3);margin-bottom:4px">' + label + '</div>'
+      + '<div style="font-size:13px;font-weight:600;line-height:1.5">' + val + '</div></div>';
+  }
+
+  var cancelBadge = cancel
+    ? '<span style="font-size:11px;background:#fef2f2;color:#dc2626;border:1px solid #fca5a5;padding:2px 8px;border-radius:20px;margin-left:8px">허가취소 ' + cancel + '</span>'
+    : '';
+
+  var html =
+    '<div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:var(--hover);border-bottom:1px solid var(--border)">'
+    + '<div>'
+    +   '<div style="font-size:15px;font-weight:700">' + nm + cancelBadge + '</div>'
+    +   '<div style="font-size:12px;color:var(--text2);margin-top:3px">' + entp + '</div>'
+    + '</div>'
+    + '<button onclick="closeLicPanel()" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:16px;padding:4px 8px">✕</button>'
+    + '</div>'
+    + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:0">'
+    +   '<div style="border-right:1px solid var(--border)">'
+    +     lrow('허가(변경)일', dt)
+    +     lrow('품목기준코드', seq)
+    +     lrow('포장단위', packU)
+    +     lrow('저장방법', storM)
+    +     lrow('유효기간', validT)
+    +   '</div>'
+    +   '<div>'
+    +     lrow('성상', chart)
+    +     lrow('주성분', matNm)
+    +   '</div>'
+    + '</div>'
+    + '<div style="padding:12px 20px;border-top:1px solid var(--border);display:flex;gap:14px">'
+    +   '<a href="' + nedruUrl + '" target="_blank" style="font-size:12px;color:var(--primary);font-weight:500;text-decoration:none">🔗 의약품안전나라 상세 →</a>'
+    + '</div>';
+
+  /* 상세 API로 추가 정보 로드 */
+  if (seq) {
+    html += '<div id="licDtlExtra" style="padding:14px 18px;color:var(--text3);font-size:12px"><span class="spinner"></span> 추가 정보 로드 중...</div>';
+  }
+
+  var panel = document.getElementById('licDetail');
+  panel.innerHTML = html;
+  panel.style.display = 'block';
+  setTimeout(function() { panel.scrollIntoView({ behavior:'smooth', block:'nearest' }); }, 50);
+
+  /* 상세 API 비동기 로드 */
+  if (seq) {
+    fetchLicDetail(seq).then(function(detail) {
+      var extra = document.getElementById('licDtlExtra');
+      if (!extra || !detail) {
+        if (extra) extra.style.display = 'none';
+        return;
+      }
+      var eeDoc = detail.EE_DOC_DATA || '';
+      var udDoc = detail.UD_DOC_DATA || '';
+      var nbDoc = detail.NB_DOC_DATA || '';
+      if (!eeDoc && !udDoc && !nbDoc) { extra.style.display = 'none'; return; }
+      extra.innerHTML =
+        '<div style="font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--text3);margin-bottom:8px">상세 문서 정보</div>'
+        + (eeDoc ? '<details style="margin-bottom:6px"><summary style="cursor:pointer;font-size:12px;font-weight:600">효능·효과</summary><div style="font-size:12px;line-height:1.7;padding:8px 0;color:var(--text2)">' + esc(eeDoc.substring(0, 300)) + (eeDoc.length > 300 ? '…' : '') + '</div></details>' : '')
+        + (udDoc ? '<details style="margin-bottom:6px"><summary style="cursor:pointer;font-size:12px;font-weight:600">용법·용량</summary><div style="font-size:12px;line-height:1.7;padding:8px 0;color:var(--text2)">' + esc(udDoc.substring(0, 300)) + (udDoc.length > 300 ? '…' : '') + '</div></details>' : '');
+    });
+  }
+}
+
+function closeLicPanel() {
+  document.getElementById('licDetail').style.display = 'none';
+}
+
+
+/* ══════════════════════════════════════════════
+   DUR 안전정보 조회
+   품목정보: DURPrdlstInfoService03
+   성분정보: DURIrdntInfoService03
+   주요 엔드포인트:
+     getDurPrdlstInfoList03  - DUR품목 기본정보
+     getUsjntTabooInfoList03 - 병용금기(품목)
+     getPwnmTabooInfoList03  - 임부금기(품목)
+     getOdsnAtentInfoList03  - 노인주의(품목)
+     getSpcifyAgrdeTabooInfoList03 - 특정연령대금기
+     getEfcyDplctInfoList03  - 효능군중복
+   파라미터: itemName, pageNo, numOfRows, type=json
+══════════════════════════════════════════════ */
+var BASE_DUR_PRD = 'https://apis.data.go.kr/1471000/DURPrdlstInfoService03';
+var BASE_DUR_ING = 'https://apis.data.go.kr/1471000/DURIrdntInfoService03';
+
+/* DUR 카테고리 정의 */
+var DUR_CATS = {
+  usjnt: { label: '병용금기',     icon: '⚠️', color: '#dc2626', bg: '#fef2f2', ep: BASE_DUR_PRD + '/getUsjntTabooInfoList03',    fields: ['ITEM_NAME','MIXTURE_ITEM_NAME','PROHBT_CONTENT','FORM_CODE_NAME'] },
+  pwnm:  { label: '임부금기',     icon: '🤰', color: '#9333ea', bg: '#faf5ff', ep: BASE_DUR_PRD + '/getPwnmTabooInfoList03',       fields: ['ITEM_NAME','PROHBT_CONTENT','GRADE_NAME','FORM_CODE_NAME'] },
+  odsn:  { label: '노인주의',     icon: '👴', color: '#d97706', bg: '#fffbeb', ep: BASE_DUR_PRD + '/getOdsnAtentInfoList03',       fields: ['ITEM_NAME','ATENT_CONTENT','FORM_CODE_NAME'] },
+  age:   { label: '특정연령대금기', icon: '👶', color: '#ea580c', bg: '#fff7ed', ep: BASE_DUR_PRD + '/getSpcifyAgrdeTabooInfoList03', fields: ['ITEM_NAME','PROHBT_CONTENT','GRADE_NAME'] },
+  efcy:  { label: '효능군중복',   icon: '💊', color: '#0891b2', bg: '#ecfeff', ep: BASE_DUR_PRD + '/getEfcyDplctInfoList03',      fields: ['ITEM_NAME','EFY_GROUP1_NM','EFY_GROUP2_NM'] }
+};
+
+/* ── DUR API 공통 호출 ── */
+function fetchDurAPI(ep, itemName) {
+  var url = ep + '?serviceKey=' + KEY
+    + '&numOfRows=50&pageNo=1&type=json'
+    + '&itemName=' + encodeURIComponent(itemName);
+
+  return fetch(url)
+    .then(function(r) { return r.text(); })
+    .then(function(txt) {
+      var t = txt.trim();
+      if (t.charAt(0) === '{' || t.charAt(0) === '[') {
+        try {
+          var j = JSON.parse(txt);
+          var body = j && j.body ? j.body : {};
+          var total = parseInt(body.totalCount || 0);
+          var raw = null;
+          if (Array.isArray(body.items)) {
+            raw = body.items.map(function(w) {
+              return (w && w.item && typeof w.item === 'object') ? w.item : w;
+            });
+          } else if (body.items && body.items.item !== undefined) {
+            var r2 = body.items.item;
+            raw = Array.isArray(r2) ? r2 : (r2 ? [r2] : []);
+          } else {
+            raw = [];
+          }
+          return { items: raw, total: total };
+        } catch(e) {}
+      }
+      /* XML 파싱 */
+      var parser = new DOMParser();
+      var xml = parser.parseFromString(txt, 'application/xml');
+      var nodes = xml.getElementsByTagName('item');
+      var items = [];
+      for (var i = 0; i < nodes.length; i++) {
+        var obj = {}, ch = nodes[i].childNodes;
+        for (var j = 0; j < ch.length; j++) {
+          if (ch[j].nodeType === 1) obj[ch[j].tagName] = ch[j].textContent.trim();
+        }
+        items.push(obj);
+      }
+      var tcEl = xml.getElementsByTagName('totalCount')[0];
+      return { items: items, total: tcEl ? parseInt(tcEl.textContent) : items.length };
+    })
+    .catch(function() { return { items: [], total: 0 }; });
+}
+
+/* ── DUR 섹션 카드 렌더링 ── */
+function renderDurSection(catKey, result) {
+  var cat   = DUR_CATS[catKey];
+  var items = result.items || [];
+  var total = result.total || 0;
+
+  var header = '<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;'
+    + 'background:' + cat.bg + ';border-radius:var(--r) var(--r) 0 0;border:1px solid ' + cat.color + '33">'
+    + '<div style="display:flex;align-items:center;gap:8px">'
+    +   '<span style="font-size:18px">' + cat.icon + '</span>'
+    +   '<span style="font-size:14px;font-weight:700;color:' + cat.color + '">' + cat.label + '</span>'
+    +   '<span style="font-size:12px;color:var(--text3);margin-left:4px">(' + total + '건)</span>'
+    + '</div>'
+    + (total > 50 ? '<span style="font-size:11px;color:var(--text3)">상위 50건 표시</span>' : '')
+    + '</div>';
+
+  if (!items.length) {
+    return '<div style="margin-bottom:16px;border:1px solid var(--border);border-radius:var(--r)">'
+      + header.replace('border-radius:var(--r) var(--r) 0 0', 'border-radius:var(--r)')
+      + '<div style="padding:12px 16px;font-size:12px;color:var(--text3);border:none">해당 없음</div></div>';
+  }
+
+  var rows = '';
+  for (var i = 0; i < items.length; i++) {
+    var it = items[i];
+    var cells = '';
+
+    if (catKey === 'usjnt') {
+      cells = '<td style="font-size:12px;font-weight:600">' + esc(it.ITEM_NAME || '-') + '</td>'
+        + '<td style="font-size:12px;color:#dc2626">' + esc(it.MIXTURE_ITEM_NAME || '-') + '</td>'
+        + '<td style="font-size:11px;color:var(--text2);line-height:1.5">' + esc((it.PROHBT_CONTENT || '-').substring(0,80)) + '</td>'
+        + '<td style="font-size:11px;color:var(--text3)">' + esc(it.FORM_CODE_NAME || '-') + '</td>';
+    } else if (catKey === 'pwnm') {
+      cells = '<td style="font-size:12px;font-weight:600">' + esc(it.ITEM_NAME || '-') + '</td>'
+        + '<td style="font-size:12px;color:#9333ea;font-weight:600">' + esc(it.GRADE_NAME || '-') + '</td>'
+        + '<td style="font-size:11px;color:var(--text2);line-height:1.5">' + esc((it.PROHBT_CONTENT || '-').substring(0,100)) + '</td>';
+    } else if (catKey === 'odsn') {
+      cells = '<td style="font-size:12px;font-weight:600">' + esc(it.ITEM_NAME || '-') + '</td>'
+        + '<td style="font-size:11px;color:var(--text2);line-height:1.5">' + esc((it.ATENT_CONTENT || '-').substring(0,120)) + '</td>';
+    } else if (catKey === 'age') {
+      cells = '<td style="font-size:12px;font-weight:600">' + esc(it.ITEM_NAME || '-') + '</td>'
+        + '<td style="font-size:12px;color:#ea580c;font-weight:600">' + esc(it.GRADE_NAME || '-') + '</td>'
+        + '<td style="font-size:11px;color:var(--text2)">' + esc((it.PROHBT_CONTENT || '-').substring(0,100)) + '</td>';
+    } else {
+      cells = '<td style="font-size:12px;font-weight:600">' + esc(it.ITEM_NAME || '-') + '</td>'
+        + '<td style="font-size:11px;color:var(--text2)">' + esc(it.EFY_GROUP1_NM || '-') + '</td>'
+        + '<td style="font-size:11px;color:var(--text2)">' + esc(it.EFY_GROUP2_NM || '-') + '</td>';
+    }
+    rows += '<tr style="border-bottom:1px solid var(--border)">' + cells + '</tr>';
+  }
+
+  /* 헤더 행 */
+  var thMap = {
+    usjnt: '<th>품목명</th><th>병용금기 약물</th><th>금기 내용</th><th>제형</th>',
+    pwnm:  '<th>품목명</th><th>등급</th><th>금기 내용</th>',
+    odsn:  '<th>품목명</th><th>주의 내용</th>',
+    age:   '<th>품목명</th><th>연령대</th><th>금기 내용</th>',
+    efcy:  '<th>품목명</th><th>효능군 1</th><th>효능군 2</th>'
+  };
+
+  return '<div style="margin-bottom:20px;border:1px solid var(--border);border-radius:var(--r);overflow:hidden">'
+    + header
+    + '<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse">'
+    + '<thead style="background:var(--surface2)"><tr style="border-bottom:1px solid var(--border)">'
+    + thMap[catKey] + '</tr></thead>'
+    + '<tbody>' + rows + '</tbody>'
+    + '</table></div></div>';
+}
+
+/* ── 검색 실행 ── */
+function searchDur() {
+  var q    = document.getElementById('durQ').value.trim();
+  var type = document.getElementById('durType').value;
+  if (!q) { alert('품목명을 입력해주세요.'); return; }
+
+  var btn = document.getElementById('durBtn');
+  btn.disabled = true; btn.textContent = '조회 중...';
+  document.getElementById('durMsg').style.display = 'none';
+  document.getElementById('durResultWrap').style.display = 'block';
+  document.getElementById('durResultTitle').textContent = '"' + esc(q) + '" DUR 안전정보';
+  document.getElementById('durResultSub').textContent = '조회 중...';
+  document.getElementById('durSections').innerHTML =
+    '<div style="text-align:center;padding:40px"><span class="spinner"></span><div style="margin-top:12px;color:var(--text3);font-size:13px">DUR 정보를 조회하는 중입니다...</div></div>';
+
+  /* 조회할 카테고리 결정 */
+  var cats = type === 'all' ? Object.keys(DUR_CATS) : [type];
+  var promises = cats.map(function(k) {
+    return fetchDurAPI(DUR_CATS[k].ep, q).then(function(result) {
+      return { key: k, result: result };
+    });
+  });
+
+  Promise.all(promises).then(function(results) {
+    var totalItems = results.reduce(function(sum, r) { return sum + (r.result.total || 0); }, 0);
+    document.getElementById('durResultSub').textContent =
+      '총 ' + totalItems + '건 · 카테고리 ' + results.length + '개 조회';
+
+    var html = '';
+    var hasAny = false;
+    for (var i = 0; i < results.length; i++) {
+      if (results[i].result.items.length > 0) hasAny = true;
+      html += renderDurSection(results[i].key, results[i].result);
+    }
+
+    if (!hasAny) {
+      html = '<div style="text-align:center;padding:48px;color:var(--text3)">'
+        + '<div style="font-size:36px;margin-bottom:12px">✅</div>'
+        + '<div style="font-size:14px;font-weight:600">"' + esc(q) + '"에 대한 DUR 정보가 없습니다.</div>'
+        + '<div style="font-size:12px;margin-top:8px">해당 품목에 특별한 주의사항이 없거나, 정확한 품목명을 입력해주세요.</div>'
+        + '</div>';
+    }
+    document.getElementById('durSections').innerHTML = html;
+    btn.disabled = false; btn.textContent = '검색';
+  });
+}
+
+function clearDurResult() {
+  document.getElementById('durResultWrap').style.display = 'none';
+  document.getElementById('durMsg').style.display = 'none';
+  document.getElementById('durQ').value = '';
+  document.getElementById('durSections').innerHTML = '';
 }
 
 
