@@ -2462,6 +2462,7 @@ function fetchPharm(params, rows) {
   for (var i = 0; i < pkeys.length; i++) {
     base += '&' + pkeys[i] + '=' + encodeURIComponent(params[pkeys[i]]);
   }
+  console.log('[약국API]', base);
   return fetch(base)
     .then(function(r) { return r.text(); })
     .then(function(txt) {
@@ -2586,57 +2587,52 @@ function clearPharmResult() {
 }
 
 /* ── 상세 패널 ── */
+function pharmRow(label, val) {
+  if (!val || val === '-' || val === '') return '';
+  return '<div style="padding:11px 18px;border-bottom:1px solid var(--border)">'
+    + '<div style="font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--text3);margin-bottom:4px">' + label + '</div>'
+    + '<div style="font-size:13px;font-weight:600">' + val + '</div></div>';
+}
+
 function showPharmDetail(it, trEl) {
   var trs = document.querySelectorAll('#pharmTable tbody tr');
   for (var r = 0; r < trs.length; r++) trs[r].style.background = '';
   if (trEl) trEl.style.background = 'var(--hover)';
 
-  var nm      = esc(it.yadmNm    || '-');
-  var addr    = esc(it.addr      || '-');
-  var tel     = esc(it.telno     || '-');
-  var yk      = esc(it.ykiho     || '-');
-  var sido    = esc(it.sidoCdNm  || '');
-  var sggu    = esc(it.sgguCdNm  || '');
-  var dong    = esc(it.emdongNm  || '');
-  var estb    = fmtDate(it.estbDd|| '');
-  var xPos    = it.XPos || it.xPos || '';
-  var yPos    = it.YPos || it.yPos || '';
-
-  var kakaoUrl = 'https://map.kakao.com/?q=' + encodeURIComponent((addr || '') + ' ' + (it.yadmNm || ''));
-  var naverUrl = '';
-  if (xPos && yPos) {
-    naverUrl = 'https://map.naver.com/?query=' + encodeURIComponent(it.yadmNm || '');
-  }
-
-  function row(label, val) {
-    if (!val || val === '-' || val === '') return '';
-    return '<div style="padding:11px 18px;border-bottom:1px solid var(--border)">'
-      + '<div style="font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--text3);margin-bottom:4px">' + label + '</div>'
-      + '<div style="font-size:13px;font-weight:600">' + val + '</div></div>';
-  }
+  var nm    = esc(it.yadmNm   || '-');
+  var addr  = esc(it.addr     || '-');
+  var tel   = esc(it.telno    || '-');
+  var yk    = esc(it.ykiho    || '-');
+  var sido  = esc(it.sidoCdNm || '');
+  var sggu  = esc(it.sgguCdNm || '');
+  var dong  = esc(it.emdongNm || '');
+  var estb  = fmtDate(it.estbDd || '');
+  var kakaoUrl = 'https://map.kakao.com/?q=' + encodeURIComponent(addr + ' ' + (it.yadmNm || ''));
 
   var html =
     '<div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:var(--hover);border-bottom:1px solid var(--border)">'
     + '<div>'
     +   '<div style="font-size:16px;font-weight:700">💊 ' + nm + '</div>'
-    +   '<div style="font-size:12px;color:var(--text2);margin-top:2px">' + (sido?sido+' ':'') + (sggu?sggu+' ':'') + dong + '</div>'
+    +   '<div style="font-size:12px;color:var(--text2);margin-top:2px">'
+    +     (sido ? sido + ' ' : '') + (sggu ? sggu + ' ' : '') + dong
+    +   '</div>'
     + '</div>'
     + '<button onclick="closePharmPanel()" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:16px;padding:4px 8px">닫기 ✕</button>'
     + '</div>'
     + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:0">'
-    + '<div style="border-right:1px solid var(--border)">'
-    +   row('약국명', nm)
-    +   row('주소', addr)
-    +   row('전화번호', tel)
-    +   row('개설일자', estb)
+    +   '<div style="border-right:1px solid var(--border)">'
+    +     pharmRow('약국명', nm)
+    +     pharmRow('주소', addr)
+    +     pharmRow('전화번호', tel)
+    +     pharmRow('개설일자', estb)
+    +   '</div>'
+    +   '<div>'
+    +     '<div style="padding:10px 18px 6px;font-size:11px;font-weight:700;color:var(--primary);border-bottom:1px solid var(--border)">요양기호</div>'
+    +     '<div style="padding:12px 18px;font-size:11px;font-family:monospace;color:var(--text2);word-break:break-all;line-height:1.6">' + yk + '</div>'
+    +   '</div>'
     + '</div>'
-    + '<div>'
-    +   '<div style="padding:10px 18px 6px;font-size:11px;font-weight:700;color:var(--primary);border-bottom:1px solid var(--border)">🏷️ 요양기호</div>'
-    +   '<div style="padding:12px 18px;font-size:11px;font-family:monospace;color:var(--text2);word-break:break-all;line-height:1.6">' + yk + '</div>'
-    + '</div>'
-    + '</div>'
-    + '<div style="padding:12px 20px;display:flex;gap:14px;flex-wrap:wrap;border-top:1px solid var(--border)">'
-    + '<a href="' + kakaoUrl + '" target="_blank" style="font-size:12px;color:var(--primary);font-weight:500;text-decoration:none">🗺️ 카카오맵 →</a>'
+    + '<div style="padding:12px 20px;border-top:1px solid var(--border)">'
+    +   '<a href="' + kakaoUrl + '" target="_blank" style="font-size:12px;color:var(--primary);font-weight:500;text-decoration:none">카카오맵 →</a>'
     + '</div>';
 
   var panel = document.getElementById('pharmDetail');
