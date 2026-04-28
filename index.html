@@ -779,6 +779,9 @@ td.mono { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(
     <button class="tab-btn" id="btnPharm" onclick="setTab('pharm')">
       <span class="tab-icon">💊</span> 약국 검색
     </button>
+    <button class="tab-btn" id="btnAdmin" onclick="setTab('admin')">
+      <span class="tab-icon">⚖️</span> 행정처분
+    </button>
   </div>
 
   <!-- 단건 검색 탭 -->
@@ -1077,6 +1080,68 @@ td.mono { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(
     </div>
 
   </div><!-- /tab-pharm -->
+  <!-- ── 의약품 행정처분 탭 ── -->
+  <div class="tab" id="tab-admin">
+
+    <div style="margin-bottom:20px">
+      <div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:4px">의약품 행정처분 조회</div>
+      <div style="font-size:13px;color:var(--text3)">식약처 의약품 행정처분 정보 — 제품명 또는 업체명으로 검색하세요.</div>
+    </div>
+
+    <div class="search-card">
+      <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap">
+        <div style="flex:1;min-width:160px">
+          <div style="font-size:11px;font-weight:600;color:var(--text3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.6px">제품명</div>
+          <input class="sinput" id="adminItemQ" placeholder="제품명 (예: 타이레놀)"
+            onkeydown="if(event.key==='Enter')searchAdmin()" style="height:44px">
+        </div>
+        <div style="flex:1;min-width:160px">
+          <div style="font-size:11px;font-weight:600;color:var(--text3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.6px">업체명</div>
+          <input class="sinput" id="adminEntpQ" placeholder="업체명 (예: 한국얀센)"
+            onkeydown="if(event.key==='Enter')searchAdmin()" style="height:44px">
+        </div>
+        <button class="btn btn-primary" onclick="searchAdmin()" id="adminBtn" style="height:44px;padding:0 24px">검색</button>
+        <button class="btn btn-ghost" onclick="loadAdminRecent()" style="height:44px;white-space:nowrap">📋 최근 처분</button>
+      </div>
+    </div>
+
+    <div id="adminMsg" style="display:none;padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:14px"></div>
+
+    <div id="adminResultWrap" style="display:none">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+        <div>
+          <div class="recent-title" id="adminResultTitle">결과</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:2px" id="adminResultSub"></div>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="clearAdminResult()">← 검색창으로</button>
+      </div>
+
+      <div class="tbl-wrap-outer">
+        <div class="tbl-scroll">
+          <table id="adminTable">
+            <thead>
+              <tr>
+                <th>제품명</th>
+                <th style="width:130px">업소명</th>
+                <th>행정처분명</th>
+                <th style="width:96px">처분일자</th>
+                <th style="width:96px">공개종료일</th>
+              </tr>
+            </thead>
+            <tbody id="adminTableBody">
+              <tr><td colspan="5" style="text-align:center;padding:32px;color:var(--text3)">검색어를 입력하거나 최근 처분을 조회하세요.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div id="adminPagination" style="display:flex;justify-content:center;align-items:center;gap:6px;margin-top:14px;flex-wrap:wrap"></div>
+
+      <!-- 상세 패널 -->
+      <div id="adminDetail" style="display:none;margin-top:16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--shadow)"></div>
+    </div>
+
+  </div><!-- /tab-admin -->
+
 
 
 </div><!-- /wrap -->
@@ -1131,14 +1196,14 @@ function esc(s) { var x=String(s==null?'':s); return x.replace(/&/g,'&amp;').rep
 function sleep(ms) { return new Promise(function(r){setTimeout(r,ms);}); }
 
 function setTab(t) {
-  ['btnSingle','btnBulk','btnRecall','btnHosp','btnPharm'].forEach(function(id,i){
+  ['btnSingle','btnBulk','btnRecall','btnHosp','btnPharm','btnAdmin'].forEach(function(id,i){
     var el = document.getElementById(id);
-    var key = ['single','bulk','recall','hosp','pharm'][i];
+    var key = ['single','bulk','recall','hosp','pharm','admin'][i];
     if (el) el.className = 'tab-btn'+(t===key?' on':'');
   });
-  ['tab-single','tab-bulk','tab-recall','tab-hosp','tab-pharm'].forEach(function(id,i){
+  ['tab-single','tab-bulk','tab-recall','tab-hosp','tab-pharm','tab-admin'].forEach(function(id,i){
     var el = document.getElementById(id);
-    var key = ['single','bulk','recall','hosp','pharm'][i];
+    var key = ['single','bulk','recall','hosp','pharm','admin'][i];
     if (el) el.className = 'tab'+(t===key?' on':'');
   });
   if (t === 'recall' && !recallRecentLoaded) loadRecentRecall();
@@ -2643,6 +2708,289 @@ function showPharmDetail(it, trEl) {
 
 function closePharmPanel() {
   document.getElementById('pharmDetail').style.display = 'none';
+}
+
+
+/* ══════════════════════════════════════════════
+   의약품 행정처분 기능
+   API: 식품의약품안전처_의약품 행정처분 정보
+   Endpoint: MdcinExaathrService04/getMdcinExaathrList04
+   응답 필드: ADM_DISPS_SEQ, ENTP_NAME, ADDR,
+     ITEM_NAME, BEF_APPLY_LAW, EXPOSE_CONT,
+     ADM_DISPS_NAME, LAST_SETTLE_DATE,
+     ITEM_SEQ, RLS_END_DATE
+   검색 파라미터: item_name, entp_name, order=Y
+══════════════════════════════════════════════ */
+var EP_ADMIN    = 'https://apis.data.go.kr/1471000/MdcinExaathrService04/getMdcinExaathrList04';
+var adminItems  = [];
+var adminCurPg  = 1;
+var ADMIN_PG_SZ = 10;
+
+/* ── JSON 파싱 (1471000 계열: body.items=[{item:{...}},...]) ── */
+function parseAdminJSON(j) {
+  if (!j || !j.body) return { items: [], total: 0 };
+  var body  = j.body;
+  var total = parseInt(body.totalCount || 0);
+  var raw   = null;
+  if (Array.isArray(body.items)) {
+    /* [{item:{...}}, ...] 구조 언래핑 */
+    raw = body.items.map(function(w) {
+      return (w && w.item && typeof w.item === 'object') ? w.item : w;
+    });
+  } else if (body.items && body.items.item !== undefined) {
+    var r = body.items.item;
+    raw = Array.isArray(r) ? r : [r];
+  } else {
+    raw = [];
+  }
+  console.log('[행정처분JSON] total=' + total + ' items=' + raw.length,
+    raw.length > 0 ? Object.keys(raw[0]) : '없음');
+  return { items: raw, total: total };
+}
+
+/* ── XML 파싱 ── */
+function parseAdminXML(txt) {
+  var parser = new DOMParser();
+  var xml    = parser.parseFromString(txt, 'application/xml');
+  var errEl  = xml.getElementsByTagName('errMsg')[0];
+  if (errEl && errEl.textContent.indexOf('NORMAL') < 0) {
+    console.warn('[행정처분XML에러]', errEl.textContent);
+    return { items: [], total: 0 };
+  }
+  var tcEl  = xml.getElementsByTagName('totalCount')[0];
+  var total = tcEl ? parseInt(tcEl.textContent) : 0;
+  var nodes = xml.getElementsByTagName('item');
+  var items = [];
+  for (var i = 0; i < nodes.length; i++) {
+    var obj = {}, ch = nodes[i].childNodes;
+    for (var j = 0; j < ch.length; j++) {
+      if (ch[j].nodeType === 1) obj[ch[j].tagName] = ch[j].textContent.trim();
+    }
+    items.push(obj);
+  }
+  return { items: items, total: total || items.length };
+}
+
+/* ── API 호출 ── */
+function fetchAdmin(params, rows) {
+  var url = EP_ADMIN
+    + '?serviceKey=' + KEY
+    + '&numOfRows=' + (rows || 100)
+    + '&pageNo=1&type=json&order=Y';
+  var pkeys = Object.keys(params || {});
+  for (var i = 0; i < pkeys.length; i++) {
+    if (params[pkeys[i]]) url += '&' + pkeys[i] + '=' + encodeURIComponent(params[pkeys[i]]);
+  }
+  console.log('[행정처분API]', url.substring(0, 150));
+  return fetch(url)
+    .then(function(r) { return r.text(); })
+    .then(function(txt) {
+      var t = txt.trim();
+      if (t.charAt(0) === '{' || t.charAt(0) === '[') {
+        try { return parseAdminJSON(JSON.parse(txt)); } catch(e) {}
+      }
+      return parseAdminXML(txt);
+    })
+    .catch(function(e) {
+      console.error('[행정처분API 오류]', e.message);
+      return { items: [], total: 0, error: e.message };
+    });
+}
+
+/* ── 테이블 렌더링 ── */
+function renderAdminTable() {
+  var start = (adminCurPg - 1) * ADMIN_PG_SZ;
+  var end   = Math.min(start + ADMIN_PG_SZ, adminItems.length);
+  var rows  = '';
+  for (var i = start; i < end; i++) {
+    var it      = adminItems[i];
+    var nm      = esc(it.ITEM_NAME        || '-');
+    var entp    = esc(it.ENTP_NAME        || '-');
+    var disp    = esc(it.ADM_DISPS_NAME   || '-');
+    var dt      = fmtDate(it.LAST_SETTLE_DATE || '');
+    var endDt   = fmtDate(it.RLS_END_DATE    || '');
+    rows += '<tr style="cursor:pointer" onclick="showAdminDetail(adminItems[' + i + '], this)">'
+      + '<td style="font-weight:600;max-width:200px">' + nm + '</td>'
+      + '<td style="font-size:12px;color:var(--primary)">' + entp + '</td>'
+      + '<td style="font-size:12px;color:#dc2626">' + disp + '</td>'
+      + '<td class="mono" style="font-size:12px">' + (dt || '-') + '</td>'
+      + '<td class="mono" style="font-size:12px">' + (endDt || '-') + '</td>'
+      + '</tr>';
+  }
+  document.getElementById('adminTableBody').innerHTML = rows
+    || '<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--text3)">결과 없음</td></tr>';
+  renderAdminPaging();
+}
+
+/* ── 페이지네이션 ── */
+function renderAdminPaging() {
+  var totalPg = Math.ceil(adminItems.length / ADMIN_PG_SZ);
+  var el = document.getElementById('adminPagination');
+  if (totalPg <= 1) { el.innerHTML = ''; return; }
+  var bs = 'padding:6px 12px;border:1px solid var(--border);border-radius:6px;background:var(--surface);cursor:pointer;font-family:inherit;font-size:13px;';
+  var as = 'padding:6px 12px;border:1px solid var(--primary);border-radius:6px;background:var(--primary);color:#fff;cursor:default;font-family:inherit;font-size:13px;';
+  var html = '<button style="' + bs + '" onclick="goAdminPg(' + (adminCurPg-1) + ')"' + (adminCurPg===1?' disabled':'') + '>◀</button>';
+  var shown = {}, pages = [];
+  for (var p = 1; p <= Math.min(3,totalPg); p++) shown[p] = 1;
+  for (var p = Math.max(1,adminCurPg-2); p <= Math.min(totalPg,adminCurPg+2); p++) shown[p] = 1;
+  for (var p = Math.max(1,totalPg-2); p <= totalPg; p++) shown[p] = 1;
+  for (var k in shown) pages.push(parseInt(k));
+  pages.sort(function(a,b) { return a-b; });
+  var prev = 0;
+  for (var i = 0; i < pages.length; i++) {
+    var pg = pages[i];
+    if (prev && pg-prev > 1) html += '<span style="padding:0 4px;color:var(--text3)">…</span>';
+    html += '<button onclick="goAdminPg('+pg+')" style="'+(pg===adminCurPg?as:bs)+'">'+pg+'</button>';
+    prev = pg;
+  }
+  html += '<button style="'+bs+'" onclick="goAdminPg('+(adminCurPg+1)+')"'+(adminCurPg===totalPg?' disabled':'')+'>▶</button>';
+  html += '<span style="font-size:12px;color:var(--text3);margin-left:8px">'+adminCurPg+' / '+totalPg+'페이지 (총 '+adminItems.length+'건)</span>';
+  el.innerHTML = html;
+}
+
+function goAdminPg(pg) {
+  var totalPg = Math.ceil(adminItems.length / ADMIN_PG_SZ);
+  if (pg < 1 || pg > totalPg) return;
+  adminCurPg = pg;
+  document.getElementById('adminDetail').style.display = 'none';
+  renderAdminTable();
+  document.getElementById('adminTable').scrollIntoView({ behavior:'smooth', block:'nearest' });
+}
+
+/* ── 결과 표시 공통 ── */
+function setAdminResult(items, total, title) {
+  adminItems = items || [];
+  adminCurPg = 1;
+  document.getElementById('adminResultTitle').textContent = title;
+  document.getElementById('adminResultSub').textContent =
+    '전체 ' + total.toLocaleString() + '건 · ' + adminItems.length + '건 표시';
+  document.getElementById('adminDetail').style.display = 'none';
+  document.getElementById('adminResultWrap').style.display = 'block';
+  renderAdminTable();
+}
+
+/* ── 최근 처분 조회 ── */
+function loadAdminRecent() {
+  var msg = document.getElementById('adminMsg');
+  msg.style.display = 'none';
+  document.getElementById('adminResultWrap').style.display = 'block';
+  document.getElementById('adminTableBody').innerHTML =
+    '<tr><td colspan="5" style="text-align:center;padding:32px"><span class="spinner"></span> 불러오는 중...</td></tr>';
+  fetchAdmin({}, 100).then(function(result) {
+    if (result.error) {
+      showAdminMsg('오류: ' + result.error, 'error');
+      return;
+    }
+    setAdminResult(result.items, result.total, '📋 최근 행정처분 목록');
+  });
+}
+
+/* ── 검색 ── */
+function searchAdmin() {
+  var itemQ = document.getElementById('adminItemQ').value.trim();
+  var entpQ = document.getElementById('adminEntpQ').value.trim();
+  if (!itemQ && !entpQ) { alert('제품명 또는 업체명을 입력해주세요.'); return; }
+
+  var btn = document.getElementById('adminBtn');
+  btn.disabled = true; btn.textContent = '검색 중...';
+  document.getElementById('adminDetail').style.display = 'none';
+  document.getElementById('adminMsg').style.display = 'none';
+  document.getElementById('adminResultWrap').style.display = 'block';
+  document.getElementById('adminTableBody').innerHTML =
+    '<tr><td colspan="5" style="text-align:center;padding:32px"><span class="spinner"></span> 조회 중...</td></tr>';
+
+  var params = {};
+  if (itemQ) params.item_name = itemQ;
+  if (entpQ) params.entp_name = entpQ;
+
+  fetchAdmin(params, 100).then(function(result) {
+    if (result.error) {
+      showAdminMsg('오류: ' + result.error, 'error');
+      document.getElementById('adminTableBody').innerHTML =
+        '<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--danger)">조회 실패</td></tr>';
+    } else if (!result.items.length) {
+      showAdminMsg('검색 결과가 없습니다.', 'warn');
+      document.getElementById('adminTableBody').innerHTML =
+        '<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--text3)">결과 없음</td></tr>';
+    } else {
+      var title = '';
+      if (itemQ) title += '"' + esc(itemQ) + '"';
+      if (itemQ && entpQ) title += ' + ';
+      if (entpQ) title += '"' + esc(entpQ) + '"';
+      title += ' 행정처분 검색 결과';
+      setAdminResult(result.items, result.total, title);
+    }
+    btn.disabled = false; btn.textContent = '검색';
+  });
+}
+
+function showAdminMsg(msg, type) {
+  var el = document.getElementById('adminMsg');
+  el.textContent = msg;
+  if (type === 'error') el.style.cssText = 'display:block;padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:14px;background:#fef2f2;color:#dc2626;border:1px solid #fca5a5';
+  else if (type === 'warn') el.style.cssText = 'display:block;padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:14px;background:#fff7ed;color:#9a3412;border:1px solid #fed7aa';
+  else el.style.cssText = 'display:block;padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:14px;background:#f0fdf4;color:#166534;border:1px solid #bbf7d0';
+}
+
+function clearAdminResult() {
+  document.getElementById('adminResultWrap').style.display = 'none';
+  document.getElementById('adminMsg').style.display = 'none';
+  document.getElementById('adminItemQ').value = '';
+  document.getElementById('adminEntpQ').value = '';
+  adminItems = [];
+}
+
+/* ── 상세 패널 ── */
+function showAdminDetail(it, trEl) {
+  var trs = document.querySelectorAll('#adminTable tbody tr');
+  for (var r = 0; r < trs.length; r++) trs[r].style.background = '';
+  if (trEl) trEl.style.background = 'var(--hover)';
+
+  var nm      = esc(it.ITEM_NAME        || '-');
+  var entp    = esc(it.ENTP_NAME        || '-');
+  var addr    = esc(it.ADDR             || '-');
+  var disp    = esc(it.ADM_DISPS_NAME   || '-');
+  var law     = esc(it.BEF_APPLY_LAW    || '-');
+  var cont    = esc(it.EXPOSE_CONT      || '-');
+  var dt      = fmtDate(it.LAST_SETTLE_DATE || '');
+  var endDt   = fmtDate(it.RLS_END_DATE    || '');
+  var seq     = esc(it.ITEM_SEQ         || '');
+
+  function arow(label, val, red) {
+    if (!val || val === '-' || val === '') return '';
+    var valStyle = red ? 'color:#dc2626;font-weight:600' : 'font-weight:600';
+    return '<div style="padding:11px 18px;border-bottom:1px solid var(--border)">'
+      + '<div style="font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--text3);margin-bottom:4px">' + label + '</div>'
+      + '<div style="font-size:13px;' + valStyle + ';line-height:1.5">' + val + '</div></div>';
+  }
+
+  var html =
+    '<div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:#fef2f2;border-bottom:1px solid #fca5a5">'
+    + '<div>'
+    +   '<div style="font-size:16px;font-weight:700;color:#dc2626">⚖️ ' + nm + '</div>'
+    +   '<div style="font-size:12px;color:#9a3412;margin-top:2px">' + entp + '</div>'
+    + '</div>'
+    + '<button onclick="closeAdminPanel()" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:16px;padding:4px 8px">✕</button>'
+    + '</div>'
+    + arow('행정처분명', disp, true)
+    + arow('처분일자', dt)
+    + arow('공개종료일', endDt)
+    + arow('위반법명', law)
+    + arow('업소소재지', addr)
+    + arow('품목기준코드', seq)
+    + '<div style="padding:12px 18px;background:#fffbeb;border-top:1px solid var(--border)">'
+    +   '<div style="font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:#d97706;margin-bottom:6px">위반내용</div>'
+    +   '<div style="font-size:13px;color:#7c2d12;line-height:1.7">' + cont + '</div>'
+    + '</div>';
+
+  var panel = document.getElementById('adminDetail');
+  panel.innerHTML = html;
+  panel.style.display = 'block';
+  setTimeout(function() { panel.scrollIntoView({ behavior:'smooth', block:'nearest' }); }, 50);
+}
+
+function closeAdminPanel() {
+  document.getElementById('adminDetail').style.display = 'none';
 }
 
 
