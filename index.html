@@ -764,7 +764,7 @@ td.mono { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(
   <div class="tab-row">
     <button class="tab-btn on" id="btnSearch" onclick="setTab('search')"><span class="tab-icon">&#128269;</span> 의약품 검색</button>
     <button class="tab-btn" id="btnSafety" onclick="setTab('safety')"><span class="tab-icon">&#9888;&#65039;</span> 안전정보</button>
-    <button class="tab-btn" id="btnMedical" onclick="setTab('medical')"><span class="tab-icon">&#127973;</span> 의료기관</button>
+    <button class="tab-btn" id="btnMedical" onclick="setTab('medical')"><span class="tab-icon">&#127973;</span> 의료기관검색</button>
     <button class="tab-btn" id="btnInfo" onclick="setTab('info')"><span class="tab-icon">&#128203;</span> 의약품 정보</button>
   </div>
 
@@ -926,93 +926,73 @@ td.mono { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(
   </div>
   <div class="tab" id="tab-medical">
     <div class="sub-tab-bar">
-      <button class="sub-tab" data-parent="medical" data-sub="hosp" onclick="setSubTab('medical','hosp')">&#127973; 병의원</button>
-      <button class="sub-tab" data-parent="medical" data-sub="pharm" onclick="setSubTab('medical','pharm')">&#128138; 약국</button>
+      <button class="sub-tab" data-parent="medical" data-sub="map" onclick="setSubTab('medical','map')">&#128506; 건강지도</button>
       </div>
-    <div class="sub-content" data-parent="medical" data-sub="hosp" style="display:none">
-
-    <div style="margin-bottom:20px">
-      <div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:4px">병의원 통합 검색기</div>
-      <div style="font-size:13px;color:var(--text3)">요양기관번호와 사업자 정보를 한 번에 확인하세요.</div>
-    </div>
-
-    <div class="search-card">
-      <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap">
+    <div class="sub-content" data-parent="medical" data-sub="map" style="display:none">
+      <div style="margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
         <div>
-          <div style="font-size:11px;font-weight:600;color:var(--text3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.6px">지역</div>
-          <select id="hospSido" style="height:44px;padding:0 32px 0 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;color:var(--text);background:var(--surface);cursor:pointer;appearance:auto;min-width:120px">
-            <option value="">전체 지역</option>
-            <option value="110000">서울</option>
-            <option value="210000">부산</option>
-            <option value="220000">대구</option>
-            <option value="230000">인천</option>
-            <option value="240000">광주</option>
-            <option value="250000">대전</option>
-            <option value="260000">울산</option>
-            <option value="290000">세종</option>
-            <option value="310000">경기</option>
-            <option value="320000">강원</option>
-            <option value="330000">충북</option>
-            <option value="340000">충남</option>
-            <option value="350000">전북</option>
-            <option value="360000">전남</option>
-            <option value="370000">경북</option>
-            <option value="380000">경남</option>
-            <option value="390000">제주</option>
-          </select>
+          <div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:4px">&#128506; 병원·약국 건강지도</div>
+          <div style="font-size:13px;color:var(--text3)">심평원 공식 지도 서비스 — 지도에서 직접 검색하세요.</div>
         </div>
-        <div style="flex:1;min-width:180px">
-          <div style="font-size:11px;font-weight:600;color:var(--text3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.6px">병원명</div>
-          <input class="sinput" id="hospQ" placeholder="병원명을 입력하세요"
-            onkeydown="if(event.key==='Enter')searchHosp()" style="height:44px">
-        </div>
-        <button class="btn btn-primary" onclick="searchHosp()" id="hospBtn" style="height:44px;padding:0 24px">검색</button>
-      </div>
-      <div style="margin-top:12px;display:flex;align-items:center;gap:8px">
-        <input type="checkbox" id="hospAutoYkiho" checked style="width:16px;height:16px;cursor:pointer;accent-color:var(--primary)">
-        <label for="hospAutoYkiho" style="font-size:13px;color:var(--text2);cursor:pointer">요양기호 자동 조회 활성화</label>
+        <a href="https://www.hira.or.kr/ra/hosp/getHealthMap.do?pgmid=HIRAA030002010000" target="_blank"
+           style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:var(--primary);color:#fff;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;white-space:nowrap">
+          &#128279; 새 탭에서 열기
+        </a>
       </div>
 
-    </div>
-
-    <!-- 검색 상태 메시지 -->
-    <div id="hospMsg" style="display:none;padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:14px;background:#f0fdf4;color:#166534;border:1px solid #bbf7d0"></div>
-
-    <!-- 상세 패널 (클릭 시) -->
-    <div id="hospDetail" style="display:none;margin-bottom:16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--shadow)"></div>
-
-    <!-- 결과 테이블 -->
-    <div id="hospResultWrap" style="display:none">
-      <div class="tbl-wrap-outer">
-        <div class="tbl-scroll">
-          <table id="hospTable">
-            <thead>
-              <tr>
-                <th>병원명</th>
-                <th>주소</th>
-                <th style="width:110px">요양기호</th>
-              </tr>
-            </thead>
-            <tbody id="hospTableBody"></tbody>
-          </table>
+      <!-- iframe 시도 -->
+      <div id="hiramapWrap" style="position:relative;width:100%;border-radius:var(--r-lg);overflow:hidden;border:1px solid var(--border);background:var(--surface)">
+        <iframe id="hiramap"
+          src="https://www.hira.or.kr/ra/hosp/getHealthMap.do?pgmid=HIRAA030002010000"
+          style="width:100%;height:680px;border:none;display:block"
+          title="심평원 건강지도"
+          onload="checkHiramap(this)"
+          onerror="showHiramapFallback()">
+        </iframe>
+        <!-- 로딩 중 표시 -->
+        <div id="hiramapLoading" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--surface);gap:16px;pointer-events:none">
+          <span class="spinner"></span>
+          <div style="font-size:13px;color:var(--text3)">건강지도 로딩 중...</div>
+        </div>
+        <!-- 차단 시 폴백 -->
+        <div id="hiramapFallback" style="display:none;height:400px;display:none;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:40px">
+          <div style="font-size:48px">&#127973;</div>
+          <div style="font-size:15px;font-weight:700;color:var(--text)">심평원 건강지도</div>
+          <div style="font-size:13px;color:var(--text3);text-align:center;line-height:1.7">
+            보안 정책으로 인해 내부에서 직접 표시할 수 없습니다.<br>
+            아래 버튼을 눌러 심평원 공식 사이트에서 확인해주세요.
+          </div>
+          <a href="https://www.hira.or.kr/ra/hosp/getHealthMap.do?pgmid=HIRAA030002010000" target="_blank"
+             style="display:inline-flex;align-items:center;gap:8px;padding:12px 28px;background:var(--primary);color:#fff;border-radius:10px;font-size:14px;font-weight:700;text-decoration:none">
+            &#128506; 심평원 건강지도 바로가기
+          </a>
+          <div style="font-size:12px;color:var(--text3)">병의원·약국·한의원 지도 검색 | 진료과목·요일별 필터 지원</div>
         </div>
       </div>
-      <div id="hospPagination" style="display:flex;justify-content:center;align-items:center;gap:6px;margin-top:14px;flex-wrap:wrap"></div>
-    </div>
 
-  
-    </div>
-    <div class="sub-content" data-parent="medical" data-sub="pharm" style="display:none">
-    <div style="margin-bottom:20px"><div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:4px">약국 검색</div><div style="font-size:13px;color:var(--text3)">심평원 약국기본목록</div></div>
-    <div class="search-card"><div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap"><div><div style="font-size:11px;font-weight:600;color:var(--text3);margin-bottom:6px;text-transform:uppercase">지역</div><select id="pharmSido" style="height:44px;padding:0 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;color:var(--text);background:var(--surface);cursor:pointer;min-width:110px"><option value="">전체 지역</option><option value="110000">서울</option><option value="210000">부산</option><option value="220000">대구</option><option value="230000">인천</option><option value="240000">광주</option><option value="250000">대전</option><option value="260000">울산</option><option value="290000">세종</option><option value="310000">경기</option><option value="320000">강원</option><option value="330000">충북</option><option value="340000">충남</option><option value="350000">전북</option><option value="360000">전남</option><option value="370000">경북</option><option value="380000">경남</option><option value="390000">제주</option></select></div><div style="flex:1;min-width:180px"><div style="font-size:11px;font-weight:600;color:var(--text3);margin-bottom:6px;text-transform:uppercase">약국명</div><input class="sinput" id="pharmQ" placeholder="약국명을 입력하세요" onkeydown="if(event.key==='Enter')searchPharm()" style="height:44px"></div><button class="btn btn-primary" onclick="searchPharm()" id="pharmBtn" style="height:44px;padding:0 24px">검색</button></div></div>
-    <div id="pharmMsg" style="display:none;padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:14px"></div>
-    <div id="pharmResultWrap" style="display:none"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px"><div><div class="recent-title" id="pharmResultTitle">결과</div><div style="font-size:11px;color:var(--text3);margin-top:2px" id="pharmResultSub"></div></div><button class="btn btn-ghost btn-sm" onclick="clearPharmResult()">&#8592; 검색창으로</button></div><div class="tbl-wrap-outer"><div class="tbl-scroll"><table id="pharmTable"><thead><tr><th>약국명</th><th>주소</th><th style="width:110px">전화번호</th><th style="width:110px">요양기호</th></tr></thead><tbody id="pharmTableBody"><tr><td colspan="4" style="text-align:center;padding:32px;color:var(--text3)">검색어를 입력하세요.</td></tr></tbody></table></div></div><div id="pharmPagination" style="display:flex;justify-content:center;align-items:center;gap:6px;margin-top:14px;flex-wrap:wrap"></div><div id="pharmDetail" style="display:none;margin-top:16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--shadow)"></div></div>
+      <!-- 빠른 이동 버튼 -->
+      <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap">
+        <a href="https://www.hira.or.kr/ra/hosp/getHealthMap.do?pgmid=HIRAA030002010000#a" target="_blank"
+           style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border:1px solid var(--border);border-radius:8px;font-size:13px;color:var(--text2);text-decoration:none;background:var(--surface)">
+          &#127973; 병의원 찾기
+        </a>
+        <a href="https://www.hira.or.kr/ra/hosp/getHealthMap.do?pgmid=HIRAA030002010000#a" target="_blank"
+           style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border:1px solid var(--border);border-radius:8px;font-size:13px;color:var(--text2);text-decoration:none;background:var(--surface)">
+          &#128138; 약국 찾기
+        </a>
+        <a href="https://www.hira.or.kr/ra/hosp/getHealthMap.do?pgmid=HIRAA030002010000#a" target="_blank"
+           style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border:1px solid var(--border);border-radius:8px;font-size:13px;color:var(--text2);text-decoration:none;background:var(--surface)">
+          &#127811; 한의원 찾기
+        </a>
+      </div>
     </div>
   </div>
   <div class="tab" id="tab-info">
     <div class="sub-tab-bar">
       <button class="sub-tab" data-parent="info" data-sub="license" onclick="setSubTab('info','license')">&#128196; 허가정보</button>
       <button class="sub-tab" data-parent="info" data-sub="dur" onclick="setSubTab('info','dur')">&#9877;&#65039; DUR 안전정보</button>
+      <button class="sub-tab" data-parent="info" data-sub="insu" onclick="setSubTab('info','insu')">&#128195; 보험인정기준</button>
+      <button class="sub-tab" data-parent="info" data-sub="druglist" onclick="setSubTab('info','druglist')">&#128137; 약제기준목록표</button>
       </div>
     <div class="sub-content" data-parent="info" data-sub="license" style="display:none">
     <div style="margin-bottom:20px"><div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:4px">의약품 허가정보 조회</div></div>
@@ -1025,6 +1005,115 @@ td.mono { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(
     <div class="search-card"><div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap"><div style="flex:1;min-width:200px"><div style="font-size:11px;font-weight:600;color:var(--text3);margin-bottom:6px;text-transform:uppercase">품목명</div><input class="sinput" id="durQ" placeholder="의약품명 (예: 타이레놀)" onkeydown="if(event.key==='Enter')searchDur()" style="height:44px"></div><div><div style="font-size:11px;font-weight:600;color:var(--text3);margin-bottom:6px;text-transform:uppercase">검색 유형</div><select id="durType" style="height:44px;padding:0 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;color:var(--text);background:var(--surface);cursor:pointer;min-width:130px"><option value="all">전체 항목</option><option value="usjnt">병용금기</option><option value="pwnm">임부금기</option><option value="odsn">노인주의</option><option value="age">특정연령대금기</option><option value="efcy">효능군중복</option></select></div><button class="btn btn-primary" onclick="searchDur()" id="durBtn" style="height:44px;padding:0 24px">검색</button></div></div>
     <div id="durMsg" style="display:none;padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:14px"></div>
     <div id="durResultWrap" style="display:none"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px"><div><div class="recent-title" id="durResultTitle">결과</div><div style="font-size:11px;color:var(--text3);margin-top:2px" id="durResultSub"></div></div><button class="btn btn-ghost btn-sm" onclick="clearDurResult()">&#8592; 검색창으로</button></div><div id="durSections"></div></div>
+    </div>
+    <div class="sub-content" data-parent="info" data-sub="insu" style="display:none">
+      <div style="margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+        <div>
+          <div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:4px">&#128195; 보험인정기준</div>
+          <div style="font-size:13px;color:var(--text3)">심평원 건강보험 보험인정기준 고시 — 행위·약제·치료재료 기준을 확인하세요.</div>
+        </div>
+        <a href="https://www.hira.or.kr/rc/insu/insuadtcrtr/InsuAdtCrtrList.do?pgmid=HIRAA030069000400" target="_blank"
+           style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:var(--primary);color:#fff;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;white-space:nowrap">
+          &#128279; 새 탭에서 열기
+        </a>
+      </div>
+
+      <!-- iframe -->
+      <div style="position:relative;width:100%;border-radius:var(--r-lg);overflow:hidden;border:1px solid var(--border);background:var(--surface)">
+        <iframe id="insuframe"
+          src="https://www.hira.or.kr/rc/insu/insuadtcrtr/InsuAdtCrtrList.do?pgmid=HIRAA030069000400"
+          style="width:100%;height:720px;border:none;display:block"
+          title="심평원 보험인정기준"
+          onload="checkInsuFrame(this)"
+          onerror="showInsuFallback()">
+        </iframe>
+        <!-- 로딩 -->
+        <div id="insuLoading" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--surface);gap:16px;pointer-events:none">
+          <span class="spinner"></span>
+          <div style="font-size:13px;color:var(--text3)">보험인정기준 로딩 중...</div>
+        </div>
+        <!-- 폴백 -->
+        <div id="insuFallback" style="display:none;height:420px;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:40px;text-align:center">
+          <div style="font-size:48px">&#128195;</div>
+          <div style="font-size:16px;font-weight:700;color:var(--text)">심평원 보험인정기준</div>
+          <div style="font-size:13px;color:var(--text3);line-height:1.8">
+            보안 정책으로 인해 내부에서 직접 표시할 수 없습니다.<br>
+            아래 버튼을 눌러 심평원 공식 사이트에서 확인해주세요.
+          </div>
+          <a href="https://www.hira.or.kr/rc/insu/insuadtcrtr/InsuAdtCrtrList.do?pgmid=HIRAA030069000400"
+             target="_blank"
+             style="display:inline-flex;align-items:center;gap:8px;padding:14px 32px;background:var(--primary);color:#fff;border-radius:10px;font-size:15px;font-weight:700;text-decoration:none">
+            &#128195; 보험인정기준 바로가기
+          </a>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:4px">
+            <a href="https://www.hira.or.kr/rc/insu/insuadtcrtr/InsuAdtCrtrList.do?pgmid=HIRAA030069000400&brdScnBltNo=4&brdBltNo=&searchTxt=&insuAdtCrtrClsfCd=01" target="_blank"
+               style="padding:7px 14px;border:1px solid var(--border);border-radius:8px;font-size:12px;color:var(--text2);text-decoration:none;background:var(--surface)">
+              &#128138; 약제기준
+            </a>
+            <a href="https://www.hira.or.kr/rc/insu/insuadtcrtr/InsuAdtCrtrList.do?pgmid=HIRAA030069000400&brdScnBltNo=4&brdBltNo=&searchTxt=&insuAdtCrtrClsfCd=02" target="_blank"
+               style="padding:7px 14px;border:1px solid var(--border);border-radius:8px;font-size:12px;color:var(--text2);text-decoration:none;background:var(--surface)">
+              &#127973; 의료행위기준
+            </a>
+            <a href="https://www.hira.or.kr/rc/insu/insuadtcrtr/InsuAdtCrtrList.do?pgmid=HIRAA030069000400&brdScnBltNo=4&brdBltNo=&searchTxt=&insuAdtCrtrClsfCd=03" target="_blank"
+               style="padding:7px 14px;border:1px solid var(--border);border-radius:8px;font-size:12px;color:var(--text2);text-decoration:none;background:var(--surface)">
+              &#129657; 치료재료기준
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="sub-content" data-parent="info" data-sub="druglist" style="display:none">
+      <div style="margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+        <div>
+          <div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:4px">&#128137; 약제기준정보 목록표</div>
+          <div style="font-size:13px;color:var(--text3)">심평원 약제기준정보 목록표 — 퇴장방지의약품 등 목록을 확인하세요.</div>
+        </div>
+        <a href="https://www.hira.or.kr/bbsDummy.do?pgmid=HIRAA030019000000" target="_blank"
+           style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:var(--primary);color:#fff;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;white-space:nowrap">
+          &#128279; 새 탭에서 열기
+        </a>
+      </div>
+
+      <div style="position:relative;width:100%;border-radius:var(--r-lg);overflow:hidden;border:1px solid var(--border);background:var(--surface)">
+        <iframe id="druglistframe"
+          src="https://www.hira.or.kr/bbsDummy.do?pgmid=HIRAA030019000000"
+          style="width:100%;height:720px;border:none;display:block"
+          title="심평원 약제기준정보 목록표"
+          onload="checkDruglistFrame(this)"
+          onerror="showDruglistFallback()">
+        </iframe>
+        <div id="druglistLoading" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--surface);gap:16px;pointer-events:none">
+          <span class="spinner"></span>
+          <div style="font-size:13px;color:var(--text3)">약제기준정보 목록표 로딩 중...</div>
+        </div>
+        <div id="druglistFallback" style="display:none;height:420px;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:40px;text-align:center">
+          <div style="font-size:48px">&#128137;</div>
+          <div style="font-size:16px;font-weight:700;color:var(--text)">약제기준정보 목록표</div>
+          <div style="font-size:13px;color:var(--text3);line-height:1.8">
+            보안 정책으로 인해 내부에서 직접 표시할 수 없습니다.<br>
+            아래 버튼을 눌러 심평원 공식 사이트에서 확인해주세요.
+          </div>
+          <a href="https://www.hira.or.kr/bbsDummy.do?pgmid=HIRAA030019000000"
+             target="_blank"
+             style="display:inline-flex;align-items:center;gap:8px;padding:14px 32px;background:var(--primary);color:#fff;border-radius:10px;font-size:15px;font-weight:700;text-decoration:none">
+            &#128137; 약제기준정보 목록표 바로가기
+          </a>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:4px">
+            <a href="https://www.hira.or.kr/bbsDummy.do?pgmid=HIRAA030019000000" target="_blank"
+               style="padding:7px 14px;border:1px solid var(--border);border-radius:8px;font-size:12px;color:var(--text2);text-decoration:none;background:var(--surface)">
+              &#128138; 퇴장방지의약품
+            </a>
+            <a href="https://www.hira.or.kr/bbsDummy.do?pgmid=HIRAA030019010000" target="_blank"
+               style="padding:7px 14px;border:1px solid var(--border);border-radius:8px;font-size:12px;color:var(--text2);text-decoration:none;background:var(--surface)">
+              &#128196; 급여목록표
+            </a>
+            <a href="https://www.hira.or.kr/bbsDummy.do?pgmid=HIRAA030019020000" target="_blank"
+               style="padding:7px 14px;border:1px solid var(--border);border-radius:8px;font-size:12px;color:var(--text2);text-decoration:none;background:var(--surface)">
+              &#128209; 비급여목록표
+            </a>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -1084,7 +1173,7 @@ function setTab(t) {
   ['tab-search','tab-safety','tab-medical','tab-info'].forEach(function(id,i){var el=document.getElementById(id),key=['search','safety','medical','info'][i];if(el)el.className='tab'+(t===key?' on':'');});
   if(t==='search'  && !document.querySelector('.sub-tab.on[data-parent="search"]'))  setSubTab('search','single');
   if(t==='safety'  && !document.querySelector('.sub-tab.on[data-parent="safety"]'))  setSubTab('safety','recall');
-  if(t==='medical' && !document.querySelector('.sub-tab.on[data-parent="medical"]')) setSubTab('medical','hosp');
+  if(t==='medical' && !document.querySelector('.sub-tab.on[data-parent="medical"]')) setSubTab('medical','map');
   if(t==='info'    && !document.querySelector('.sub-tab.on[data-parent="info"]'))    setSubTab('info','license');
 }
 function setSubTab(parent,sub){
@@ -2423,6 +2512,76 @@ function showCompDetail(it,trEl){var trs=document.querySelectorAll('#compTable t
 var html='<div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:var(--hover);border-bottom:1px solid var(--border)"><div><div style="font-size:15px;font-weight:700">'+esc(it.ITEM_NAME||'-')+'</div><div style="font-size:12px;color:var(--text2);margin-top:2px">'+esc(it.ENTP_NAME||'-')+'</div></div><button onclick="closeCompPanel()" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:16px;padding:4px 8px">&#x2715;</button></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:0"><div style="border-right:1px solid var(--border)">'+cr('성분명',it.INGR_KOR_NAME||it.INGR_NAME||'')+cr('대조약 구분',it.MDC_COMP_DRUG_TYPE||it.COMP_DRG_TYPE||'')+cr('제형',it.FORM_CODE_NAME||'')+'</div><div>'+cr('공고일',fmtDate(it.ANNS_DT||''))+cr('품목기준코드',seq)+'</div></div>'+(seq?'<div style="padding:12px 20px;border-top:1px solid var(--border)"><a href="'+nedruUrl+'" target="_blank" style="font-size:12px;color:var(--primary);font-weight:500;text-decoration:none">&#128279; 의약품안전나라 &#8594;</a></div>':'');
 var panel=document.getElementById('compDetail');panel.innerHTML=html;panel.style.display='block';setTimeout(function(){panel.scrollIntoView({behavior:'smooth',block:'nearest'});},50);}
 function closeCompPanel(){document.getElementById('compDetail').style.display='none';}
+
+/* ── 심평원 건강지도 iframe 차단 감지 ── */
+function checkHiramap(iframe) {
+  // 로딩 완료 시 로딩 스피너 숨기기
+  var loading = document.getElementById('hiramapLoading');
+  if (loading) loading.style.display = 'none';
+  // X-Frame-Options 차단 시 contentDocument가 비어있거나 about:blank
+  try {
+    var doc = iframe.contentDocument || iframe.contentWindow.document;
+    if (!doc || doc.URL === 'about:blank' || doc.body.innerHTML === '') {
+      showHiramapFallback();
+    }
+  } catch(e) {
+    // cross-origin 에러 = 실제로 로드됨 (iframe 허용)
+    // 아무것도 안 해도 됨
+  }
+}
+function showHiramapFallback() {
+  var loading  = document.getElementById('hiramapLoading');
+  var fallback = document.getElementById('hiramapFallback');
+  var iframe   = document.getElementById('hiramap');
+  if (loading)  loading.style.display  = 'none';
+  if (iframe)   iframe.style.display   = 'none';
+  if (fallback) {
+    fallback.style.display = 'flex';
+    fallback.style.height  = '400px';
+  }
+}
+
+function checkInsuFrame(iframe) {
+  var loading = document.getElementById('insuLoading');
+  if (loading) loading.style.display = 'none';
+  try {
+    var doc = iframe.contentDocument || iframe.contentWindow.document;
+    if (!doc || doc.URL === 'about:blank' || doc.body.innerHTML === '') {
+      showInsuFallback();
+    }
+  } catch(e) {
+    // cross-origin = 로드 성공
+  }
+}
+function showInsuFallback() {
+  var loading  = document.getElementById('insuLoading');
+  var fallback = document.getElementById('insuFallback');
+  var iframe   = document.getElementById('insuframe');
+  if (loading)  loading.style.display  = 'none';
+  if (iframe)   iframe.style.display   = 'none';
+  if (fallback) { fallback.style.display = 'flex'; }
+}
+
+function checkDruglistFrame(iframe) {
+  var loading = document.getElementById('druglistLoading');
+  if (loading) loading.style.display = 'none';
+  try {
+    var doc = iframe.contentDocument || iframe.contentWindow.document;
+    if (!doc || doc.URL === 'about:blank' || doc.body.innerHTML === '') {
+      showDruglistFallback();
+    }
+  } catch(e) {
+    // cross-origin = 로드 성공
+  }
+}
+function showDruglistFallback() {
+  var loading  = document.getElementById('druglistLoading');
+  var fallback = document.getElementById('druglistFallback');
+  var iframe   = document.getElementById('druglistframe');
+  if (loading)  loading.style.display = 'none';
+  if (iframe)   iframe.style.display  = 'none';
+  if (fallback) { fallback.style.display = 'flex'; }
+}
 
 window.onload = function() {
   setupDrop();
