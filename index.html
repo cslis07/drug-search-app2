@@ -927,16 +927,18 @@ body.mobile-forced .sub-tab { padding: 7px 11px !important; font-size: 12px !imp
   <div class="tab-row">
     <button class="tab-btn on" id="btnSearch" onclick="setTab('search')"><span class="tab-icon">&#128269;</span> 의약품 검색</button>
     <button class="tab-btn" id="btnSafety" onclick="setTab('safety')"><span class="tab-icon">&#9888;&#65039;</span> 안전정보</button>
-    <button class="tab-btn" id="btnMedical" onclick="setTab('medical')"><span class="tab-icon">&#127973;</span> 의료기관검색</button>
+    <button class="tab-btn" id="btnMedical" onclick="setTab('medical')"><span class="tab-icon">&#127973;</span> 의료기관검색(병의원&amp;약국)(병의원&amp;약국)</button>
     <button class="tab-btn" id="btnInfo" onclick="setTab('info')"><span class="tab-icon">&#128203;</span> 의약품 정보</button>
   </div>
 
   <div class="tab on" id="tab-search">
     <div class="sub-tab-bar">
-      <button class="sub-tab" data-parent="search" data-sub="single" onclick="setSubTab('search','single')">&#128269; 단건 검색</button>
-      <button class="sub-tab" data-parent="search" data-sub="bulk" onclick="setSubTab('search','bulk')">&#128194; 엑셀 일괄 조회</button>
+      <button class="sub-tab" data-parent="search" data-sub="single" onclick="setSubTab('search','single')">&#128269; 의약품 검색</button>
       </div>
     <div class="sub-content" data-parent="search" data-sub="single" style="display:none">
+    <div class="recall-notice">
+      &#9432; <span><strong>의약품 단건 검색</strong> — 의약품 정보 품목(포장, 보험금액, 허가, 업체, 성상, 주성분 등)을 조회합니다. 최신 정보는 <a href="https://nedrug.mfds.go.kr/pbp/CCBBB01/getList" target="_blank" style="color:#9a3412;font-weight:700">의약품안전나라 &#8599;</a>에서도 확인하세요.</span>
+    </div>
     <div class="search-card">
       <div class="search-row">
         <input class="sinput" id="q"
@@ -947,42 +949,17 @@ body.mobile-forced .sub-tab { padding: 7px 11px !important; font-size: 12px !imp
     </div>
     <div id="result"></div>
   
-    </div>
-    <div class="sub-content" data-parent="search" data-sub="bulk" style="display:none">
-    <div class="excel-card">
-      <div class="drop-zone" id="dropZone">
-        <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" onchange="onFile(event)">
-        <div class="drop-icon">📄</div>
-        <div class="drop-text">엑셀 파일을 드래그하거나 클릭해서 업로드</div>
-        <div class="drop-sub">.xlsx / .xls / .csv — 1행 헤더, 2행부터 제품명</div>
-      </div>
-      <div class="excel-controls" id="exCtrl">
-        <div>
-          <div class="col-label">제품명 열 선택</div>
-          <select class="col-sel" id="colSel"></select>
-        </div>
-        <button class="btn btn-primary" onclick="runBulk()">일괄 조회 시작</button>
-        <button class="btn btn-ghost" onclick="stopFlag=true">⏹ 중지</button>
-      </div>
-    </div>
-    <div class="prog-wrap" id="progWrap">
-      <div class="prog-meta">
-        <span id="progText">처리 중...</span>
-        <span id="progCount">0 / 0</span>
-      </div>
-      <div class="prog-bar"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
-    </div>
-    <div id="bulkResult"></div>
-  
+    </div
     </div>
   </div>
+
   <div class="tab" id="tab-safety">
     <div class="sub-tab-bar">
       <button class="sub-tab" data-parent="safety" data-sub="recall" onclick="setSubTab('safety','recall')">&#128680; 회수&#183;판매중지</button>
       <button class="sub-tab" data-parent="safety" data-sub="admin" onclick="setSubTab('safety','admin')">&#9878;&#65039; 행정처분</button>
       </div>
     <div class="sub-content" data-parent="safety" data-sub="recall" style="display:none">
-
+    <!-- 경고 배너 -->
     <div class="recall-notice">
       ⚠️ <span><strong>식약처 의약품 회수·판매중지 정보</strong> — 회수명령·자진회수·판매중지 품목을 조회합니다.
       최신 정보는 <a href="https://nedrug.mfds.go.kr/pbp/CCBAI01" target="_blank" style="color:#9a3412;font-weight:700">의약품안전나라 ↗</a>에서도 확인하세요.</span>
@@ -1016,7 +993,7 @@ body.mobile-forced .sub-tab { padding: 7px 11px !important; font-size: 12px !imp
         </div>
       </div>
 
-      <!-- 테이블 (전체 너비) -->
+      <!-- 테이블 -->
       <div class="tbl-wrap-outer">
         <div class="tbl-scroll">
           <table id="recallTable">
@@ -1043,13 +1020,12 @@ body.mobile-forced .sub-tab { padding: 7px 11px !important; font-size: 12px !imp
       <!-- 페이지네이션 -->
       <div id="recallPagination" style="display:flex;justify-content:center;align-items:center;gap:6px;margin-top:14px;flex-wrap:wrap"></div>
 
-      <!-- 상세 패널 (클릭 시 테이블 아래에 표시) -->
+      <!-- 상세 패널 -->
       <div id="recallDetail" style="display:none;margin-top:16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--shadow)"></div>
     </div>
 
+    <!-- 엑셀 일괄 회수 여부 확인 -->
     <hr style="border:none;border-top:1px solid var(--border);margin:32px 0">
-
-    <!-- 엑셀 일괄 확인 -->
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
       <div>
         <div class="recent-title">📂 엑셀 일괄 회수 여부 확인</div>
@@ -1077,79 +1053,27 @@ body.mobile-forced .sub-tab { padding: 7px 11px !important; font-size: 12px !imp
       <div class="prog-bar"><div class="prog-fill" id="recallProgFill" style="width:0%"></div></div>
     </div>
     <div id="recallBulkResult"></div>
-
-  
-    </div>
     <div class="sub-content" data-parent="safety" data-sub="admin" style="display:none">
+    <div class="recall-notice">
+      &#9878;&#65039; <span><strong>의약품 행정처분</strong> — 의약품 행정처분 항목을 조회합니다. 최근처분을 누르시면 리스트를 확인하실 수 있습니다.</span>
+    </div>
     <div style="margin-bottom:20px"><div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:4px">의약품 행정처분 조회</div><div style="font-size:13px;color:var(--text3)">식약처 행정처분 정보</div></div>
     <div class="search-card"><div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap"><div style="flex:1;min-width:160px"><div style="font-size:11px;font-weight:600;color:var(--text3);margin-bottom:6px;text-transform:uppercase">제품명</div><input class="sinput" id="adminItemQ" placeholder="제품명 (예: 타이레놀)" onkeydown="if(event.key==='Enter')searchAdmin()" style="height:44px"></div><div style="flex:1;min-width:160px"><div style="font-size:11px;font-weight:600;color:var(--text3);margin-bottom:6px;text-transform:uppercase">업체명</div><input class="sinput" id="adminEntpQ" placeholder="업체명" onkeydown="if(event.key==='Enter')searchAdmin()" style="height:44px"></div><button class="btn btn-primary" onclick="searchAdmin()" id="adminBtn" style="height:44px;padding:0 24px">검색</button><button class="btn btn-ghost" onclick="loadAdminRecent()" style="height:44px;white-space:nowrap">&#128203; 최근 처분</button></div></div>
     <div id="adminMsg" style="display:none;padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:14px"></div>
     <div id="adminResultWrap" style="display:none"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px"><div><div class="recent-title" id="adminResultTitle">결과</div><div style="font-size:11px;color:var(--text3);margin-top:2px" id="adminResultSub"></div></div><button class="btn btn-ghost btn-sm" onclick="clearAdminResult()">&#8592; 검색창으로</button></div><div class="tbl-wrap-outer"><div class="tbl-scroll"><table id="adminTable"><thead><tr><th>제품명</th><th style="width:130px">업소명</th><th>행정처분명</th><th style="width:96px">처분일자</th><th style="width:96px">공개종료일</th></tr></thead><tbody id="adminTableBody"><tr><td colspan="5" style="text-align:center;padding:32px;color:var(--text3)">검색어를 입력하거나 최근 처분을 조회하세요.</td></tr></tbody></table></div></div><div id="adminPagination" style="display:flex;justify-content:center;align-items:center;gap:6px;margin-top:14px;flex-wrap:wrap"></div><div id="adminDetail" style="display:none;margin-top:16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--shadow)"></div></div>
     </div>
   </div>
+
   <div class="tab" id="tab-medical">
     <div class="sub-tab-bar">
       <button class="sub-tab" data-parent="medical" data-sub="map" onclick="setSubTab('medical','map')">&#128506; 건강지도</button>
       </div>
     <div class="sub-content" data-parent="medical" data-sub="map" style="display:none">
-      <div style="margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
-        <div>
-          <div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:4px">&#128506; 병원·약국 건강지도</div>
-          <div style="font-size:13px;color:var(--text3)">심평원 공식 지도 서비스 — 지도에서 직접 검색하세요.</div>
-        </div>
-        <a href="https://www.hira.or.kr/ra/hosp/getHealthMap.do?pgmid=HIRAA030002010000" target="_blank"
-           style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:var(--primary);color:#fff;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;white-space:nowrap">
-          &#128279; 새 탭에서 열기
-        </a>
-      </div>
-
-      <!-- iframe 시도 -->
-      <div id="hiramapWrap" style="position:relative;width:100%;border-radius:var(--r-lg);overflow:hidden;border:1px solid var(--border);background:var(--surface)">
-        <iframe id="hiramap"
-          src="https://www.hira.or.kr/ra/hosp/getHealthMap.do?pgmid=HIRAA030002010000"
-          style="width:100%;height:680px;border:none;display:block"
-          title="심평원 건강지도"
-          onload="checkHiramap(this)"
-          onerror="showHiramapFallback()">
-        </iframe>
-        <!-- 로딩 중 표시 -->
-        <div id="hiramapLoading" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--surface);gap:16px;pointer-events:none">
-          <span class="spinner"></span>
-          <div style="font-size:13px;color:var(--text3)">건강지도 로딩 중...</div>
-        </div>
-        <!-- 차단 시 폴백 -->
-        <div id="hiramapFallback" style="display:none;height:400px;display:none;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:40px">
-          <div style="font-size:48px">&#127973;</div>
-          <div style="font-size:15px;font-weight:700;color:var(--text)">심평원 건강지도</div>
-          <div style="font-size:13px;color:var(--text3);text-align:center;line-height:1.7">
-            보안 정책으로 인해 내부에서 직접 표시할 수 없습니다.<br>
-            아래 버튼을 눌러 심평원 공식 사이트에서 확인해주세요.
-          </div>
-          <a href="https://www.hira.or.kr/ra/hosp/getHealthMap.do?pgmid=HIRAA030002010000" target="_blank"
-             style="display:inline-flex;align-items:center;gap:8px;padding:12px 28px;background:var(--primary);color:#fff;border-radius:10px;font-size:14px;font-weight:700;text-decoration:none">
-            &#128506; 심평원 건강지도 바로가기
-          </a>
-          <div style="font-size:12px;color:var(--text3)">병의원·약국·한의원 지도 검색 | 진료과목·요일별 필터 지원</div>
-        </div>
-      </div>
-
-      <!-- 빠른 이동 버튼 -->
-      <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap">
-        <a href="https://www.hira.or.kr/ra/hosp/getHealthMap.do?pgmid=HIRAA030002010000#a" target="_blank"
-           style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border:1px solid var(--border);border-radius:8px;font-size:13px;color:var(--text2);text-decoration:none;background:var(--surface)">
-          &#127973; 병의원 찾기
-        </a>
-        <a href="https://www.hira.or.kr/ra/hosp/getHealthMap.do?pgmid=HIRAA030002010000#a" target="_blank"
-           style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border:1px solid var(--border);border-radius:8px;font-size:13px;color:var(--text2);text-decoration:none;background:var(--surface)">
-          &#128138; 약국 찾기
-        </a>
-        <a href="https://www.hira.or.kr/ra/hosp/getHealthMap.do?pgmid=HIRAA030002010000#a" target="_blank"
-           style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border:1px solid var(--border);border-radius:8px;font-size:13px;color:var(--text2);text-decoration:none;background:var(--surface)">
-          &#127811; 한의원 찾기
-        </a>
-      </div>
+    <div style="margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px"><div><div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:4px">&#128506; 병원&#183;약국 건강지도</div><div style="font-size:13px;color:var(--text3)">심평원 공식 지도 서비스 — 지도에서 직접 검색하세요.</div></div><a href="https://www.hira.or.kr/ra/hosp/getHealthMap.do?pgmid=HIRAA030002010000" target="_blank" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:var(--primary);color:#fff;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;white-space:nowrap">&#128279; 새 탭에서 열기</a></div>
+    <div style="position:relative;width:100%;border-radius:var(--r-lg);overflow:hidden;border:1px solid var(--border);background:var(--surface)"><iframe id="hiramap" src="https://www.hira.or.kr/ra/hosp/getHealthMap.do?pgmid=HIRAA030002010000" style="width:100%;height:680px;border:none;display:block" title="심평원 건강지도" onload="checkHiramap(this)" onerror="showHiramapFallback()"></iframe><div id="hiramapLoading" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--surface);gap:16px;pointer-events:none"><span class="spinner"></span><div style="font-size:13px;color:var(--text3)">건강지도 로딩 중...</div></div><div id="hiramapFallback" style="display:none;height:400px;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:40px;text-align:center"><div style="font-size:48px">&#127973;</div><div style="font-size:15px;font-weight:700;color:var(--text)">심평원 건강지도</div><div style="font-size:13px;color:var(--text3);line-height:1.7">보안 정책으로 인해 내부에서 직접 표시할 수 없습니다.</div><a href="https://www.hira.or.kr/ra/hosp/getHealthMap.do?pgmid=HIRAA030002010000" target="_blank" style="display:inline-flex;align-items:center;gap:8px;padding:12px 28px;background:var(--primary);color:#fff;border-radius:10px;font-size:14px;font-weight:700;text-decoration:none">&#128506; 심평원 건강지도 바로가기</a></div></div>
     </div>
   </div>
+
   <div class="tab" id="tab-info">
     <div class="sub-tab-bar">
       <button class="sub-tab" data-parent="info" data-sub="license" onclick="setSubTab('info','license')">&#128196; 허가정보</button>
@@ -1158,6 +1082,9 @@ body.mobile-forced .sub-tab { padding: 7px 11px !important; font-size: 12px !imp
       <button class="sub-tab" data-parent="info" data-sub="druglist" onclick="setSubTab('info','druglist')">&#128137; 약제기준목록표</button>
       </div>
     <div class="sub-content" data-parent="info" data-sub="license" style="display:none">
+    <div class="recall-notice">
+      &#128203; <span><strong>의약품 정보</strong> — 의약품 허가정보, DUR 안전정보, 보험인정기준, 약제기준목록표를 조회합니다.</span>
+    </div>
     <div style="margin-bottom:20px"><div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:4px">의약품 허가정보 조회</div></div>
     <div class="search-card"><div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap"><div style="flex:1;min-width:160px"><div style="font-size:11px;font-weight:600;color:var(--text3);margin-bottom:6px;text-transform:uppercase">제품명</div><input class="sinput" id="licItemQ" placeholder="제품명 (예: 타이레놀)" onkeydown="if(event.key==='Enter')searchLicense()" style="height:44px"></div><div style="flex:1;min-width:160px"><div style="font-size:11px;font-weight:600;color:var(--text3);margin-bottom:6px;text-transform:uppercase">업체명</div><input class="sinput" id="licEntpQ" placeholder="업체명" onkeydown="if(event.key==='Enter')searchLicense()" style="height:44px"></div><button class="btn btn-primary" onclick="searchLicense()" id="licBtn" style="height:44px;padding:0 24px">검색</button></div></div>
     <div id="licMsg" style="display:none;padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:14px"></div>
@@ -1170,113 +1097,12 @@ body.mobile-forced .sub-tab { padding: 7px 11px !important; font-size: 12px !imp
     <div id="durResultWrap" style="display:none"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px"><div><div class="recent-title" id="durResultTitle">결과</div><div style="font-size:11px;color:var(--text3);margin-top:2px" id="durResultSub"></div></div><button class="btn btn-ghost btn-sm" onclick="clearDurResult()">&#8592; 검색창으로</button></div><div id="durSections"></div></div>
     </div>
     <div class="sub-content" data-parent="info" data-sub="insu" style="display:none">
-      <div style="margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
-        <div>
-          <div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:4px">&#128195; 보험인정기준</div>
-          <div style="font-size:13px;color:var(--text3)">심평원 건강보험 보험인정기준 고시 — 행위·약제·치료재료 기준을 확인하세요.</div>
-        </div>
-        <a href="https://www.hira.or.kr/rc/insu/insuadtcrtr/InsuAdtCrtrList.do?pgmid=HIRAA030069000400" target="_blank"
-           style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:var(--primary);color:#fff;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;white-space:nowrap">
-          &#128279; 새 탭에서 열기
-        </a>
-      </div>
-
-      <!-- iframe -->
-      <div style="position:relative;width:100%;border-radius:var(--r-lg);overflow:hidden;border:1px solid var(--border);background:var(--surface)">
-        <iframe id="insuframe"
-          src="https://www.hira.or.kr/rc/insu/insuadtcrtr/InsuAdtCrtrList.do?pgmid=HIRAA030069000400"
-          style="width:100%;height:720px;border:none;display:block"
-          title="심평원 보험인정기준"
-          onload="checkInsuFrame(this)"
-          onerror="showInsuFallback()">
-        </iframe>
-        <!-- 로딩 -->
-        <div id="insuLoading" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--surface);gap:16px;pointer-events:none">
-          <span class="spinner"></span>
-          <div style="font-size:13px;color:var(--text3)">보험인정기준 로딩 중...</div>
-        </div>
-        <!-- 폴백 -->
-        <div id="insuFallback" style="display:none;height:420px;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:40px;text-align:center">
-          <div style="font-size:48px">&#128195;</div>
-          <div style="font-size:16px;font-weight:700;color:var(--text)">심평원 보험인정기준</div>
-          <div style="font-size:13px;color:var(--text3);line-height:1.8">
-            보안 정책으로 인해 내부에서 직접 표시할 수 없습니다.<br>
-            아래 버튼을 눌러 심평원 공식 사이트에서 확인해주세요.
-          </div>
-          <a href="https://www.hira.or.kr/rc/insu/insuadtcrtr/InsuAdtCrtrList.do?pgmid=HIRAA030069000400"
-             target="_blank"
-             style="display:inline-flex;align-items:center;gap:8px;padding:14px 32px;background:var(--primary);color:#fff;border-radius:10px;font-size:15px;font-weight:700;text-decoration:none">
-            &#128195; 보험인정기준 바로가기
-          </a>
-          <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:4px">
-            <a href="https://www.hira.or.kr/rc/insu/insuadtcrtr/InsuAdtCrtrList.do?pgmid=HIRAA030069000400&brdScnBltNo=4&brdBltNo=&searchTxt=&insuAdtCrtrClsfCd=01" target="_blank"
-               style="padding:7px 14px;border:1px solid var(--border);border-radius:8px;font-size:12px;color:var(--text2);text-decoration:none;background:var(--surface)">
-              &#128138; 약제기준
-            </a>
-            <a href="https://www.hira.or.kr/rc/insu/insuadtcrtr/InsuAdtCrtrList.do?pgmid=HIRAA030069000400&brdScnBltNo=4&brdBltNo=&searchTxt=&insuAdtCrtrClsfCd=02" target="_blank"
-               style="padding:7px 14px;border:1px solid var(--border);border-radius:8px;font-size:12px;color:var(--text2);text-decoration:none;background:var(--surface)">
-              &#127973; 의료행위기준
-            </a>
-            <a href="https://www.hira.or.kr/rc/insu/insuadtcrtr/InsuAdtCrtrList.do?pgmid=HIRAA030069000400&brdScnBltNo=4&brdBltNo=&searchTxt=&insuAdtCrtrClsfCd=03" target="_blank"
-               style="padding:7px 14px;border:1px solid var(--border);border-radius:8px;font-size:12px;color:var(--text2);text-decoration:none;background:var(--surface)">
-              &#129657; 치료재료기준
-            </a>
-          </div>
-        </div>
-      </div>
+    <div style="margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px"><div><div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:4px">&#128195; 보험인정기준</div></div><a href="https://www.hira.or.kr/rc/insu/insuadtcrtr/InsuAdtCrtrList.do?pgmid=HIRAA030069000400" target="_blank" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:var(--primary);color:#fff;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;white-space:nowrap">&#128279; 새 탭에서 열기</a></div>
+    <div style="position:relative;width:100%;border-radius:var(--r-lg);overflow:hidden;border:1px solid var(--border);background:var(--surface)"><iframe id="insuframe" src="https://www.hira.or.kr/rc/insu/insuadtcrtr/InsuAdtCrtrList.do?pgmid=HIRAA030069000400" style="width:100%;height:720px;border:none;display:block" title="심평원 보험인정기준" onload="checkInsuFrame(this)" onerror="showInsuFallback()"></iframe><div id="insuLoading" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--surface);gap:16px;pointer-events:none"><span class="spinner"></span><div style="font-size:13px;color:var(--text3)">보험인정기준 로딩 중...</div></div><div id="insuFallback" style="display:none;height:420px;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:40px;text-align:center"><div style="font-size:48px">&#128195;</div><a href="https://www.hira.or.kr/rc/insu/insuadtcrtr/InsuAdtCrtrList.do?pgmid=HIRAA030069000400" target="_blank" style="display:inline-flex;align-items:center;gap:8px;padding:14px 32px;background:var(--primary);color:#fff;border-radius:10px;font-size:15px;font-weight:700;text-decoration:none">&#128195; 보험인정기준 바로가기</a></div></div>
     </div>
     <div class="sub-content" data-parent="info" data-sub="druglist" style="display:none">
-      <div style="margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
-        <div>
-          <div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:4px">&#128137; 약제기준정보 목록표</div>
-          <div style="font-size:13px;color:var(--text3)">심평원 약제기준정보 목록표 — 퇴장방지의약품 등 목록을 확인하세요.</div>
-        </div>
-        <a href="https://www.hira.or.kr/bbsDummy.do?pgmid=HIRAA030019000000" target="_blank"
-           style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:var(--primary);color:#fff;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;white-space:nowrap">
-          &#128279; 새 탭에서 열기
-        </a>
-      </div>
-
-      <div style="position:relative;width:100%;border-radius:var(--r-lg);overflow:hidden;border:1px solid var(--border);background:var(--surface)">
-        <iframe id="druglistframe"
-          src="https://www.hira.or.kr/bbsDummy.do?pgmid=HIRAA030019000000"
-          style="width:100%;height:720px;border:none;display:block"
-          title="심평원 약제기준정보 목록표"
-          onload="checkDruglistFrame(this)"
-          onerror="showDruglistFallback()">
-        </iframe>
-        <div id="druglistLoading" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--surface);gap:16px;pointer-events:none">
-          <span class="spinner"></span>
-          <div style="font-size:13px;color:var(--text3)">약제기준정보 목록표 로딩 중...</div>
-        </div>
-        <div id="druglistFallback" style="display:none;height:420px;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:40px;text-align:center">
-          <div style="font-size:48px">&#128137;</div>
-          <div style="font-size:16px;font-weight:700;color:var(--text)">약제기준정보 목록표</div>
-          <div style="font-size:13px;color:var(--text3);line-height:1.8">
-            보안 정책으로 인해 내부에서 직접 표시할 수 없습니다.<br>
-            아래 버튼을 눌러 심평원 공식 사이트에서 확인해주세요.
-          </div>
-          <a href="https://www.hira.or.kr/bbsDummy.do?pgmid=HIRAA030019000000"
-             target="_blank"
-             style="display:inline-flex;align-items:center;gap:8px;padding:14px 32px;background:var(--primary);color:#fff;border-radius:10px;font-size:15px;font-weight:700;text-decoration:none">
-            &#128137; 약제기준정보 목록표 바로가기
-          </a>
-          <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:4px">
-            <a href="https://www.hira.or.kr/bbsDummy.do?pgmid=HIRAA030019000000" target="_blank"
-               style="padding:7px 14px;border:1px solid var(--border);border-radius:8px;font-size:12px;color:var(--text2);text-decoration:none;background:var(--surface)">
-              &#128138; 퇴장방지의약품
-            </a>
-            <a href="https://www.hira.or.kr/bbsDummy.do?pgmid=HIRAA030019010000" target="_blank"
-               style="padding:7px 14px;border:1px solid var(--border);border-radius:8px;font-size:12px;color:var(--text2);text-decoration:none;background:var(--surface)">
-              &#128196; 급여목록표
-            </a>
-            <a href="https://www.hira.or.kr/bbsDummy.do?pgmid=HIRAA030019020000" target="_blank"
-               style="padding:7px 14px;border:1px solid var(--border);border-radius:8px;font-size:12px;color:var(--text2);text-decoration:none;background:var(--surface)">
-              &#128209; 비급여목록표
-            </a>
-          </div>
-        </div>
-      </div>
+    <div style="margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px"><div><div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:4px">&#128137; 약제기준정보 목록표</div></div><a href="https://www.hira.or.kr/bbsDummy.do?pgmid=HIRAA030019000000" target="_blank" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:var(--primary);color:#fff;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;white-space:nowrap">&#128279; 새 탭에서 열기</a></div>
+    <div style="position:relative;width:100%;border-radius:var(--r-lg);overflow:hidden;border:1px solid var(--border);background:var(--surface)"><iframe id="druglistframe" src="https://www.hira.or.kr/bbsDummy.do?pgmid=HIRAA030019000000" style="width:100%;height:720px;border:none;display:block" title="심평원 약제기준정보 목록표" onload="checkDruglistFrame(this)" onerror="showDruglistFallback()"></iframe><div id="druglistLoading" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--surface);gap:16px;pointer-events:none"><span class="spinner"></span><div style="font-size:13px;color:var(--text3)">약제기준정보 목록표 로딩 중...</div></div><div id="druglistFallback" style="display:none;height:420px;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:40px;text-align:center"><div style="font-size:48px">&#128137;</div><a href="https://www.hira.or.kr/bbsDummy.do?pgmid=HIRAA030019000000" target="_blank" style="display:inline-flex;align-items:center;gap:8px;padding:14px 32px;background:var(--primary);color:#fff;border-radius:10px;font-size:15px;font-weight:700;text-decoration:none">&#128137; 약제기준정보 목록표 바로가기</a></div></div>
     </div>
   </div>
 
@@ -1328,21 +1154,95 @@ function fmtDate(s) {
   var d = s.toString().replace(/\D/g,'');
   return d.length===8 ? d.slice(0,4)+'.'+d.slice(4,6)+'.'+d.slice(6,8) : s;
 }
-function esc(s) { var x=String(s==null?'':s); return x.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;'); }
+function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;'); }
 function sleep(ms) { return new Promise(function(r){setTimeout(r,ms);}); }
 
 function setTab(t) {
-  ['btnSearch','btnSafety','btnMedical','btnInfo'].forEach(function(id,i){var el=document.getElementById(id),key=['search','safety','medical','info'][i];if(el)el.className='tab-btn'+(t===key?' on':'');});
-  ['tab-search','tab-safety','tab-medical','tab-info'].forEach(function(id,i){var el=document.getElementById(id),key=['search','safety','medical','info'][i];if(el)el.className='tab'+(t===key?' on':'');});
+  ['btnSearch','btnSafety','btnMedical','btnInfo'].forEach(function(id,i){
+    var el=document.getElementById(id);
+    var key=['search','safety','medical','info'][i];
+    if(el) el.className='tab-btn'+(t===key?' on':'');
+  });
+  ['tab-search','tab-safety','tab-medical','tab-info'].forEach(function(id,i){
+    var el=document.getElementById(id);
+    var key=['search','safety','medical','info'][i];
+    if(el) el.className='tab'+(t===key?' on':'');
+  });
   if(t==='search'  && !document.querySelector('.sub-tab.on[data-parent="search"]'))  setSubTab('search','single');
   if(t==='safety'  && !document.querySelector('.sub-tab.on[data-parent="safety"]'))  setSubTab('safety','recall');
   if(t==='medical' && !document.querySelector('.sub-tab.on[data-parent="medical"]')) setSubTab('medical','map');
   if(t==='info'    && !document.querySelector('.sub-tab.on[data-parent="info"]'))    setSubTab('info','license');
 }
-function setSubTab(parent,sub){
-  document.querySelectorAll('.sub-tab[data-parent="'+parent+'"]').forEach(function(btn){btn.className='sub-tab'+(btn.dataset.sub===sub?' on':'');});
-  document.querySelectorAll('.sub-content[data-parent="'+parent+'"]').forEach(function(div){div.style.display=(div.dataset.sub===sub?'block':'none');});
+
+function setSubTab(parent, sub) {
+  document.querySelectorAll('.sub-tab[data-parent="'+parent+'"]').forEach(function(btn){
+    btn.className='sub-tab'+(btn.dataset.sub===sub?' on':'');
+  });
+  document.querySelectorAll('.sub-content[data-parent="'+parent+'"]').forEach(function(div){
+    div.style.display=(div.dataset.sub===sub?'block':'none');
+  });
   if(sub==='recall' && !recallRecentLoaded) loadRecentRecall();
+}
+
+function initViewMode() {
+  var saved = localStorage.getItem('drugapp_view_mode');
+  if (saved === 'mobile') document.body.classList.add('mobile-forced');
+  else if (saved === 'pc') document.body.classList.add('pc-forced');
+  updateViewToggleBtn();
+}
+
+function updateViewToggleBtn() {
+  var btn=document.getElementById('viewToggleBtn');
+  var icon=document.getElementById('viewToggleIcon');
+  var label=document.getElementById('viewToggleLabel');
+  if(!btn) return;
+  if(document.body.classList.contains('mobile-forced')){
+    icon.innerHTML='&#128241;'; btn.style.borderColor='var(--primary)'; btn.style.color='var(--primary)'; label.textContent='모바일뷰';
+  } else if(document.body.classList.contains('pc-forced')){
+    icon.innerHTML='&#128421;'; btn.style.borderColor='#059669'; btn.style.color='#059669'; label.textContent='PC뷰';
+  } else {
+    icon.innerHTML='&#128257;'; btn.style.borderColor='var(--border)'; btn.style.color='var(--text2)'; label.textContent='자동';
+  }
+}
+
+function toggleViewMode() {
+  var body=document.body;
+  if(body.classList.contains('mobile-forced')){
+    body.classList.remove('mobile-forced'); body.classList.add('pc-forced'); localStorage.setItem('drugapp_view_mode','pc');
+  } else if(body.classList.contains('pc-forced')){
+    body.classList.remove('pc-forced'); localStorage.removeItem('drugapp_view_mode');
+  } else {
+    body.classList.add('mobile-forced'); localStorage.setItem('drugapp_view_mode','mobile');
+  }
+  updateViewToggleBtn();
+}
+
+function checkHiramap(iframe) {
+  var loading=document.getElementById('hiramapLoading');
+  if(loading) loading.style.display='none';
+  try { var doc=iframe.contentDocument||iframe.contentWindow.document; if(!doc||doc.URL==='about:blank'||doc.body.innerHTML==='') showHiramapFallback(); } catch(e) {}
+}
+function showHiramapFallback() {
+  var loading=document.getElementById('hiramapLoading'),fallback=document.getElementById('hiramapFallback'),iframe=document.getElementById('hiramap');
+  if(loading)loading.style.display='none'; if(iframe)iframe.style.display='none'; if(fallback){fallback.style.display='flex';}
+}
+function checkInsuFrame(iframe) {
+  var loading=document.getElementById('insuLoading');
+  if(loading) loading.style.display='none';
+  try { var doc=iframe.contentDocument||iframe.contentWindow.document; if(!doc||doc.URL==='about:blank'||doc.body.innerHTML==='') showInsuFallback(); } catch(e) {}
+}
+function showInsuFallback() {
+  var loading=document.getElementById('insuLoading'),fallback=document.getElementById('insuFallback'),iframe=document.getElementById('insuframe');
+  if(loading)loading.style.display='none'; if(iframe)iframe.style.display='none'; if(fallback){fallback.style.display='flex';}
+}
+function checkDruglistFrame(iframe) {
+  var loading=document.getElementById('druglistLoading');
+  if(loading) loading.style.display='none';
+  try { var doc=iframe.contentDocument||iframe.contentWindow.document; if(!doc||doc.URL==='about:blank'||doc.body.innerHTML==='') showDruglistFallback(); } catch(e) {}
+}
+function showDruglistFallback() {
+  var loading=document.getElementById('druglistLoading'),fallback=document.getElementById('druglistFallback'),iframe=document.getElementById('druglistframe');
+  if(loading)loading.style.display='none'; if(iframe)iframe.style.display='none'; if(fallback){fallback.style.display='flex';}
 }
 
 /* ══════════════════════════════════════════════
@@ -1664,6 +1564,7 @@ function exportMyList() {
 ══════════════════════════════════════════════ */
 function setupDrop() {
   var dz = document.getElementById('dropZone');
+  if(!dz) return;
   dz.addEventListener('dragover', function(e){ e.preventDefault(); dz.style.borderColor='var(--primary)'; dz.classList.add('over'); });
   dz.addEventListener('dragleave', function(){ dz.style.borderColor=''; dz.classList.remove('over'); });
   dz.addEventListener('drop', function(e){ e.preventDefault(); dz.style.borderColor=''; dz.classList.remove('over'); if(e.dataTransfer.files[0]) procFile(e.dataTransfer.files[0]); });
@@ -1814,59 +1715,81 @@ function exportBulk() {
    회수·판매중지 기능
    API: MdcinRtrvlSleStpgeInfoService04
    목록: getMdcinRtrvlSleStpgelList03
-   실제 필드: PRDUCT, ENTRPS, RTRVL_RESN,
-     ENFRC_YN, RTRVL_CMND_DT, RECALL_COMMAND_DATE,
-     ITEM_SEQ, OPEN_END_DATE, BIZRNO, STD_CD
-   검색 파라미터: Prduct, Entrps, Rtrvl_resn
+   실제 응답 필드: PRDUCT, ENTRPS, RTRVL_RESN,
+     RTRVL_CMND_DT, RECALL_COMMAND_DATE,
+     ENFRC_YN, ITEM_SEQ, MNFCTUR_NO, MNFCTUR_DT,
+     USGPD, PACKNG_UNIT, STD_CD, BIZRNO
+   검색 파라미터: Prduct(품목명), Entrps(업체명)
 ══════════════════════════════════════════════ */
 var EP_RECALL_LIST = 'https://apis.data.go.kr/1471000/MdcinRtrvlSleStpgeInfoService04/getMdcinRtrvlSleStpgelList03';
 
 var recallRecentLoaded = false;
 var recallBulkData = [], recallBulkCols = [], recallStopFlag = false;
-var recallAllItems  = [];   /* 전체 데이터 캐시 */
-var recallPage      = 1;    /* 현재 페이지 */
-var RECALL_PER_PAGE = 10;   /* 페이지당 건수 */
 
-/* ── XML 파싱 ── */
+/* XML 응답에서 item 배열 추출 */
 function parseRecallXML(txt) {
   var parser = new DOMParser();
   var xml = parser.parseFromString(txt, 'application/xml');
   var errEl = xml.getElementsByTagName('errMsg')[0];
-  if (errEl) { console.warn('[회수XML]', errEl.textContent); return { items:[], total:0 }; }
-  var tcEl  = xml.getElementsByTagName('totalCount')[0];
+  if (errEl) {
+    console.warn('[회수XML에러]', errEl.textContent);
+    return { items: [], total: 0 };
+  }
+  var tcEl = xml.getElementsByTagName('totalCount')[0];
   var total = tcEl ? parseInt(tcEl.textContent) : 0;
   var nodes = xml.getElementsByTagName('item');
-  if (!nodes || !nodes.length) { console.warn('[회수XML] item 없음'); return { items:[], total:0 }; }
+  if (!nodes || nodes.length === 0) {
+    console.warn('[회수XML] item 없음. 앞200:', txt.substring(0, 200));
+    return { items: [], total: 0 };
+  }
   var items = [];
   for (var i = 0; i < nodes.length; i++) {
-    var obj = {}, ch = nodes[i].childNodes;
+    var obj = {};
+    var ch = nodes[i].childNodes;
     for (var j = 0; j < ch.length; j++) {
-      if (ch[j].nodeType === 1) obj[ch[j].tagName] = ch[j].textContent.trim();
+      if (ch[j].nodeType === 1) {
+        obj[ch[j].tagName] = ch[j].textContent.trim();
+      }
     }
     items.push(obj);
   }
+  console.log('[회수XML] total=' + total + ' items=' + items.length,
+    items.length > 0 ? Object.keys(items[0]) : '없음');
   return { items: items, total: total || items.length };
 }
 
-/* ── JSON 파싱 (실제 구조: body.items=[{item:{...}},...]) ── */
+/* JSON 응답에서 item 배열 추출
+   실제 구조: body.items = [ {item:{PRDUCT:...,ENTRPS:...}}, {item:{...}}, ... ]
+   각 배열 요소가 {item:{...}} 형태로 한 번 더 감싸져 있음 */
 function parseRecallJSON(j) {
-  if (!j || !j.body) return { items:[], total:0 };
-  var body  = j.body;
+  if (!j || !j.body) return { items: [], total: 0 };
+  var body = j.body;
   var total = parseInt(body.totalCount || 0);
   var items = [];
+
   if (Array.isArray(body.items)) {
+    /* body.items = [ {item:{...}}, {item:{...}}, ... ] */
     for (var i = 0; i < body.items.length; i++) {
-      var w = body.items[i];
-      items.push((w && w.item && typeof w.item === 'object') ? w.item : w);
+      var wrapper = body.items[i];
+      /* 래퍼 안의 item 꺼내기 */
+      if (wrapper && typeof wrapper.item === 'object') {
+        items.push(wrapper.item);
+      } else {
+        items.push(wrapper);
+      }
     }
-  } else if (body.items && body.items.item) {
-    var raw = body.items.item;
-    items = Array.isArray(raw) ? raw : [raw];
+  } else if (body.items && typeof body.items === 'object') {
+    /* 단일 item인 경우 */
+    var single = body.items.item || body.items;
+    items = Array.isArray(single) ? single : [single];
   }
+
+  console.log('[회수JSON] total=' + total + ' items=' + items.length,
+    items.length > 0 ? Object.keys(items[0]) : '없음');
   return { items: items, total: total };
 }
 
-/* ── API 호출 ── */
+/* 회수 API 호출: JSON 시도 → 실패시 XML 재시도 */
 function fetchRecall(params, numOfRows) {
   var base = EP_RECALL_LIST
     + '?serviceKey=' + KEY
@@ -1876,222 +1799,222 @@ function fetchRecall(params, numOfRows) {
   for (var i = 0; i < pkeys.length; i++) {
     base += '&' + pkeys[i] + '=' + encodeURIComponent(params[pkeys[i]]);
   }
-  return fetch(base)
+
+  return fetch(base + '&type=json')
     .then(function(r) { return r.text(); })
     .then(function(txt) {
+      console.log('[회수API응답앞200]', txt.substring(0, 200));
       var first = txt.trim().charAt(0);
-      if (first === '{' || first === '[') return parseRecallJSON(JSON.parse(txt));
+      if (first === '{' || first === '[') {
+        return parseRecallJSON(JSON.parse(txt));
+      }
       return parseRecallXML(txt);
     })
     .catch(function(e1) {
+      console.warn('[회수JSON실패→XML재시도]', e1.message);
       return fetch(base)
         .then(function(r) { return r.text(); })
         .then(function(txt) { return parseRecallXML(txt); })
-        .catch(function() { return { items:[], total:0 }; });
+        .catch(function(e2) {
+          console.error('[회수API완전실패]', e2.message);
+          return { items: [], total: 0 };
+        });
     });
 }
 
-/* ── 언래핑 헬퍼 ── */
-function unwrapItem(it) {
-  return (it && it.item && typeof it.item === 'object') ? it.item : it;
+/* 회수등급 스타일 */
+function gradeClass(g) {
+  if (!g) return 'badge-grade-x';
+  if (g.indexOf('1') >= 0) return 'badge-grade-1';
+  if (g.indexOf('2') >= 0) return 'badge-grade-2';
+  if (g.indexOf('3') >= 0) return 'badge-grade-3';
+  return 'badge-grade-x';
+}
+function cardTopClass(g) {
+  if (!g) return 'recall-card grade-x';
+  if (g.indexOf('1') >= 0) return 'recall-card grade-1';
+  if (g.indexOf('2') >= 0) return 'recall-card grade-2';
+  if (g.indexOf('3') >= 0) return 'recall-card grade-3';
+  return 'recall-card grade-x';
 }
 
-/* ── 테이블 행 HTML ── */
-function recallRowHtml(item, rowNum) {
-  var it      = unwrapItem(item);
-  var name    = esc(it.PRDUCT || '-');
-  var company = esc(it.ENTRPS || '-');
-  var reason  = esc(it.RTRVL_RESN || '-');
-  var cmdDate = fmtDate(it.RTRVL_CMND_DT || it.RECALL_COMMAND_DATE || '');
-  var endDate = fmtDate(it.OPEN_END_DATE || '');
-  /* 뱃지: 데스크탑용(7번째 td) + 모바일용(2번째 td 안에 포함) */
-  var enfrcLabel = it.ENFRC_YN === 'Y' ? '강제' : '자진';
-  var enfrcCls   = it.ENFRC_YN === 'Y' ? 'badge-grade-2' : 'badge-grade-x';
-  var enfrcBadge = '<span class="badge ' + enfrcCls + '" style="font-size:10px;padding:2px 7px;flex-shrink:0">' + enfrcLabel + '</span>';
-  return '<tr class="recall-tbl-row" onclick="showRecallDetail(recallAllItems[' + (rowNum - 1) + '])" style="cursor:pointer">'
-    /* 1: 순번 */
-    + '<td class="mono" style="color:var(--text3)">' + rowNum + '</td>'
-    /* 2: 제품명 (모바일에서는 뱃지도 포함) */
-    + '<td style="font-weight:500;max-width:180px">'
-    +   '<span class="mobile-badge-inline">' + enfrcBadge + '</span>'
-    +   '<span>' + name + '</span>'
-    + '</td>'
-    /* 3: 업체명 */
-    + '<td style="color:var(--primary);font-size:12px">' + company + '</td>'
-    /* 4: 회수사유 */
-    + '<td style="font-size:12px;max-width:200px;line-height:1.4">' + reason + '</td>'
-    /* 5: 회수명령일자 */
-    + '<td class="mono" style="font-size:12px">' + (cmdDate || '-') + '</td>'
-    /* 6: 공개마감일자 */
-    + '<td class="mono" style="font-size:12px">' + (endDate || '-') + '</td>'
-    /* 7: 구분 (데스크탑) */
-    + '<td>' + enfrcBadge + '</td>'
-    + '</tr>';
-}
+/* 카드 HTML 생성 (공식 필드명 기준) */
+function recallCardHtml(itemRaw) {
+  /* {item:{...}} 래퍼 방어 */
+  var item = (itemRaw && itemRaw.item && typeof itemRaw.item === 'object')
+    ? itemRaw.item : itemRaw;
 
-/* ── 테이블 렌더링 (페이지 기준) ── */
-function renderRecallTable() {
-  var start = (recallPage - 1) * RECALL_PER_PAGE;
-  var end   = Math.min(start + RECALL_PER_PAGE, recallAllItems.length);
-  var rows  = '';
-  for (var i = start; i < end; i++) {
-    rows += recallRowHtml(recallAllItems[i], i + 1);
-  }
-  document.getElementById('recallTableBody').innerHTML = rows || '<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--text3)">결과가 없습니다</td></tr>';
-  renderRecallPagination();
-}
-
-/* ── 페이지네이션 ── */
-function renderRecallPagination() {
-  var total    = recallAllItems.length;
-  var totalPg  = Math.ceil(total / RECALL_PER_PAGE);
-  if (totalPg <= 1) { document.getElementById('recallPagination').innerHTML = ''; return; }
-
-  var btnStyle = 'padding:6px 12px;border:1px solid var(--border);border-radius:6px;background:var(--surface);cursor:pointer;font-family:inherit;font-size:13px;';
-  var activeSt = 'padding:6px 12px;border:1px solid var(--primary);border-radius:6px;background:var(--primary);color:#fff;cursor:default;font-family:inherit;font-size:13px;';
-
-  var html = '';
-  /* 이전 */
-  html += '<button style="' + btnStyle + '" onclick="goRecallPage(' + (recallPage-1) + ')" '
-    + (recallPage === 1 ? 'disabled style="opacity:.4;cursor:default;' + btnStyle + '"' : '') + '>◀</button>';
-
-  /* 페이지 번호 (앞 5, 현재 주변 2, 끝 5) */
-  var shown = {};
-  function addPg(p) {
-    if (p < 1 || p > totalPg || shown[p]) return;
-    shown[p] = true;
-  }
-  for (var p = 1; p <= Math.min(3, totalPg); p++) addPg(p);
-  for (var p = Math.max(1, recallPage-2); p <= Math.min(totalPg, recallPage+2); p++) addPg(p);
-  for (var p = Math.max(1, totalPg-2); p <= totalPg; p++) addPg(p);
-
-  var prev = 0;
-  var pages = Object.keys(shown).map(Number).sort(function(a,b){return a-b;});
-  for (var i = 0; i < pages.length; i++) {
-    var pg = pages[i];
-    if (prev && pg - prev > 1) html += '<span style="padding:0 4px;color:var(--text3)">…</span>';
-    html += '<button onclick="goRecallPage(' + pg + ')" style="' + (pg === recallPage ? activeSt : btnStyle) + '">' + pg + '</button>';
-    prev = pg;
-  }
-
-  /* 다음 */
-  html += '<button style="' + btnStyle + '" onclick="goRecallPage(' + (recallPage+1) + ')" '
-    + (recallPage === totalPg ? 'disabled style="opacity:.4;cursor:default;' + btnStyle + '"' : '') + '>▶</button>';
-
-  html += '<span style="font-size:12px;color:var(--text3);margin-left:8px">'
-    + recallPage + ' / ' + totalPg + ' 페이지 (총 ' + total + '건)</span>';
-
-  document.getElementById('recallPagination').innerHTML = html;
-}
-
-
-function closeRecallPanel() {
-  document.getElementById('recallDetail').style.display = 'none';
-}
-
-function goRecallPage(pg) {
-  var totalPg = Math.ceil(recallAllItems.length / RECALL_PER_PAGE);
-  if (pg < 1 || pg > totalPg) return;
-  recallPage = pg;
-  document.getElementById('recallDetail').style.display = 'none';
-  renderRecallTable();
-  /* 테이블 상단으로 스크롤 */
-  var tbl = document.getElementById('recallTable');
-  if (tbl) tbl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-}
-
-/* ── 상세 패널 (테이블 아래에 표시) ── */
-function showRecallDetail(itemRaw) {
-  var it      = unwrapItem(itemRaw);
-  var name    = esc(it.PRDUCT || '-');
-  var company = esc(it.ENTRPS || '-');
-  var reason  = esc(it.RTRVL_RESN || '-');
-  var cmdDate = fmtDate(it.RTRVL_CMND_DT || it.RECALL_COMMAND_DATE || '');
-  var endDate = fmtDate(it.OPEN_END_DATE || '');
-  var itemSeq = esc(it.ITEM_SEQ || '');
-  var enfrc   = it.ENFRC_YN === 'Y' ? '강제회수' : (it.ENFRC_YN === 'N' ? '자진회수' : '회수·판매중지');
+  /* 목록 API 실제 필드: PRDUCT, ENTRPS, RTRVL_RESN,
+     ENFRC_YN, RTRVL_CMND_DT, ITEM_SEQ, OPEN_END_DATE */
+  var name    = esc(item.PRDUCT || '-');
+  var company = esc(item.ENTRPS || '-');
+  var reason  = esc(item.RTRVL_RESN || '-');
+  var cmdDate = fmtDate(item.RTRVL_CMND_DT || item.RECALL_COMMAND_DATE || '');
+  var endDate = fmtDate(item.OPEN_END_DATE || '');
+  var itemSeq = esc(item.ITEM_SEQ || '');
+  var enfrc   = item.ENFRC_YN === 'Y' ? '강제회수' : (item.ENFRC_YN === 'N' ? '자진회수' : '회수·판매중지');
   var nedruUrl = 'https://nedrug.mfds.go.kr/pbp/CCBAI01' + (itemSeq ? '?item_seq=' + itemSeq : '');
 
-  /* 선택된 행 하이라이트 */
-  var rows = document.querySelectorAll('.recall-tbl-row');
-  for (var r = 0; r < rows.length; r++) rows[r].style.background = '';
-  if (event && event.currentTarget) event.currentTarget.style.background = 'var(--primary-lt)';
-
-  var html = '<div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;background:var(--hover);border-bottom:1px solid var(--border)">'
-    + '<div>'
-    +   '<div style="font-size:16px;font-weight:700;margin-bottom:3px">' + name + '</div>'
-    +   '<div style="font-size:13px;color:var(--text2)">' + company + '</div>'
-    + '</div>'
-    + '<div style="display:flex;align-items:center;gap:10px">'
-    +   '<span class="badge badge-grade-x">' + enfrc + '</span>'
-    +   '<button onclick="closeRecallPanel()" '
-    +   'style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:18px;line-height:1">✕</button>'
-    + '</div>'
-    + '</div>'
-    + '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:0">'
-    +   '<div style="padding:14px 20px;border-right:1px solid var(--border);border-bottom:1px solid var(--border)">'
-    +     '<div style="font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--text3);margin-bottom:5px">회수명령일자</div>'
-    +     '<div style="font-size:14px;font-weight:500">' + (cmdDate || '-') + '</div>'
+  return '<div class="recall-card grade-x">'
+    + '<div class="recall-top">'
+    +   '<div class="drug-info">'
+    +     '<div class="recall-name">' + name + '</div>'
+    +     '<div class="recall-company">' + company + '</div>'
     +   '</div>'
-    +   '<div style="padding:14px 20px;border-right:1px solid var(--border);border-bottom:1px solid var(--border)">'
-    +     '<div style="font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--text3);margin-bottom:5px">공개마감일자</div>'
-    +     '<div style="font-size:14px;font-weight:500">' + (endDate || '-') + '</div>'
-    +   '</div>'
-    +   '<div style="padding:14px 20px;border-bottom:1px solid var(--border)">'
-    +     '<div style="font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--text3);margin-bottom:5px">품목기준코드</div>'
-    +     '<div style="font-size:14px;font-weight:500;font-family:monospace">' + (itemSeq || '-') + '</div>'
+    +   '<div class="badges">'
+    +     '<span class="badge badge-grade-x">' + enfrc + '</span>'
     +   '</div>'
     + '</div>'
-    + '<div style="padding:14px 20px;background:#fffbeb;border-bottom:1px solid var(--border)">'
-    +   '<div style="font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:#d97706;margin-bottom:6px">⚠ 회수·판매중지 사유</div>'
-    +   '<div style="font-size:13px;color:#7c2d12;line-height:1.7">' + reason + '</div>'
+    + '<div class="recall-fields">'
+    +   '<div class="recall-field"><label>회수명령일자</label><p>' + (cmdDate || '-') + '</p></div>'
+    +   '<div class="recall-field"><label>공개마감일자</label><p>' + (endDate || '-') + '</p></div>'
+    +   '<div class="recall-field"><label>품목기준코드</label><p class="mono">' + (itemSeq || '-') + '</p></div>'
+    +   '<div class="recall-field reason-field"><label>⚠ 회수·판매중지 사유</label><p>' + reason + '</p></div>'
     + '</div>'
-    + '<div style="padding:12px 20px">'
-    +   '<a href="' + nedruUrl + '" target="_blank" style="font-size:12px;color:var(--primary);text-decoration:none;font-weight:500">🔗 의약품안전나라에서 상세 확인 →</a>'
+    + '<div style="padding:12px 22px">'
+    +   '<a href="' + nedruUrl + '" target="_blank" '
+    +   'style="font-size:12px;color:var(--primary);text-decoration:none;font-weight:500">'
+    +   '🔗 의약품안전나라에서 상세 확인 →</a>'
+    + '</div>'
     + '</div>';
+}
 
+
+/* 결과 목록 렌더링 */
+function renderRecallList(items, listEl) {
+  var unwrapped = [];
+  for (var i = 0; i < (items || []).length; i++) {
+    var it = items[i];
+    unwrapped.push((it && it.item && typeof it.item === 'object') ? it.item : it);
+  }
+  if (!unwrapped.length) {
+    listEl.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--text3)">결과 없음</td></tr>';
+    return;
+  }
+  var html = '';
+  for (var i = 0; i < unwrapped.length; i++) {
+    var item    = unwrapped[i];
+    var no      = recallCurPage > 1 ? (recallCurPage-1)*RECALL_PG_SZ + i + 1 : i + 1;
+    var name    = esc(item.PRDUCT || '-');
+    var company = esc(item.ENTRPS || '-');
+    var reason  = esc(item.RTRVL_RESN || '-');
+    var cmdDate = fmtDate(item.RTRVL_CMND_DT || item.RECALL_COMMAND_DATE || '');
+    var endDate = fmtDate(item.OPEN_END_DATE || '');
+    var itemSeq = esc(item.ITEM_SEQ || '');
+    var isForce = item.ENFRC_YN === 'Y';
+    var enfrc   = isForce ? '강제회수' : (item.ENFRC_YN === 'N' ? '자진회수' : '판매중지');
+    var badgeStyle = isForce
+      ? 'background:#fef2f2;color:#dc2626;border:1px solid #fca5a5'
+      : 'background:#f0fdf4;color:#166534;border:1px solid #bbf7d0';
+    html += '<tr style="cursor:pointer" onclick="showRecallDetail(unwrapped_'+i+'_,this)"      data-idx="'+i+'">'
+      + '<td style="text-align:center;color:var(--text3);font-size:12px">'+no+'</td>'
+      + '<td style="font-weight:600">'+name+'</td>'
+      + '<td style="font-size:12px;color:var(--primary)">'+company+'</td>'
+      + '<td style="font-size:12px;color:var(--text2)">'+reason+'</td>'
+      + '<td class="mono" style="font-size:12px">'+(cmdDate||'-')+'</td>'
+      + '<td class="mono" style="font-size:12px">'+(endDate||'-')+'</td>'
+      + '<td style="text-align:center"><span style="font-size:11px;padding:2px 7px;border-radius:20px;font-weight:600;'+badgeStyle+'">'+enfrc+'</span></td>'
+      + '</tr>';
+  }
+  listEl.innerHTML = html;
+  /* onclick에 데이터 바인딩 */
+  var rows = listEl.querySelectorAll('tr[data-idx]');
+  for (var j = 0; j < rows.length; j++) {
+    (function(item, row) {
+      row.onclick = function() { showRecallDetail(item, row); };
+    })(unwrapped[j], rows[j]);
+  }
+}
+
+var recallCurPage = 1;
+var RECALL_PG_SZ  = 10;
+var recallAllItems = [];
+
+function showRecallDetail(item, trEl) {
+  var trs = document.querySelectorAll('#recallTable tbody tr');
+  for (var r = 0; r < trs.length; r++) trs[r].style.background = '';
+  if (trEl) trEl.style.background = 'var(--hover)';
+  var name    = esc(item.PRDUCT   || '-');
+  var company = esc(item.ENTRPS   || '-');
+  var reason  = esc(item.RTRVL_RESN || '-');
+  var cmdDate = fmtDate(item.RTRVL_CMND_DT || item.RECALL_COMMAND_DATE || '');
+  var endDate = fmtDate(item.OPEN_END_DATE || '');
+  var itemSeq = esc(item.ITEM_SEQ || '');
+  var isForce = item.ENFRC_YN === 'Y';
+  var enfrc   = isForce ? '강제회수' : (item.ENFRC_YN === 'N' ? '자진회수' : '판매중지');
+  var nedruUrl = 'https://nedrug.mfds.go.kr/pbp/CCBAI01' + (itemSeq ? '?item_seq=' + itemSeq : '');
+  function dr(l, v) {
+    if (!v || v === '-') return '';
+    return '<div style="padding:10px 18px;border-bottom:1px solid var(--border)"><div style="font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--text3);margin-bottom:4px">'+l+'</div><div style="font-size:13px;font-weight:600">'+v+'</div></div>';
+  }
+  var html =
+    '<div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:var(--hover);border-bottom:1px solid var(--border)">'
+    +'<div><div style="font-size:15px;font-weight:700">'+name+'</div>'
+    +'<div style="font-size:12px;color:var(--primary);margin-top:2px">'+company+'</div></div>'
+    +'<div style="display:flex;align-items:center;gap:10px">'
+    +'<span style="font-size:12px;padding:3px 10px;border-radius:20px;font-weight:700;'
+    +(isForce?'background:#fef2f2;color:#dc2626':'background:#f0fdf4;color:#166534')+'">'+enfrc+'</span>'
+    +'<button onclick="document.getElementById('recallDetail').style.display='none'" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:16px;padding:4px 8px">&#x2715;</button>'
+    +'</div></div>'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0">'
+    +dr('회수명령일자', cmdDate)+dr('공개마감일자', endDate)+dr('품목기준코드', itemSeq)
+    +'</div>'
+    +'<div style="padding:12px 18px;background:#fffbeb;border-top:1px solid var(--border)">'
+    +'<div style="font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:#d97706;margin-bottom:6px">⚠ 회수·판매중지 사유</div>'
+    +'<div style="font-size:13px;color:#7c2d12;line-height:1.7">'+reason+'</div></div>'
+    +'<div style="padding:12px 20px;border-top:1px solid var(--border)">'
+    +'<a href="'+nedruUrl+'" target="_blank" style="font-size:12px;color:var(--primary);font-weight:500;text-decoration:none">🔗 의약품안전나라에서 상세 확인 →</a></div>';
   var panel = document.getElementById('recallDetail');
   panel.innerHTML = html;
   panel.style.display = 'block';
-  /* 상세 패널로 스크롤 */
-  setTimeout(function() { panel.scrollIntoView({ behavior:'smooth', block:'nearest' }); }, 50);
+  setTimeout(function(){panel.scrollIntoView({behavior:'smooth',block:'nearest'});},50);
 }
 
-/* ── 결과 표시 공통 ── */
-function setRecallData(items, total, title, showRefresh) {
+function recallGoPage(pg) {
+  var totalPg = Math.ceil(recallAllItems.length / RECALL_PG_SZ);
+  if (pg < 1 || pg > totalPg) return;
+  recallCurPage = pg;
+  var start = (pg-1)*RECALL_PG_SZ, end = Math.min(start+RECALL_PG_SZ, recallAllItems.length);
+  var pageItems = recallAllItems.slice(start, end);
+  var tbody = document.getElementById('recallTableBody');
+  if (tbody) renderRecallList(pageItems, tbody);
+  document.getElementById('recallDetail').style.display = 'none';
+  var pager = document.getElementById('recallPagination');
+  if (pager) pager.innerHTML = mkPager(pg, totalPg, 'recallGoPage', recallAllItems.length);
+  document.getElementById('recallTable').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function setRecallData(items, total, title) {
   recallAllItems = items || [];
-  recallPage     = 1;
+  recallCurPage  = 1;
   document.getElementById('recallResultTitle').textContent = title;
-  document.getElementById('recallResultSub').textContent =
-    '전체 ' + total.toLocaleString() + '건 · ' + recallAllItems.length + '건 표시';
-  document.getElementById('recallRefreshBtn').style.display = showRefresh ? 'inline-flex' : 'none';
+  document.getElementById('recallResultSub').textContent = '전체 '+total.toLocaleString()+'건 · '+recallAllItems.length+'건 표시';
   document.getElementById('recallDetail').style.display = 'none';
   document.getElementById('recallResultWrap').style.display = 'block';
-  document.getElementById('recallSearchHint').style.display = 'none';
-  renderRecallTable();
+  recallGoPage(1);
 }
 
-/* ── 전체 조회 ── */
 function showAllRecall() {
   document.getElementById('recallQ').value = '';
-  document.getElementById('recallResultWrap').style.display = 'block';
   document.getElementById('recallSearchHint').style.display = 'none';
   document.getElementById('recallResultTitle').textContent = '📋 전체 회수·판매중지 목록';
-  document.getElementById('recallResultSub').textContent   = '불러오는 중...';
-  document.getElementById('recallRefreshBtn').style.display = 'inline-flex';
-  document.getElementById('recallTableBody').innerHTML =
-    '<tr><td colspan="7" style="text-align:center;padding:32px"><span class="spinner"></span>불러오는 중...</td></tr>';
+  var tbody = document.getElementById('recallTableBody');
+  if (tbody) tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:32px"><span class="spinner"></span></td></tr>';
   loadRecentRecall();
 }
 
 function loadRecentRecall() {
   recallRecentLoaded = true;
+  document.getElementById('recallResultWrap').style.display = 'block';
+  document.getElementById('recallRefreshBtn').style.display = 'inline-flex';
+  var tbody = document.getElementById('recallTableBody');
+  if (tbody) tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:32px"><span class="spinner"></span></td></tr>';
   fetchRecall({}, 100).then(function(result) {
-    setRecallData(result.items, result.total, '📋 전체 회수·판매중지 목록', true);
+    setRecallData(result.items || [], result.total || 0, '전체 회수&#183;판매중지 목록');
   });
 }
 
-/* ── 제품명 검색 ── */
+/* 제품명 검색 */
 function searchRecall() {
   var q = document.getElementById('recallQ').value.trim();
   if (!q) { alert('제품명을 입력해주세요.'); return; }
@@ -2100,19 +2023,22 @@ function searchRecall() {
   btn.innerHTML = '<span class="spinner"></span>조회 중...';
   document.getElementById('recallSearchHint').style.display = 'none';
   document.getElementById('recallResultWrap').style.display = 'block';
-  document.getElementById('recallResultTitle').textContent = '"' + esc(q) + '" 검색 결과';
-  document.getElementById('recallResultSub').textContent   = '조회 중...';
   document.getElementById('recallRefreshBtn').style.display = 'none';
+  document.getElementById('recallResultTitle').textContent = '"' + esc(q) + '" 검색 결과';
+  document.getElementById('recallResultSub').textContent = '조회 중...';
   document.getElementById('recallTableBody').innerHTML =
-    '<tr><td colspan="7" style="text-align:center;padding:32px"><span class="spinner"></span>조회 중...</td></tr>';
-
+    '<tr><td colspan="7" style="text-align:center;padding:32px"><span class="spinner"></span> 조회 중...</td></tr>';
   fetchRecall({ Prduct: q }, 100)
     .then(function(result) {
-      setRecallData(result.items, result.total, '"' + esc(q) + '" 검색 결과', false);
+      var items = result.items || [];
+      document.getElementById('recallResultSub').textContent =
+        '총 ' + items.length + '건' +
+        (result.total > items.length ? ' (전체 ' + result.total + '건 중)' : '');
+      setRecallData(items, result.total || 0, '"' + q + '" 검색 결과');
     })
     .catch(function() {
       document.getElementById('recallTableBody').innerHTML =
-        '<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--danger)">API 오류. 잠시 후 다시 시도해주세요.</td></tr>';
+        '<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--danger)">API 조회 오류. 잠시 후 다시 시도해주세요.</td></tr>';
     })
     .then(function() {
       btn.disabled = false;
@@ -2124,20 +2050,25 @@ function clearRecallResult() {
   document.getElementById('recallResultWrap').style.display = 'none';
   document.getElementById('recallSearchHint').style.display = 'block';
   document.getElementById('recallQ').value = '';
-  recallAllItems = [];
 }
 
-/* ── 엑셀 일괄 확인 ── */
-function onRecallFile(e) { if (e.target.files[0]) procRecallFile(e.target.files[0]); }
+/* 엑셀 일괄 확인 */
+function onRecallFile(e) {
+  if (e.target.files[0]) procRecallFile(e.target.files[0]);
+}
 function procRecallFile(file) {
   var r = new FileReader();
   r.onload = function(ev) {
     try {
-      var wb   = XLSX.read(ev.target.result, { type: file.name.endsWith('.csv') ? 'string' : 'array' });
+      var wb = XLSX.read(ev.target.result, { type: file.name.endsWith('.csv') ? 'string' : 'array' });
       var data = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header: 1 });
       if (!data || data.length < 2) { alert('데이터가 없습니다.'); return; }
-      recallBulkCols = data[0].map(function(col, i) { return { idx: i, name: col || ('열' + (i+1)) }; });
-      recallBulkData = data.slice(1).filter(function(row) { return row.some(function(c) { return c; }); });
+      recallBulkCols = data[0].map(function(col, i) {
+        return { idx: i, name: col || ('열' + (i + 1)) };
+      });
+      recallBulkData = data.slice(1).filter(function(row) {
+        return row.some(function(cell) { return cell; });
+      });
       var sel = document.getElementById('recallColSel');
       sel.innerHTML = recallBulkCols.map(function(col) {
         return '<option value="' + col.idx + '">' + esc(col.name) + '</option>';
@@ -2145,7 +2076,9 @@ function procRecallFile(file) {
       document.getElementById('recallExCtrl').style.display = 'flex';
       document.querySelector('#recallDropZone .drop-text').textContent =
         '✅ ' + file.name + ' (' + recallBulkData.length + '행)';
-    } catch (ex) { alert('파일 읽기 실패: ' + ex.message); }
+    } catch (ex) {
+      alert('파일 읽기 실패: ' + ex.message);
+    }
   };
   if (file.name.endsWith('.csv')) r.readAsText(file, 'UTF-8');
   else r.readAsArrayBuffer(file);
@@ -2163,453 +2096,135 @@ function runRecallBulk() {
   recallStopFlag = false;
   document.getElementById('recallProgWrap').style.display = 'block';
   document.getElementById('recallBulkResult').innerHTML = '';
-  var results = [], idx = 0;
+  var results = [];
+  var idx = 0;
 
   function nextItem() {
     if (idx >= names.length || recallStopFlag) {
-      document.getElementById('recallProgText').textContent = recallStopFlag ? '⏹ 중지됨' : '✅ 완료';
+      document.getElementById('recallProgText').textContent =
+        recallStopFlag ? '⏹ 중지됨' : '✅ 완료';
       document.getElementById('recallProgFill').style.width = '100%';
       return;
     }
     var name = names[idx];
     document.getElementById('recallProgText').textContent = name;
-    document.getElementById('recallProgCount').textContent = (idx+1) + ' / ' + names.length;
-    document.getElementById('recallProgFill').style.width = ((idx+1)/names.length*100) + '%';
+    document.getElementById('recallProgCount').textContent = (idx + 1) + ' / ' + names.length;
+    document.getElementById('recallProgFill').style.width =
+      ((idx + 1) / names.length * 100) + '%';
 
-    fetchRecall({ Prduct: name }, 5).then(function(result) {
-      var items     = result.items || [];
-      var hasRecall = items.length > 0;
-      var first     = hasRecall ? unwrapItem(items[0]) : {};
-      results.push({
-        name:      name,
-        hasRecall: hasRecall,
-        count:     items.length,
-        cmdDate:   fmtDate(first.RTRVL_CMND_DT || first.RECALL_COMMAND_DATE || ''),
-        reason:    first.RTRVL_RESN || '-',
-        enfrc:     first.ENFRC_YN === 'Y' ? '강제회수' : (first.ENFRC_YN === 'N' ? '자진회수' : '-')
+    fetchRecall({ Prduct: name }, 5)
+      .then(function(result) {
+        var items = result.items || [];
+        var hasRecall = items.length > 0;
+        var firstRaw = hasRecall ? items[0] : {};
+        var first = (firstRaw && firstRaw.item && typeof firstRaw.item === 'object')
+          ? firstRaw.item : firstRaw;
+        results.push({
+          name:      name,
+          hasRecall: hasRecall,
+          count:     items.length,
+          cmdDate:   fmtDate(first.RTRVL_CMND_DT || first.RECALL_COMMAND_DATE || ''),
+          reason:    first.RTRVL_RESN || '-',
+          enfrcYn:   first.ENFRC_YN === 'Y' ? '강제회수' : (first.ENFRC_YN === 'N' ? '자진회수' : '-'),
+          lotNo:     first.MNFCTUR_NO || '-'
+        });
+        renderRecallBulk(results);
+      })
+      .catch(function() {
+        results.push({
+          name: name, hasRecall: false, count: 0,
+          cmdDate: '-', reason: '조회오류', enfrcYn: '-', lotNo: '-'
+        });
+        renderRecallBulk(results);
+      })
+      .then(function() {
+        idx++;
+        setTimeout(nextItem, 400);
       });
-      renderRecallBulk(results);
-    }).catch(function() {
-      results.push({ name:name, hasRecall:false, count:0, cmdDate:'-', reason:'조회오류', enfrc:'-' });
-      renderRecallBulk(results);
-    }).then(function() { idx++; setTimeout(nextItem, 400); });
   }
   nextItem();
 }
 
 function renderRecallBulk(results) {
   var recalled = 0;
-  for (var i = 0; i < results.length; i++) { if (results[i].hasRecall) recalled++; }
+  for (var i = 0; i < results.length; i++) {
+    if (results[i].hasRecall) recalled++;
+  }
   var rows = '';
   for (var i = 0; i < results.length; i++) {
     var r = results[i];
-    var st = r.hasRecall
-      ? '<span class="badge badge-grade-2">' + esc(r.enfrc) + ' (' + r.count + '건)</span>'
+    var statusCell = r.hasRecall
+      ? '<span class="badge badge-grade-2">' + esc(r.enfrcYn) + ' (' + r.count + '건)</span>'
       : '<span style="color:var(--self);font-weight:600">✓ 이상없음</span>';
+    var reasonText = r.hasRecall
+      ? esc(r.reason.substring(0, 60)) + (r.reason.length > 60 ? '…' : '')
+      : '-';
     rows += '<tr class="' + (r.hasRecall ? 'recall-row' : 'safe-row') + '">'
-      + '<td class="mono">' + (i+1) + '</td>'
+      + '<td class="mono">' + (i + 1) + '</td>'
       + '<td style="font-weight:500">' + esc(r.name) + '</td>'
-      + '<td>' + st + '</td>'
+      + '<td>' + statusCell + '</td>'
       + '<td class="mono">' + esc(r.cmdDate) + '</td>'
-      + '<td style="font-size:12px;color:#9a3412">'
-      + (r.hasRecall ? esc(r.reason.substring(0,60)) + (r.reason.length>60?'…':'') : '-')
-      + '</td></tr>';
+      + '<td style="font-size:12px;color:var(--text2)">' + esc(r.lotNo) + '</td>'
+      + '<td style="font-size:12px;color:#9a3412">' + reasonText + '</td>'
+      + '</tr>';
   }
   document.getElementById('recallBulkResult').innerHTML =
-    '<div class="tbl-wrap-outer"><div class="tbl-head">'
-    + '<span class="tbl-title">일괄 확인 결과 (' + results.length + '건)'
-    + ' <span style="font-size:12px;color:var(--danger);font-weight:500">· 회수해당 ' + recalled + '건</span>'
-    + ' <span style="font-size:12px;color:var(--self)">· 이상없음 ' + (results.length-recalled) + '건</span></span>'
-    + '<button class="btn btn-ghost btn-sm" onclick="exportRecallBulk()">⬇ 엑셀 다운로드</button></div>'
-    + '<div class="tbl-scroll"><table class="bulk-recall-table"><thead><tr>'
-    + '<th>#</th><th>제품명</th><th>회수 여부</th><th>회수명령일</th><th>회수사유</th>'
-    + '</tr></thead><tbody>' + rows + '</tbody></table></div></div>';
+    '<div class="tbl-wrap-outer">'
+    + '<div class="tbl-head">'
+    +   '<span class="tbl-title">일괄 확인 결과 (' + results.length + '건)'
+    +   ' <span style="font-size:12px;color:var(--danger);font-weight:500">· 회수해당 ' + recalled + '건</span>'
+    +   ' <span style="font-size:12px;color:var(--self)">· 이상없음 ' + (results.length - recalled) + '건</span>'
+    +   '</span>'
+    +   '<button class="btn btn-ghost btn-sm" onclick="exportRecallBulk()">⬇ 엑셀 다운로드</button>'
+    + '</div>'
+    + '<div class="tbl-scroll"><table class="bulk-recall-table">'
+    + '<thead><tr>'
+    +   '<th>#</th><th>제품명</th><th>회수 여부</th>'
+    +   '<th>회수명령일</th><th>LOT번호</th><th>회수사유</th>'
+    + '</tr></thead>'
+    + '<tbody>' + rows + '</tbody>'
+    + '</table></div></div>';
 }
 
 function exportRecallBulk() {
   var t = document.querySelector('#recallBulkResult table');
   if (!t) return;
-  XLSX.writeFile(XLSX.utils.table_to_book(t), '회수판매중지_일괄확인_' + new Date().toISOString().slice(0,10) + '.xlsx');
+  XLSX.writeFile(
+    XLSX.utils.table_to_book(t),
+    '회수판매중지_일괄확인_' + new Date().toISOString().slice(0, 10) + '.xlsx'
+  );
 }
 
 function setupRecallDrop() {
   var dz = document.getElementById('recallDropZone');
   if (!dz) return;
-  dz.addEventListener('dragover', function(e) { e.preventDefault(); dz.style.borderColor='var(--primary)'; dz.classList.add('over'); });
-  dz.addEventListener('dragleave', function() { dz.style.borderColor=''; dz.classList.remove('over'); });
+  dz.addEventListener('dragover', function(e) {
+    e.preventDefault();
+    dz.style.borderColor = 'var(--primary)';
+    dz.classList.add('over');
+  });
+  dz.addEventListener('dragleave', function() {
+    dz.style.borderColor = '';
+    dz.classList.remove('over');
+  });
   dz.addEventListener('drop', function(e) {
-    e.preventDefault(); dz.style.borderColor=''; dz.classList.remove('over');
+    e.preventDefault();
+    dz.style.borderColor = '';
+    dz.classList.remove('over');
     if (e.dataTransfer.files[0]) procRecallFile(e.dataTransfer.files[0]);
   });
 }
 
 
-/* ══════════════════════════════════════════════
-   병의원 통합 검색
-   API: 건강보험심사평가원 hospInfoServicev2
-   엔드포인트: getHospBasisList
-   인증키: 기존 KEY 재사용 (별도 신청 승인 완료)
-   JSON 요청: &_type=json  (type= 아님!)
-   시도코드: 6자리 (예: 110000=서울)
-   응답구조: response.body.items.item (배열 or 단일)
-   실제 필드: yadmNm, addr, ykiho, telno, clCdNm,
-     sidoCdNm, sgguCdNm, emdongNm, estbDd, drTotCnt,
-     hospUrl, XPos, YPos
-══════════════════════════════════════════════ */
-
-/* ── 전역 변수 (반드시 함수 밖에 선언) ── */
-var HOSP_EP        = 'https://apis.data.go.kr/B551182/hospInfoServicev2/getHospBasisList';
-var HOSP_PROXY1    = 'https://corsproxy.io/?';
-var HOSP_PROXY2    = 'https://api.allorigins.win/raw?url=';
-var hospItems      = [];   /* 검색 결과 전체 */
-var hospCurPage    = 1;    /* 현재 페이지 */
-var HOSP_PAGE_SIZE = 10;   /* 페이지당 건수 */
-
-/* ── XML 파싱 ── */
-function parseHospXML(txt) {
-  var parser = new DOMParser();
-  var xml    = parser.parseFromString(txt, 'application/xml');
-  var errEl  = xml.getElementsByTagName('errMsg')[0];
-  if (errEl && errEl.textContent.indexOf('NORMAL') < 0) {
-    console.warn('[병의원XML]', errEl.textContent);
-    return { items: [], total: 0 };
-  }
-  var tcEl  = xml.getElementsByTagName('totalCount')[0];
-  var total = tcEl ? parseInt(tcEl.textContent) : 0;
-  var nodes = xml.getElementsByTagName('item');
-  var items = [];
-  for (var i = 0; i < nodes.length; i++) {
-    var obj = {}, ch = nodes[i].childNodes;
-    for (var j = 0; j < ch.length; j++) {
-      if (ch[j].nodeType === 1) obj[ch[j].tagName] = ch[j].textContent.trim();
-    }
-    items.push(obj);
-  }
-  return { items: items, total: total || items.length };
-}
-
-/* ── JSON 파싱 ── */
-function parseHospJSON(j) {
-  /* 응답 구조: {response:{body:{totalCount:N, items:{item:[...] or {...}}}}} */
-  var body  = (j && j.response && j.response.body) ? j.response.body : (j && j.body ? j.body : {});
-  var total = parseInt(body.totalCount || 0);
-  var raw   = null;
-  if (body.items && body.items.item !== undefined) raw = body.items.item;
-  else if (Array.isArray(body.items))              raw = body.items;
-  else                                             raw = [];
-  var items = Array.isArray(raw) ? raw : (raw && typeof raw === 'object' && Object.keys(raw).length > 0 ? [raw] : []);
-  console.log('[병의원JSON] total=' + total + ', items=' + items.length,
-    items.length > 0 ? Object.keys(items[0]) : '없음');
-  return { items: items, total: total };
-}
-
-/* ── 텍스트 → JSON or XML 판별 파싱 ── */
-function parseHospResponse(txt) {
-  var t = txt.trim();
-  if (t.charAt(0) === '{' || t.charAt(0) === '[') {
-    try { return parseHospJSON(JSON.parse(txt)); } catch(e) { console.warn('JSON파싱실패', e); }
-  }
-  return parseHospXML(txt);
-}
-
-/* ── API 호출 (직접 → proxy1 → proxy2 순서로 폴백) ── */
-function fetchHospAPI(params, numRows) {
-  var base = HOSP_EP + '?serviceKey=' + KEY
-    + '&numOfRows=' + (numRows || 100) + '&pageNo=1&_type=json';
-  var pkeys = Object.keys(params || {});
-  for (var i = 0; i < pkeys.length; i++) {
-    base += '&' + pkeys[i] + '=' + encodeURIComponent(params[pkeys[i]]);
-  }
-
-  function tryfetch(url, label) {
-    return fetch(url)
-      .then(function(r) {
-        if (!r.ok && r.status !== 200) throw new Error('HTTP ' + r.status);
-        return r.text();
-      })
-      .then(function(txt) {
-        console.log('[병의원/' + label + '] 앞200:', txt.substring(0, 200));
-        var result = parseHospResponse(txt);
-        if (result.items.length === 0 && result.total === 0) throw new Error('EMPTY');
-        return result;
-      });
-  }
-
-  return tryfetch(base, '직접')
-    .catch(function() {
-      console.warn('[병의원] 직접 실패 → corsproxy.io 시도');
-      return tryfetch(HOSP_PROXY1 + encodeURIComponent(base), 'proxy1');
-    })
-    .catch(function() {
-      console.warn('[병의원] corsproxy 실패 → allorigins 시도');
-      return tryfetch(HOSP_PROXY2 + encodeURIComponent(base), 'proxy2');
-    })
-    .catch(function(e) {
-      console.error('[병의원] 전체 실패:', e.message);
-      return { items: [], total: 0, error: e.message };
-    });
-}
-
-/* ── 테이블 렌더링 ── */
-function renderHospTable() {
-  var start = (hospCurPage - 1) * HOSP_PAGE_SIZE;
-  var end   = Math.min(start + HOSP_PAGE_SIZE, hospItems.length);
-  var rows  = '';
-  for (var i = start; i < end; i++) {
-    var it   = hospItems[i];
-    var nm   = esc(it.yadmNm   || '-');
-    var addr = esc(it.addr     || '-');
-    var yk   = esc(it.ykiho    || '-');
-    rows += '<tr style="cursor:pointer" onclick="showHospDetail(hospItems[' + i + '], this)">'
-      + '<td style="font-weight:600">' + nm + '</td>'
-      + '<td style="font-size:12px;color:var(--text2)">' + addr + '</td>'
-      + '<td style="color:var(--primary);font-weight:700;font-family:monospace">' + yk + '</td>'
-      + '</tr>';
-  }
-  document.getElementById('hospTableBody').innerHTML = rows
-    || '<tr><td colspan="3" style="text-align:center;padding:24px;color:var(--text3)">결과 없음</td></tr>';
-  renderHospPaging();
-}
-
-/* ── 페이지네이션 ── */
-function renderHospPaging() {
-  var totalPg = Math.ceil(hospItems.length / HOSP_PAGE_SIZE);
-  var el = document.getElementById('hospPagination');
-  if (totalPg <= 1) { el.innerHTML = ''; return; }
-
-  var bs = 'padding:6px 12px;border:1px solid var(--border);border-radius:6px;background:var(--surface);cursor:pointer;font-family:inherit;font-size:13px;';
-  var as = 'padding:6px 12px;border:1px solid var(--primary);border-radius:6px;background:var(--primary);color:#fff;cursor:default;font-family:inherit;font-size:13px;';
-  var html = '<button style="' + bs + '" onclick="goHospPg(' + (hospCurPage - 1) + ')"'
-    + (hospCurPage === 1 ? ' disabled' : '') + '>◀</button>';
-
-  var shown = {}, pages = [];
-  for (var p = 1; p <= Math.min(3, totalPg); p++) shown[p] = 1;
-  for (var p = Math.max(1, hospCurPage - 2); p <= Math.min(totalPg, hospCurPage + 2); p++) shown[p] = 1;
-  for (var p = Math.max(1, totalPg - 2); p <= totalPg; p++) shown[p] = 1;
-  for (var k in shown) pages.push(parseInt(k));
-  pages.sort(function(a, b) { return a - b; });
-
-  var prev = 0;
-  for (var i = 0; i < pages.length; i++) {
-    var pg = pages[i];
-    if (prev && pg - prev > 1) html += '<span style="padding:0 4px;color:var(--text3)">…</span>';
-    html += '<button onclick="goHospPg(' + pg + ')" style="' + (pg === hospCurPage ? as : bs) + '">' + pg + '</button>';
-    prev = pg;
-  }
-  html += '<button style="' + bs + '" onclick="goHospPg(' + (hospCurPage + 1) + ')"'
-    + (hospCurPage === totalPg ? ' disabled' : '') + '>▶</button>';
-  html += '<span style="font-size:12px;color:var(--text3);margin-left:8px">'
-    + hospCurPage + ' / ' + totalPg + ' 페이지 (' + hospItems.length + '건)</span>';
-  el.innerHTML = html;
-}
-
-function goHospPg(pg) {
-  var totalPg = Math.ceil(hospItems.length / HOSP_PAGE_SIZE);
-  if (pg < 1 || pg > totalPg) return;
-  hospCurPage = pg;
-  document.getElementById('hospDetail').style.display = 'none';
-  renderHospTable();
-  document.getElementById('hospTable').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-}
-
-/* ── 검색 실행 ── */
-function searchHosp() {
-  var q    = document.getElementById('hospQ').value.trim();
-  var sido = document.getElementById('hospSido').value;
-  if (!q) { alert('병원명을 입력해주세요.'); return; }
-
-  var btn = document.getElementById('hospBtn');
-  btn.disabled = true;
-  btn.textContent = '검색 중...';
-
-  var msg = document.getElementById('hospMsg');
-  msg.style.display = 'none';
-  document.getElementById('hospDetail').style.display = 'none';
-  document.getElementById('hospResultWrap').style.display = 'block';
-  document.getElementById('hospTableBody').innerHTML =
-    '<tr><td colspan="3" style="text-align:center;padding:32px"><span class="spinner"></span> 조회 중...</td></tr>';
-
-  var params = { yadmNm: q };
-  if (sido) params.sidoCd = sido;
-
-  fetchHospAPI(params, 100).then(function(result) {
-    hospItems   = result.items || [];
-    hospCurPage = 1;
-    msg.style.display = 'block';
-
-    if (result.error) {
-      msg.textContent = '오류: ' + result.error + ' (잠시 후 다시 시도해주세요)';
-      msg.style.cssText = 'display:block;padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:14px;background:#fef2f2;color:#dc2626;border:1px solid #fca5a5';
-      document.getElementById('hospTableBody').innerHTML =
-        '<tr><td colspan="3" style="text-align:center;padding:32px;color:var(--danger)">조회 실패</td></tr>';
-    } else if (!hospItems.length) {
-      msg.textContent = '검색 결과가 없습니다. 다른 검색어를 시도해보세요.';
-      msg.style.cssText = 'display:block;padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:14px;background:#fff7ed;color:#9a3412;border:1px solid #fed7aa';
-      document.getElementById('hospTableBody').innerHTML =
-        '<tr><td colspan="3" style="text-align:center;padding:32px;color:var(--text3)">결과 없음</td></tr>';
-    } else {
-      msg.textContent = '총 ' + result.total.toLocaleString() + '건 · ' + hospItems.length + '건 표시. 클릭하면 상세 정보를 확인합니다.';
-      msg.style.cssText = 'display:block;padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:14px;background:#f0fdf4;color:#166534;border:1px solid #bbf7d0';
-      renderHospTable();
-    }
-    btn.disabled = false;
-    btn.textContent = '검색';
-  }).catch(function(e) {
-    console.error('[searchHosp]', e);
-    btn.disabled = false;
-    btn.textContent = '검색';
-  });
-}
-
-/* ── 상세 패널 ── */
-function showHospDetail(it, trEl) {
-  /* 행 하이라이트 */
-  var trs = document.querySelectorAll('#hospTable tbody tr');
-  for (var r = 0; r < trs.length; r++) trs[r].style.background = '';
-  if (trEl) trEl.style.background = 'var(--hover)';
-
-  var nm       = esc(it.yadmNm   || '-');
-  var addr     = esc(it.addr     || '-');
-  var ykiho    = esc(it.ykiho    || '-');
-  var telno    = esc(it.telno    || '-');
-  var clNm     = esc(it.clCdNm   || '-');
-  var sido     = esc(it.sidoCdNm || '');
-  var sggu     = esc(it.sgguCdNm || '');
-  var estb     = fmtDate(it.estbDd || '');
-  var drTot    = esc(it.drTotCnt  || '');
-  var hospUrl  = esc(it.hospUrl   || '');
-  var autoCheck = document.getElementById('hospAutoYkiho').checked;
-
-  var kakaoUrl = 'https://map.kakao.com/?q=' + encodeURIComponent(it.yadmNm || '');
-  var hiraUrl  = 'https://www.hira.or.kr/ra/hosp/getHospList.do?yadmNm=' + encodeURIComponent(it.yadmNm || '');
-  var biznoUrl = 'https://www.bizno.net/?query=' + encodeURIComponent(it.yadmNm || '');
-
-  function row(label, val, mono) {
-    if (!val || val === '-') return '';
-    return '<div style="padding:11px 18px;border-bottom:1px solid var(--border)">'
-      + '<div style="font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--text3);margin-bottom:4px">' + label + '</div>'
-      + '<div style="font-size:13px;font-weight:600' + (mono ? ';font-family:monospace' : '') + '">' + val + '</div>'
-      + '</div>';
-  }
-
-  /* bizno.net은 CORS로 브라우저 직접 조회 불가 → 링크로 대체 */
-  var bizHtml = '<div style="padding:16px 18px">'
-    + '<div style="font-size:12px;color:var(--text3);margin-bottom:12px;line-height:1.7">'
-    + 'CORS 정책으로 브라우저에서<br>직접 조회가 불가합니다.</div>'
-    + '<a href="' + biznoUrl + '" target="_blank" '
-    + 'style="display:inline-block;padding:8px 14px;background:var(--primary);color:#fff;'
-    + 'border-radius:7px;font-size:12px;font-weight:600;text-decoration:none">'
-    + '비즈노에서 확인 →</a></div>';
-
-  var html =
-    '<div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:var(--hover);border-bottom:1px solid var(--border)">'
-    + '<div><div style="font-size:16px;font-weight:700">' + nm + '</div>'
-    + '<div style="font-size:12px;color:var(--text2);margin-top:2px">' + clNm + (sido ? ' · ' + sido : '') + (sggu ? ' ' + sggu : '') + '</div></div>'
-    + '<button onclick="closeHospPanel()" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:16px;padding:4px 8px">닫기 ✕</button>'
-    + '</div>'
-    + '<div style="display:grid;grid-template-columns:1fr 1fr">'
-    + '<div style="border-right:1px solid var(--border)">'
-    + '<div style="padding:10px 18px 6px;font-size:11px;font-weight:700;color:var(--primary);border-bottom:1px solid var(--border)">🏥 심평원 정보</div>'
-    + row('요양기관번호', ykiho, true)
-    + row('주소', addr)
-    + row('전화번호', telno)
-    + row('개설일자', estb)
-    + (drTot ? row('의사 수', drTot + '명') : '')
-    + (hospUrl ? '<div style="padding:10px 18px"><a href="' + hospUrl + '" target="_blank" style="font-size:12px;color:var(--primary)">🌐 홈페이지 →</a></div>' : '')
-    + '</div>'
-    + '<div id="hospBizBox">'
-    + '<div style="padding:10px 18px 6px;font-size:11px;font-weight:700;color:#7c3aed;border-bottom:1px solid var(--border)">📋 사업자 정보</div>'
-    + bizHtml
-    + '</div>'
-    + '</div>'
-    + '<div style="padding:10px 18px;display:flex;gap:14px;flex-wrap:wrap;border-top:1px solid var(--border)">'
-    + '<a href="' + kakaoUrl + '" target="_blank" style="font-size:12px;color:var(--primary);font-weight:500;text-decoration:none">🗺️ 카카오맵 →</a>'
-    + '<a href="' + hiraUrl  + '" target="_blank" style="font-size:12px;color:var(--primary);font-weight:500;text-decoration:none">🔗 심평원 →</a>'
-    + '</div>';
-
-  var panel = document.getElementById('hospDetail');
-  panel.innerHTML = html;
-  panel.style.display = 'block';
-  setTimeout(function() { panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, 50);
-
-}
-
-function closeHospPanel() {
-  document.getElementById('hospDetail').style.display = 'none';
-}
-
-/* ── 사업자 정보 패널 (bizno.net 직접 링크)
-   CORS 이슈로 브라우저에서 자동 조회 불가
-   → 비즈노 링크로 바로 이동하도록 처리
-── */
-var BIZNO_KEY = 'IcbnGhSMGT9rEc5OKTzrlTBoIwdN';
-
-function fetchHospBiz(hospNm, fallbackUrl) {
-  var box   = document.getElementById('hospBizBox');
-  var inner = box ? box.querySelector('div:last-child') : null;
-  if (!inner) return;
-  renderBizFallback(inner, fallbackUrl);
-}
-
-function renderBizInfo(j, inner, fallbackUrl) {
-  renderBizFallback(inner, fallbackUrl);
-}
-
-function renderBizFallback(inner, fallbackUrl) {
-  if (!inner) return;
-  inner.innerHTML =
-    '<div style="padding:16px 18px">'
-    + '<div style="font-size:12px;color:var(--text3);margin-bottom:12px;line-height:1.7">'
-    + 'CORS 정책으로 브라우저에서<br>직접 조회가 불가합니다.'
-    + '</div>'
-    + '<a href="' + fallbackUrl + '" target="_blank" '
-    + 'style="display:inline-block;padding:8px 14px;background:var(--primary);color:#fff;'
-    + 'border-radius:7px;font-size:12px;font-weight:600;text-decoration:none">'
-    + '비즈노에서 확인 →</a>'
-    + '</div>';
-}
-
-
-
-/* ── 전역 변수 ── */
-var HOSP_EP='https://apis.data.go.kr/B551182/hospInfoServicev2/getHospBasisList';
-var HOSP_PROXY1='https://corsproxy.io/?';
-var HOSP_PROXY2='https://api.allorigins.win/raw?url=';
-var hospItems=[],hospCurPage=1,HOSP_PAGE_SIZE=10;
-
 /* ── 공통 파싱 유틸 ── */
 function parse1471JSON(j){var body=j&&j.body?j.body:{};var total=parseInt(body.totalCount||0);var raw=null;if(Array.isArray(body.items))raw=body.items.map(function(w){return w&&w.item&&typeof w.item==='object'?w.item:w;});else if(body.items&&body.items.item!==undefined){var r2=body.items.item;raw=Array.isArray(r2)?r2:[r2];}else raw=[];return{items:raw,total:total};}
 function parseGenXML(txt){var parser=new DOMParser(),xml=parser.parseFromString(txt,'application/xml');var nodes=xml.getElementsByTagName('item'),items=[];for(var i=0;i<nodes.length;i++){var obj={},ch=nodes[i].childNodes;for(var j=0;j<ch.length;j++)if(ch[j].nodeType===1)obj[ch[j].tagName]=ch[j].textContent.trim();items.push(obj);}var tc=xml.getElementsByTagName('totalCount')[0];return{items:items,total:tc?parseInt(tc.textContent):items.length};}
-function fetchAPI(url){return fetch(url).then(function(r){return r.text();}).then(function(txt){var t=txt.trim();if(t.charAt(0)==='{')try{return txt;}catch(e){}return txt;});}
-
-/* ── 페이지네이션 공통 ── */
 function mkPager(curPg,totalPg,goFn,totalItems){if(totalPg<=1)return '';var bs='padding:6px 12px;border:1px solid var(--border);border-radius:6px;background:var(--surface);cursor:pointer;font-family:inherit;font-size:13px;',as='padding:6px 12px;border:1px solid var(--primary);border-radius:6px;background:var(--primary);color:#fff;cursor:default;font-family:inherit;font-size:13px;';var html='<button style="'+bs+'" onclick="'+goFn+'('+(curPg-1)+')"'+(curPg===1?' disabled':'')+'>&#9664;</button>';var shown={},pages=[];for(var p=1;p<=Math.min(3,totalPg);p++)shown[p]=1;for(var p=Math.max(1,curPg-2);p<=Math.min(totalPg,curPg+2);p++)shown[p]=1;for(var p=Math.max(1,totalPg-2);p<=totalPg;p++)shown[p]=1;for(var k in shown)pages.push(parseInt(k));pages.sort(function(a,b){return a-b;});var prev=0;for(var i=0;i<pages.length;i++){var pg=pages[i];if(prev&&pg-prev>1)html+='<span style="padding:0 4px;color:var(--text3)">...</span>';html+='<button onclick="'+goFn+'('+pg+')" style="'+(pg===curPg?as:bs)+'">'+pg+'</button>';prev=pg;}html+='<button style="'+bs+'" onclick="'+goFn+'('+(curPg+1)+')"'+(curPg===totalPg?' disabled':'')+'>&#9654;</button>';html+='<span style="font-size:12px;color:var(--text3);margin-left:8px">'+curPg+'/'+totalPg+'('+totalItems+')</span>';return html;}
-
-/* ===== 병의원 ===== */
-function parseHospXML(txt){var parser=new DOMParser(),xml=parser.parseFromString(txt,'application/xml');var nodes=xml.getElementsByTagName('item'),items=[];for(var i=0;i<nodes.length;i++){var obj={},ch=nodes[i].childNodes;for(var j=0;j<ch.length;j++)if(ch[j].nodeType===1)obj[ch[j].tagName]=ch[j].textContent.trim();items.push(obj);}var tc=xml.getElementsByTagName('totalCount')[0];return{items:items,total:tc?parseInt(tc.textContent):items.length};}
-function parseHospJSON(j){var body=(j&&j.response&&j.response.body)?j.response.body:(j&&j.body?j.body:{});var total=parseInt(body.totalCount||0);var raw=null;if(body.items&&body.items.item!==undefined)raw=body.items.item;else if(Array.isArray(body.items))raw=body.items;else raw=[];var items=Array.isArray(raw)?raw:(raw&&typeof raw==='object'&&Object.keys(raw).length?[raw]:[]);return{items:items,total:total};}
-function fetchHospAPI(params,numRows){var base=HOSP_EP+'?serviceKey='+KEY+'&numOfRows='+(numRows||100)+'&pageNo=1&_type=json';var pkeys=Object.keys(params||{});for(var i=0;i<pkeys.length;i++)base+='&'+pkeys[i]+'='+encodeURIComponent(params[pkeys[i]]);function tryfetch(url){return fetch(url).then(function(r){return r.text();}).then(function(txt){var t=txt.trim();var result=null;if(t.charAt(0)==='{')try{result=parseHospJSON(JSON.parse(txt));}catch(e){}if(!result)result=parseHospXML(txt);if(result.items.length===0&&result.total===0)throw new Error('EMPTY');return result;});}
-return tryfetch(base).catch(function(){return tryfetch(HOSP_PROXY1+encodeURIComponent(base));}).catch(function(){return tryfetch(HOSP_PROXY2+encodeURIComponent(base));}).catch(function(e){return{items:[],total:0,error:e.message};});}
-function renderHospTable(){var start=(hospCurPage-1)*HOSP_PAGE_SIZE,end=Math.min(start+HOSP_PAGE_SIZE,hospItems.length),rows='';for(var i=start;i<end;i++){var it=hospItems[i];rows+='<tr style="cursor:pointer" onclick="showHospDetail(hospItems['+i+'],this)"><td style="font-weight:600">'+esc(it.yadmNm||'-')+'</td><td style="font-size:12px;color:var(--text2)">'+esc(it.addr||'-')+'</td><td style="color:var(--primary);font-family:monospace">'+esc(it.ykiho||'-')+'</td></tr>';}document.getElementById('hospTableBody').innerHTML=rows||'<tr><td colspan="3" style="text-align:center;padding:24px;color:var(--text3)">결과 없음</td></tr>';document.getElementById('hospPagination').innerHTML=mkPager(hospCurPage,Math.ceil(hospItems.length/HOSP_PAGE_SIZE),'goHospPg',hospItems.length);}
-function goHospPg(pg){var tp=Math.ceil(hospItems.length/HOSP_PAGE_SIZE);if(pg<1||pg>tp)return;hospCurPage=pg;document.getElementById('hospDetail').style.display='none';renderHospTable();document.getElementById('hospTable').scrollIntoView({behavior:'smooth',block:'nearest'});}
-function searchHosp(){var q=document.getElementById('hospQ').value.trim(),sido=document.getElementById('hospSido').value;if(!q){alert('병원명을 입력해주세요.');return;}var btn=document.getElementById('hospBtn');btn.disabled=true;btn.textContent='검색 중...';document.getElementById('hospDetail').style.display='none';document.getElementById('hospMsg').style.display='none';document.getElementById('hospResultWrap').style.display='block';document.getElementById('hospTableBody').innerHTML='<tr><td colspan="3" style="text-align:center;padding:32px"><span class="spinner"></span> 조회 중...</td></tr>';var params={yadmNm:q};if(sido)params.sidoCd=sido;fetchHospAPI(params,100).then(function(result){hospItems=result.items||[];hospCurPage=1;var msg=document.getElementById('hospMsg');msg.style.display='block';if(result.error){msg.textContent='오류: '+result.error;msg.style.cssText='display:block;padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:14px;background:#fef2f2;color:#dc2626;border:1px solid #fca5a5';}else if(!hospItems.length){msg.textContent='검색 결과가 없습니다.';msg.style.cssText='display:block;padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:14px;background:#fff7ed;color:#9a3412;border:1px solid #fed7aa';}else{msg.textContent='총 '+result.total.toLocaleString()+'건 - '+hospItems.length+'건 표시';msg.style.cssText='display:block;padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:14px;background:#f0fdf4;color:#166534;border:1px solid #bbf7d0';renderHospTable();}btn.disabled=false;btn.textContent='검색';});}
-function showHospDetail(it,trEl){var trs=document.querySelectorAll('#hospTable tbody tr');for(var r=0;r<trs.length;r++)trs[r].style.background='';if(trEl)trEl.style.background='var(--hover)';var nm=esc(it.yadmNm||'-'),addr=esc(it.addr||'-'),yk=esc(it.ykiho||'-'),tel=esc(it.telno||'-'),clNm=esc(it.clCdNm||'-'),sido=esc(it.sidoCdNm||''),sggu=esc(it.sgguCdNm||''),estb=fmtDate(it.estbDd||''),drTot=esc(it.drTotCnt||'');var kakaoUrl='https://map.kakao.com/?q='+encodeURIComponent(it.yadmNm||'');var bizUrl='https://www.bizno.net/?query='+encodeURIComponent(it.yadmNm||'');function hr(l,v){if(!v||v==='-')return '';return '<div style="padding:10px 18px;border-bottom:1px solid var(--border)"><div style="font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--text3);margin-bottom:4px">'+l+'</div><div style="font-size:13px;font-weight:600">'+v+'</div></div>';}
-var html='<div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:var(--hover);border-bottom:1px solid var(--border)"><div><div style="font-size:16px;font-weight:700">'+nm+'</div><div style="font-size:12px;color:var(--text2);margin-top:2px">'+clNm+(sido?' - '+sido:'')+(sggu?' '+sggu:'')+'</div></div><button onclick="closeHospPanel()" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:16px;padding:4px 8px">&#x2715;</button></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:0"><div style="border-right:1px solid var(--border)"><div style="padding:10px 18px 6px;font-size:11px;font-weight:700;color:var(--primary);border-bottom:1px solid var(--border)">&#127973; 심평원 정보</div>'+hr('요양기관번호',yk)+hr('주소',addr)+hr('전화번호',tel)+hr('개설일자',estb)+(drTot?hr('의사 수',drTot+'명'):'')+'</div><div><div style="padding:10px 18px 6px;font-size:11px;font-weight:700;color:#7c3aed;border-bottom:1px solid var(--border)">&#128203; 사업자 정보</div><div style="padding:16px 18px;text-align:center"><div style="font-size:12px;color:var(--text3);margin-bottom:12px;line-height:1.7">사업자 정보는<br>비즈노에서 확인하세요</div><a href="'+bizUrl+'" target="_blank" style="display:inline-block;padding:8px 14px;background:var(--primary);color:#fff;border-radius:8px;font-size:12px;font-weight:600;text-decoration:none">&#128203; 비즈노에서 확인 &#8594;</a></div></div></div><div style="padding:12px 20px;border-top:1px solid var(--border);display:flex;gap:14px"><a href="'+kakaoUrl+'" target="_blank" style="font-size:12px;color:var(--primary);font-weight:500;text-decoration:none">&#128506; 카카오맵 &#8594;</a></div>';
-var panel=document.getElementById('hospDetail');panel.innerHTML=html;panel.style.display='block';setTimeout(function(){panel.scrollIntoView({behavior:'smooth',block:'nearest'});},50);}
-function closeHospPanel(){document.getElementById('hospDetail').style.display='none';}
 
 /* ===== 약국 ===== */
 var pharmItems=[],pharmCurPg=1,PHARM_PG_SZ=10;
 var EP_PHARM='https://apis.data.go.kr/B551182/pharmacyInfoService/getParmacyBasisList';
 function fetchPharm(params,rows){var base=EP_PHARM+'?serviceKey='+KEY+'&numOfRows='+(rows||100)+'&pageNo=1&_type=json';var pkeys=Object.keys(params||{});for(var i=0;i<pkeys.length;i++)base+='&'+pkeys[i]+'='+encodeURIComponent(params[pkeys[i]]);return fetch(base).then(function(r){return r.text();}).then(function(txt){var t=txt.trim();if(t.charAt(0)==='{')try{var j=JSON.parse(txt),body=(j&&j.response&&j.response.body)?j.response.body:(j&&j.body?j.body:{});var total=parseInt(body.totalCount||0);var raw=null;if(body.items&&body.items.item!==undefined)raw=body.items.item;else if(Array.isArray(body.items))raw=body.items;else raw=[];var items=Array.isArray(raw)?raw:(raw&&typeof raw==='object'&&Object.keys(raw).length?[raw]:[]);return{items:items,total:total};}catch(e){}var parser=new DOMParser(),xml=parser.parseFromString(txt,'application/xml');var nodes=xml.getElementsByTagName('item'),items=[];for(var i=0;i<nodes.length;i++){var obj={},ch=nodes[i].childNodes;for(var j=0;j<ch.length;j++)if(ch[j].nodeType===1)obj[ch[j].tagName]=ch[j].textContent.trim();items.push(obj);}var tc=xml.getElementsByTagName('totalCount')[0];return{items:items,total:tc?parseInt(tc.textContent):items.length};}).catch(function(e){return{items:[],total:0,error:e.message};});}
-function renderPharmTable(){var start=(pharmCurPg-1)*PHARM_PG_SZ,end=Math.min(start+PHARM_PG_SZ,pharmItems.length),rows='';for(var i=start;i<end;i++){var it=pharmItems[i];rows+='<tr style="cursor:pointer" onclick="showPharmDetail(pharmItems['+i+'],this)"><td style="font-weight:600">'+esc(it.yadmNm||'-')+'</td><td style="font-size:12px;color:var(--text2)">'+esc(it.addr||'-')+'</td><td style="font-size:12px">'+esc(it.telno||'-')+'</td><td style="color:var(--primary);font-size:11px;font-family:monospace">'+esc(it.ykiho||'-')+'</td></tr>';}document.getElementById('pharmTableBody').innerHTML=rows||'<tr><td colspan="4" style="text-align:center;padding:24px;color:var(--text3)">결과 없음</td></tr>';document.getElementById('pharmPagination').innerHTML=mkPager(pharmCurPg,Math.ceil(pharmItems.length/PHARM_PG_SZ),'goPharmPg',pharmItems.length);}
-function goPharmPg(pg){if(pg<1||pg>Math.ceil(pharmItems.length/PHARM_PG_SZ))return;pharmCurPg=pg;document.getElementById('pharmDetail').style.display='none';renderPharmTable();document.getElementById('pharmTable').scrollIntoView({behavior:'smooth',block:'nearest'});}
-function searchPharm(){var q=document.getElementById('pharmQ').value.trim(),sido=document.getElementById('pharmSido').value;if(!q){alert('약국명을 입력해주세요.');return;}var btn=document.getElementById('pharmBtn');btn.disabled=true;btn.textContent='검색 중...';document.getElementById('pharmDetail').style.display='none';document.getElementById('pharmMsg').style.display='none';document.getElementById('pharmResultWrap').style.display='block';document.getElementById('pharmTableBody').innerHTML='<tr><td colspan="4" style="text-align:center;padding:32px"><span class="spinner"></span> 조회 중...</td></tr>';var params={yadmNm:q};if(sido)params.sidoCd=sido;fetchPharm(params,100).then(function(result){pharmItems=result.items||[];pharmCurPg=1;if(!pharmItems.length){document.getElementById('pharmMsg').textContent='검색 결과가 없습니다.';document.getElementById('pharmMsg').style.cssText='display:block;padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:14px;background:#fff7ed;color:#9a3412;border:1px solid #fed7aa';document.getElementById('pharmTableBody').innerHTML='<tr><td colspan="4" style="text-align:center;padding:32px;color:var(--text3)">결과 없음</td></tr>';}else{document.getElementById('pharmMsg').textContent='총 '+result.total.toLocaleString()+'건 - '+pharmItems.length+'건 표시';document.getElementById('pharmMsg').style.cssText='display:block;padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:14px;background:#f0fdf4;color:#166534;border:1px solid #bbf7d0';document.getElementById('pharmResultTitle').textContent='"'+esc(q)+'" 검색 결과';document.getElementById('pharmResultSub').textContent=pharmItems.length+'건';renderPharmTable();}document.getElementById('pharmMsg').style.display='block';btn.disabled=false;btn.textContent='검색';});}
-function clearPharmResult(){document.getElementById('pharmResultWrap').style.display='none';document.getElementById('pharmMsg').style.display='none';document.getElementById('pharmQ').value='';pharmItems=[];}
-function showPharmDetail(it,trEl){var trs=document.querySelectorAll('#pharmTable tbody tr');for(var r=0;r<trs.length;r++)trs[r].style.background='';if(trEl)trEl.style.background='var(--hover)';var nm=esc(it.yadmNm||'-'),addr=esc(it.addr||'-'),tel=esc(it.telno||'-'),yk=esc(it.ykiho||'-'),estb=fmtDate(it.estbDd||'');function pr(l,v){if(!v||v==='-')return '';return '<div style="padding:11px 18px;border-bottom:1px solid var(--border)"><div style="font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--text3);margin-bottom:4px">'+l+'</div><div style="font-size:13px;font-weight:600">'+v+'</div></div>';}
-var kakaoUrl='https://map.kakao.com/?q='+encodeURIComponent(it.yadmNm||'');var html='<div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:var(--hover);border-bottom:1px solid var(--border)"><div><div style="font-size:16px;font-weight:700">&#128138; '+nm+'</div></div><button onclick="closePharmPanel()" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:16px;padding:4px 8px">&#x2715;</button></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:0"><div style="border-right:1px solid var(--border)">'+pr('약국명',nm)+pr('주소',addr)+pr('전화번호',tel)+pr('개설일자',estb)+'</div><div><div style="padding:10px 18px 6px;font-size:11px;font-weight:700;color:var(--primary);border-bottom:1px solid var(--border)">요양기호</div><div style="padding:12px 18px;font-size:11px;font-family:monospace;color:var(--text2);word-break:break-all;line-height:1.6">'+yk+'</div></div></div><div style="padding:12px 20px;border-top:1px solid var(--border)"><a href="'+kakaoUrl+'" target="_blank" style="font-size:12px;color:var(--primary);font-weight:500;text-decoration:none">&#128506; 카카오맵 &#8594;</a></div>';
-var panel=document.getElementById('pharmDetail');panel.innerHTML=html;panel.style.display='block';setTimeout(function(){panel.scrollIntoView({behavior:'smooth',block:'nearest'});},50);}
-function closePharmPanel(){document.getElementById('pharmDetail').style.display='none';}
 
 /* ===== 행정처분 ===== */
 var EP_ADMIN='https://apis.data.go.kr/1471000/MdcinExaathrService04/getMdcinExaathrList04';
@@ -2620,9 +2235,7 @@ function goAdminPg(pg){if(pg<1||pg>Math.ceil(adminItems.length/ADMIN_PG_SZ))retu
 function loadAdminRecent(){document.getElementById('adminResultWrap').style.display='block';document.getElementById('adminTableBody').innerHTML='<tr><td colspan="5" style="text-align:center;padding:32px"><span class="spinner"></span></td></tr>';fetchAdmin({}).then(function(r){adminItems=r.items||[];adminCurPg=1;document.getElementById('adminResultTitle').textContent='최근 행정처분 목록';document.getElementById('adminResultSub').textContent=adminItems.length+'건';renderAdminTable();});}
 function searchAdmin(){var itemQ=document.getElementById('adminItemQ').value.trim(),entpQ=document.getElementById('adminEntpQ').value.trim();if(!itemQ&&!entpQ){alert('제품명 또는 업체명을 입력해주세요.');return;}var btn=document.getElementById('adminBtn');btn.disabled=true;btn.textContent='검색 중...';document.getElementById('adminDetail').style.display='none';document.getElementById('adminMsg').style.display='none';document.getElementById('adminResultWrap').style.display='block';document.getElementById('adminTableBody').innerHTML='<tr><td colspan="5" style="text-align:center;padding:32px"><span class="spinner"></span></td></tr>';var params={};if(itemQ)params.item_name=itemQ;if(entpQ)params.entp_name=entpQ;fetchAdmin(params).then(function(r){adminItems=r.items||[];adminCurPg=1;if(!adminItems.length){document.getElementById('adminTableBody').innerHTML='<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--text3)">결과 없음</td></tr>';}else{document.getElementById('adminResultTitle').textContent='"'+(itemQ||entpQ)+'" 행정처분';document.getElementById('adminResultSub').textContent=adminItems.length+'건';renderAdminTable();}btn.disabled=false;btn.textContent='검색';});}
 function clearAdminResult(){document.getElementById('adminResultWrap').style.display='none';document.getElementById('adminMsg').style.display='none';document.getElementById('adminItemQ').value='';document.getElementById('adminEntpQ').value='';adminItems=[];}
-function showAdminDetail(it,trEl){var trs=document.querySelectorAll('#adminTable tbody tr');for(var r=0;r<trs.length;r++)trs[r].style.background='';if(trEl)trEl.style.background='var(--hover)';function ar(l,v,red){if(!v||v==='-')return '';return '<div style="padding:10px 18px;border-bottom:1px solid var(--border)"><div style="font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--text3);margin-bottom:4px">'+l+'</div><div style="font-size:13px;font-weight:600;'+(red?'color:#dc2626':'')+';line-height:1.5">'+v+'</div></div>';}
-var html='<div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:#fef2f2;border-bottom:1px solid #fca5a5"><div><div style="font-size:15px;font-weight:700;color:#dc2626">&#9878;&#65039; '+esc(it.ITEM_NAME||'-')+'</div><div style="font-size:12px;color:#9a3412;margin-top:2px">'+esc(it.ENTP_NAME||'-')+'</div></div><button onclick="closeAdminPanel()" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:16px;padding:4px 8px">&#x2715;</button></div>'+ar('행정처분명',it.ADM_DISPS_NAME,true)+ar('처분일자',fmtDate(it.LAST_SETTLE_DATE||''))+ar('공개종료일',fmtDate(it.RLS_END_DATE||''))+ar('위반법명',it.BEF_APPLY_LAW)+ar('업소소재지',it.ADDR)+'<div style="padding:12px 18px;background:#fffbeb;border-top:1px solid var(--border)"><div style="font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:#d97706;margin-bottom:6px">위반내용</div><div style="font-size:13px;color:#7c2d12;line-height:1.7">'+esc(it.EXPOSE_CONT||'-')+'</div></div>';
-var panel=document.getElementById('adminDetail');panel.innerHTML=html;panel.style.display='block';setTimeout(function(){panel.scrollIntoView({behavior:'smooth',block:'nearest'});},50);}
+function showAdminDetail(it,trEl){var trs=document.querySelectorAll('#adminTable tbody tr');for(var r=0;r<trs.length;r++)trs[r].style.background='';if(trEl)trEl.style.background='var(--hover)';function ar(l,v,red){if(!v||v==='-')return '';return '<div style="padding:10px 18px;border-bottom:1px solid var(--border)"><div style="font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--text3);margin-bottom:4px">'+l+'</div><div style="font-size:13px;font-weight:600;'+(red?'color:#dc2626':'')+';line-height:1.5">'+v+'</div></div>';}var html='<div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:#fef2f2;border-bottom:1px solid #fca5a5"><div><div style="font-size:15px;font-weight:700;color:#dc2626">&#9878;&#65039; '+esc(it.ITEM_NAME||'-')+'</div><div style="font-size:12px;color:#9a3412;margin-top:2px">'+esc(it.ENTP_NAME||'-')+'</div></div><button onclick="closeAdminPanel()" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:16px;padding:4px 8px">&#x2715;</button></div>'+ar('행정처분명',it.ADM_DISPS_NAME,true)+ar('처분일자',fmtDate(it.LAST_SETTLE_DATE||''))+ar('공개종료일',fmtDate(it.RLS_END_DATE||''))+ar('위반법명',it.BEF_APPLY_LAW)+ar('업소소재지',it.ADDR)+'<div style="padding:12px 18px;background:#fffbeb;border-top:1px solid var(--border)"><div style="font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:#d97706;margin-bottom:6px">위반내용</div><div style="font-size:13px;color:#7c2d12;line-height:1.7">'+esc(it.EXPOSE_CONT||'-')+'</div></div>';var panel=document.getElementById('adminDetail');panel.innerHTML=html;panel.style.display='block';setTimeout(function(){panel.scrollIntoView({behavior:'smooth',block:'nearest'});},50);}
 function closeAdminPanel(){document.getElementById('adminDetail').style.display='none';}
 
 /* ===== 허가정보 ===== */
@@ -2631,183 +2244,31 @@ var EP_LIC_DTL='https://apis.data.go.kr/1471000/DrugPrdtPrmsnInfoService07/getDr
 var licItems=[],licCurPg=1,LIC_PG_SZ=10;
 function fetchLic(params){var url=EP_LIC_LIST+'?serviceKey='+KEY+'&numOfRows=100&pageNo=1&type=json';var pkeys=Object.keys(params||{});for(var i=0;i<pkeys.length;i++)if(params[pkeys[i]])url+='&'+pkeys[i]+'='+encodeURIComponent(params[pkeys[i]]);return fetch(url).then(function(r){return r.text();}).then(function(txt){var t=txt.trim();if(t.charAt(0)==='{')try{return parse1471JSON(JSON.parse(txt));}catch(e){}return parseGenXML(txt);}).catch(function(e){return{items:[],total:0,error:e.message};});}
 function fetchLicDtl(seq){var url=EP_LIC_DTL+'?serviceKey='+KEY+'&item_seq='+encodeURIComponent(seq)+'&type=json';return fetch(url).then(function(r){return r.text();}).then(function(txt){var t=txt.trim();if(t.charAt(0)==='{')try{var r2=parse1471JSON(JSON.parse(txt));return r2.items.length?r2.items[0]:null;}catch(e){}return null;}).catch(function(){return null;});}
-function renderLicTable(){var start=(licCurPg-1)*LIC_PG_SZ,end=Math.min(start+LIC_PG_SZ,licItems.length),rows='';for(var i=start;i<end;i++){var it=licItems[i];var canceled=it.CANCEL_DATE?'style="opacity:.5"':'';rows+='<tr '+canceled+' style="cursor:pointer" onclick="showLicDetail(licItems['+i+'],this)"><td style="font-weight:600">'+esc(it.ITEM_NAME||'-')+(it.CANCEL_DATE?' <span style="font-size:10px;color:#dc2626;font-weight:400">[취소]</span>':'')+'</td><td style="font-size:12px;color:var(--primary)">'+esc(it.ENTP_NAME||'-')+'</td><td style="font-size:12px">'+esc(it.FORM_CODE_NAME||'-')+'</td><td class="mono" style="font-size:12px">'+fmtDate(it.ITEM_PERMIT_DATE||it.PERMIT_DATE||'')+'</td><td class="mono" style="font-size:12px">'+esc(it.ITEM_SEQ||'-')+'</td></tr>';}document.getElementById('licTableBody').innerHTML=rows||'<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--text3)">결과 없음</td></tr>';document.getElementById('licPagination').innerHTML=mkPager(licCurPg,Math.ceil(licItems.length/LIC_PG_SZ),'goLicPg',licItems.length);}
+function renderLicTable(){var start=(licCurPg-1)*LIC_PG_SZ,end=Math.min(start+LIC_PG_SZ,licItems.length),rows='';for(var i=start;i<end;i++){var it=licItems[i];var canceled=it.CANCEL_DATE?' style="opacity:.5"':'';rows+='<tr'+canceled+' style="cursor:pointer" onclick="showLicDetail(licItems['+i+'],this)"><td style="font-weight:600">'+esc(it.ITEM_NAME||'-')+(it.CANCEL_DATE?' <span style="font-size:10px;color:#dc2626;font-weight:400">[취소]</span>':'')+'</td><td style="font-size:12px;color:var(--primary)">'+esc(it.ENTP_NAME||'-')+'</td><td style="font-size:12px">'+esc(it.FORM_CODE_NAME||'-')+'</td><td class="mono" style="font-size:12px">'+fmtDate(it.ITEM_PERMIT_DATE||it.PERMIT_DATE||'')+'</td><td class="mono" style="font-size:12px">'+esc(it.ITEM_SEQ||'-')+'</td></tr>';}document.getElementById('licTableBody').innerHTML=rows||'<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--text3)">결과 없음</td></tr>';document.getElementById('licPagination').innerHTML=mkPager(licCurPg,Math.ceil(licItems.length/LIC_PG_SZ),'goLicPg',licItems.length);}
 function goLicPg(pg){if(pg<1||pg>Math.ceil(licItems.length/LIC_PG_SZ))return;licCurPg=pg;document.getElementById('licDetail').style.display='none';renderLicTable();}
 function searchLicense(){var itemQ=document.getElementById('licItemQ').value.trim(),entpQ=document.getElementById('licEntpQ').value.trim();if(!itemQ&&!entpQ){alert('제품명 또는 업체명을 입력해주세요.');return;}var btn=document.getElementById('licBtn');btn.disabled=true;btn.textContent='검색 중...';document.getElementById('licDetail').style.display='none';document.getElementById('licMsg').style.display='none';document.getElementById('licResultWrap').style.display='block';document.getElementById('licTableBody').innerHTML='<tr><td colspan="5" style="text-align:center;padding:32px"><span class="spinner"></span></td></tr>';var params={};if(itemQ)params.item_name=itemQ;if(entpQ)params.entp_name=entpQ;fetchLic(params).then(function(r){licItems=r.items||[];licCurPg=1;if(!licItems.length){document.getElementById('licMsg').textContent='검색 결과가 없습니다.';document.getElementById('licMsg').style.cssText='display:block;padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:14px;background:#fff7ed;color:#9a3412;border:1px solid #fed7aa';document.getElementById('licTableBody').innerHTML='<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--text3)">결과 없음</td></tr>';}else{document.getElementById('licResultTitle').textContent='"'+(itemQ||entpQ)+'" 허가정보';document.getElementById('licResultSub').textContent=r.total.toLocaleString()+'건 - '+licItems.length+'건 표시';renderLicTable();}btn.disabled=false;btn.textContent='검색';});}
 function clearLicResult(){document.getElementById('licResultWrap').style.display='none';document.getElementById('licMsg').style.display='none';document.getElementById('licItemQ').value='';document.getElementById('licEntpQ').value='';licItems=[];}
-function showLicDetail(it,trEl){var trs=document.querySelectorAll('#licTable tbody tr');for(var r=0;r<trs.length;r++)trs[r].style.background='';if(trEl)trEl.style.background='var(--hover)';var seq=esc(it.ITEM_SEQ||'');var nedruUrl=seq?'https://nedrug.mfds.go.kr/pbp/CCBBB01/getItemDetail?itemSeq='+seq:'https://nedrug.mfds.go.kr/pbp/CCBBB01/getList';function lr(l,v){if(!v||v==='-'||v==='')return '';return '<div style="padding:10px 18px;border-bottom:1px solid var(--border)"><div style="font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--text3);margin-bottom:4px">'+l+'</div><div style="font-size:13px;font-weight:600;line-height:1.5">'+v+'</div></div>';}
-var html='<div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:var(--hover);border-bottom:1px solid var(--border)"><div><div style="font-size:15px;font-weight:700">'+esc(it.ITEM_NAME||'-')+'</div><div style="font-size:12px;color:var(--text2);margin-top:2px">'+esc(it.ENTP_NAME||'-')+'</div></div><button onclick="closeLicPanel()" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:16px;padding:4px 8px">&#x2715;</button></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:0"><div style="border-right:1px solid var(--border)">'+lr('허가(변경)일',fmtDate(it.ITEM_PERMIT_DATE||it.PERMIT_DATE||''))+lr('품목기준코드',seq)+lr('포장단위',it.PACK_UNIT||'')+lr('저장방법',it.STORAGE_METHOD||'')+lr('유효기간',it.VALID_TERM||'')+'</div><div>'+lr('성상',it.CHART||'')+lr('주성분',it.MATERIAL_NAME||it.MAIN_ITEM_INGR||'')+'</div></div><div style="padding:12px 20px;border-top:1px solid var(--border);display:flex;gap:14px"><a href="'+nedruUrl+'" target="_blank" style="font-size:12px;color:var(--primary);font-weight:500;text-decoration:none">&#128279; 의약품안전나라 &#8594;</a></div>';
-if(seq){html+='<div id="licDtlExtra" style="padding:14px 18px;color:var(--text3);font-size:12px"><span class="spinner"></span> 추가 정보 로드 중...</div>';}
-var panel=document.getElementById('licDetail');panel.innerHTML=html;panel.style.display='block';setTimeout(function(){panel.scrollIntoView({behavior:'smooth',block:'nearest'});},50);
-if(seq){fetchLicDtl(seq).then(function(dtl){var extra=document.getElementById('licDtlExtra');if(!extra||!dtl){if(extra)extra.style.display='none';return;}var eeDoc=dtl.EE_DOC_DATA||'',udDoc=dtl.UD_DOC_DATA||'';if(!eeDoc&&!udDoc){extra.style.display='none';return;}extra.innerHTML='<div style="font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--text3);margin-bottom:8px">상세 정보</div>'+(eeDoc?'<details style="margin-bottom:6px"><summary style="cursor:pointer;font-size:12px;font-weight:600">효능&#183;효과</summary><div style="font-size:12px;line-height:1.7;padding:8px 0;color:var(--text2)">'+esc(eeDoc.substring(0,300))+'</div></details>':'')+(udDoc?'<details><summary style="cursor:pointer;font-size:12px;font-weight:600">용법&#183;용량</summary><div style="font-size:12px;line-height:1.7;padding:8px 0;color:var(--text2)">'+esc(udDoc.substring(0,300))+'</div></details>':'');});}}
+function showLicDetail(it,trEl){var trs=document.querySelectorAll('#licTable tbody tr');for(var r=0;r<trs.length;r++)trs[r].style.background='';if(trEl)trEl.style.background='var(--hover)';var seq=esc(it.ITEM_SEQ||'');var nedruUrl=seq?'https://nedrug.mfds.go.kr/pbp/CCBBB01/getItemDetail?itemSeq='+seq:'https://nedrug.mfds.go.kr/pbp/CCBBB01/getList';function lr(l,v){if(!v||v==='-'||v==='')return '';return '<div style="padding:10px 18px;border-bottom:1px solid var(--border)"><div style="font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--text3);margin-bottom:4px">'+l+'</div><div style="font-size:13px;font-weight:600;line-height:1.5">'+v+'</div></div>';}var html='<div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:var(--hover);border-bottom:1px solid var(--border)"><div><div style="font-size:15px;font-weight:700">'+esc(it.ITEM_NAME||'-')+'</div><div style="font-size:12px;color:var(--text2);margin-top:2px">'+esc(it.ENTP_NAME||'-')+'</div></div><button onclick="closeLicPanel()" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:16px;padding:4px 8px">&#x2715;</button></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:0"><div style="border-right:1px solid var(--border)">'+lr('허가(변경)일',fmtDate(it.ITEM_PERMIT_DATE||it.PERMIT_DATE||''))+lr('품목기준코드',seq)+lr('포장단위',it.PACK_UNIT||'')+lr('저장방법',it.STORAGE_METHOD||'')+lr('유효기간',it.VALID_TERM||'')+'</div><div>'+lr('성상',it.CHART||'')+lr('주성분',it.MATERIAL_NAME||it.MAIN_ITEM_INGR||'')+'</div></div><div style="padding:12px 20px;border-top:1px solid var(--border);display:flex;gap:14px"><a href="'+nedruUrl+'" target="_blank" style="font-size:12px;color:var(--primary);font-weight:500;text-decoration:none">&#128279; 의약품안전나라 &#8594;</a></div>';if(seq){html+='<div id="licDtlExtra" style="padding:14px 18px;color:var(--text3);font-size:12px"><span class="spinner"></span> 추가 정보 로드 중...</div>';}var panel=document.getElementById('licDetail');panel.innerHTML=html;panel.style.display='block';setTimeout(function(){panel.scrollIntoView({behavior:'smooth',block:'nearest'});},50);if(seq){fetchLicDtl(seq).then(function(dtl){var extra=document.getElementById('licDtlExtra');if(!extra||!dtl){if(extra)extra.style.display='none';return;}var eeDoc=dtl.EE_DOC_DATA||'',udDoc=dtl.UD_DOC_DATA||'';if(!eeDoc&&!udDoc){extra.style.display='none';return;}function buildDocHtml(xmlStr){if(!xmlStr)return '';try{var parser=new DOMParser(),xml2=parser.parseFromString(xmlStr,'application/xml'),paragraphs=xml2.getElementsByTagName('PARAGRAPH'),html2='';for(var pi=0;pi<paragraphs.length;pi++){var el2=paragraphs[pi],tagName2=(el2.getAttribute('tagName')||'p').toLowerCase(),content2=(el2.textContent||'').trim();if(!content2)continue;if(tagName2==='table'){html2+='<div style="overflow-x:auto;margin:10px 0"><table style="border-collapse:collapse;width:100%;font-size:13px;min-width:300px">'+content2.replace(/<td/gi,'<td style="border:1px solid #d1d5db;padding:7px 10px;text-align:center;vertical-align:middle;word-break:keep-all"').replace(/<th/gi,'<th style="border:1px solid #d1d5db;padding:7px 10px;text-align:center;background:#f3f4f6;font-weight:600"').replace(/<p /gi,'<p style="margin:0" ').replace(/<p>/gi,'<p style="margin:0">')+'</table></div>';}else{html2+='<p style="margin:0 0 8px;word-break:keep-all;line-height:1.8">'+esc(content2)+'</p>';}}return html2;}catch(e){return '<p style="margin:0">'+esc(xmlStr.replace(/<[^>]+>/g,'').trim())+'</p>';}}function renderDocSection2(title2,htmlContent2){if(!htmlContent2)return '';return '<details open style="margin-bottom:10px;border:1px solid var(--border);border-radius:8px;overflow:hidden"><summary style="cursor:pointer;font-size:13px;font-weight:700;padding:10px 14px;background:var(--surface2);list-style:none;display:flex;align-items:center;gap:6px;user-select:none">&#9660; '+title2+'</summary><div style="padding:12px 16px;font-size:13px;color:var(--text)">'+htmlContent2+'</div></details>';}var eeHtml=buildDocHtml(eeDoc),udHtml=buildDocHtml(udDoc);extra.innerHTML='<div style="padding:0">'+renderDocSection2('효능&#183;효과',eeHtml)+renderDocSection2('용법&#183;용량',udHtml)+'</div>';});}}
 function closeLicPanel(){document.getElementById('licDetail').style.display='none';}
 
 /* ===== DUR ===== */
 var BASE_DUR_PRD='https://apis.data.go.kr/1471000/DURPrdlstInfoService03';
 var DUR_CATS={usjnt:{label:'병용금기',icon:'&#9888;&#65039;',color:'#dc2626',bg:'#fef2f2',ep:BASE_DUR_PRD+'/getUsjntTabooInfoList03'},pwnm:{label:'임부금기',icon:'&#129040;',color:'#9333ea',bg:'#faf5ff',ep:BASE_DUR_PRD+'/getPwnmTabooInfoList03'},odsn:{label:'노인주의',icon:'&#128116;',color:'#d97706',bg:'#fffbeb',ep:BASE_DUR_PRD+'/getOdsnAtentInfoList03'},age:{label:'특정연령대금기',icon:'&#128118;',color:'#ea580c',bg:'#fff7ed',ep:BASE_DUR_PRD+'/getSpcifyAgrdeTabooInfoList03'},efcy:{label:'효능군중복',icon:'&#128138;',color:'#0891b2',bg:'#ecfeff',ep:BASE_DUR_PRD+'/getEfcyDplctInfoList03'}};
-function fetchDurAPI(ep,itemName){var url=ep+'?serviceKey='+KEY+'&numOfRows=50&pageNo=1&type=json&itemName='+encodeURIComponent(itemName);return fetch(url).then(function(r){return r.text();}).then(function(txt){var t=txt.trim();if(t.charAt(0)==='{')try{var j=JSON.parse(txt),body=j&&j.body?j.body:{};var total=parseInt(body.totalCount||0),raw=null;if(Array.isArray(body.items))raw=body.items.map(function(w){return w&&w.item?w.item:w;});else if(body.items&&body.items.item!==undefined){var r2=body.items.item;raw=Array.isArray(r2)?r2:(r2?[r2]:[]);}else raw=[];return{items:raw,total:total};}catch(e){}var parser=new DOMParser(),xml=parser.parseFromString(txt,'application/xml');var nodes=xml.getElementsByTagName('item'),items=[];for(var i=0;i<nodes.length;i++){var obj={},ch=nodes[i].childNodes;for(var j=0;j<ch.length;j++)if(ch[j].nodeType===1)obj[ch[j].tagName]=ch[j].textContent.trim();items.push(obj);}var tc=xml.getElementsByTagName('totalCount')[0];return{items:items,total:tc?parseInt(tc.textContent):items.length};}).catch(function(){return{items:[],total:0};});}
+function fetchDurAPI(ep,itemName){var url=ep+'?serviceKey='+KEY+'&numOfRows=50&pageNo=1&type=json&itemName='+encodeURIComponent(itemName);return fetch(url).then(function(r){return r.text();}).then(function(txt){var t=txt.trim();if(t.charAt(0)==='{')try{var j=JSON.parse(txt),body=j&&j.body?j.body:{},total=parseInt(body.totalCount||0),raw=null;if(Array.isArray(body.items))raw=body.items.map(function(w){return w&&w.item?w.item:w;});else if(body.items&&body.items.item!==undefined){var r2=body.items.item;raw=Array.isArray(r2)?r2:(r2?[r2]:[]);}else raw=[];return{items:raw,total:total};}catch(e){}var parser=new DOMParser(),xml=parser.parseFromString(txt,'application/xml'),nodes=xml.getElementsByTagName('item'),items=[];for(var i=0;i<nodes.length;i++){var obj={},ch=nodes[i].childNodes;for(var j=0;j<ch.length;j++)if(ch[j].nodeType===1)obj[ch[j].tagName]=ch[j].textContent.trim();items.push(obj);}var tc=xml.getElementsByTagName('totalCount')[0];return{items:items,total:tc?parseInt(tc.textContent):items.length};}).catch(function(){return{items:[],total:0};});}
 function renderDurSection(catKey,result){var cat=DUR_CATS[catKey],items=result.items||[],total=result.total||0;var header='<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:'+cat.bg+';border-radius:var(--r) var(--r) 0 0;border:1px solid '+cat.color+'33"><div style="display:flex;align-items:center;gap:8px"><span style="font-size:18px">'+cat.icon+'</span><span style="font-size:14px;font-weight:700;color:'+cat.color+'">'+cat.label+'</span><span style="font-size:12px;color:var(--text3);margin-left:4px">('+total+'건)</span></div></div>';if(!items.length)return '<div style="margin-bottom:16px;border:1px solid var(--border);border-radius:var(--r)">'+header+'<div style="padding:12px 16px;font-size:12px;color:var(--text3)">해당 없음</div></div>';var rows='';for(var i=0;i<items.length;i++){var it=items[i];var cells='';if(catKey==='usjnt')cells='<td style="font-size:12px;font-weight:600">'+esc(it.ITEM_NAME||'-')+'</td><td style="font-size:12px;color:#dc2626">'+esc(it.MIXTURE_ITEM_NAME||'-')+'</td><td style="font-size:11px;color:var(--text2)">'+esc((it.PROHBT_CONTENT||'-').substring(0,80))+'</td>';else if(catKey==='pwnm')cells='<td style="font-size:12px;font-weight:600">'+esc(it.ITEM_NAME||'-')+'</td><td style="font-size:12px;color:#9333ea;font-weight:600">'+esc(it.GRADE_NAME||'-')+'</td><td style="font-size:11px;color:var(--text2)">'+esc((it.PROHBT_CONTENT||'-').substring(0,100))+'</td>';else if(catKey==='odsn')cells='<td style="font-size:12px;font-weight:600">'+esc(it.ITEM_NAME||'-')+'</td><td style="font-size:11px;color:var(--text2)">'+esc((it.ATENT_CONTENT||'-').substring(0,120))+'</td>';else if(catKey==='age')cells='<td style="font-size:12px;font-weight:600">'+esc(it.ITEM_NAME||'-')+'</td><td style="font-size:12px;color:#ea580c;font-weight:600">'+esc(it.GRADE_NAME||'-')+'</td><td style="font-size:11px;color:var(--text2)">'+esc((it.PROHBT_CONTENT||'-').substring(0,100))+'</td>';else cells='<td style="font-size:12px;font-weight:600">'+esc(it.ITEM_NAME||'-')+'</td><td style="font-size:11px;color:var(--text2)">'+esc(it.EFY_GROUP1_NM||'-')+'</td><td style="font-size:11px;color:var(--text2)">'+esc(it.EFY_GROUP2_NM||'-')+'</td>';rows+='<tr style="border-bottom:1px solid var(--border)">'+cells+'</tr>';}var thMap={usjnt:'<th>품목명</th><th>병용금기 약물</th><th>금기 내용</th>',pwnm:'<th>품목명</th><th>등급</th><th>금기 내용</th>',odsn:'<th>품목명</th><th>주의 내용</th>',age:'<th>품목명</th><th>연령대</th><th>금기 내용</th>',efcy:'<th>품목명</th><th>효능군 1</th><th>효능군 2</th>'};return '<div style="margin-bottom:20px;border:1px solid var(--border);border-radius:var(--r);overflow:hidden">'+header+'<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse"><thead style="background:var(--surface2)"><tr style="border-bottom:1px solid var(--border)">'+thMap[catKey]+'</tr></thead><tbody>'+rows+'</tbody></table></div></div>';}
 function searchDur(){var q=document.getElementById('durQ').value.trim(),type=document.getElementById('durType').value;if(!q){alert('품목명을 입력해주세요.');return;}var btn=document.getElementById('durBtn');btn.disabled=true;btn.textContent='조회 중...';document.getElementById('durMsg').style.display='none';document.getElementById('durResultWrap').style.display='block';document.getElementById('durResultTitle').textContent='"'+esc(q)+'" DUR 안전정보';document.getElementById('durResultSub').textContent='조회 중...';document.getElementById('durSections').innerHTML='<div style="text-align:center;padding:40px"><span class="spinner"></span></div>';var cats=type==='all'?Object.keys(DUR_CATS):[type];var promises=cats.map(function(k){return fetchDurAPI(DUR_CATS[k].ep,q).then(function(r){return{key:k,result:r};});});Promise.all(promises).then(function(results){var totalItems=results.reduce(function(sum,r){return sum+(r.result.total||0);},0);document.getElementById('durResultSub').textContent='총 '+totalItems+'건 - '+results.length+'개 카테고리';var html='',hasAny=false;for(var i=0;i<results.length;i++){if(results[i].result.items.length>0)hasAny=true;html+=renderDurSection(results[i].key,results[i].result);}if(!hasAny)html='<div style="text-align:center;padding:48px;color:var(--text3)"><div style="font-size:36px;margin-bottom:12px">&#10003;</div><div style="font-size:14px;font-weight:600">"'+esc(q)+'"에 대한 DUR 정보가 없습니다.</div></div>';document.getElementById('durSections').innerHTML=html;btn.disabled=false;btn.textContent='검색';});}
 function clearDurResult(){document.getElementById('durResultWrap').style.display='none';document.getElementById('durMsg').style.display='none';document.getElementById('durQ').value='';document.getElementById('durSections').innerHTML='';}
-
-/* ===== FDA 오렌지북 ===== */
-var EP_ORANGE='https://apis.data.go.kr/1471000/FdaOrngbkPatentInfoService01/getFdaOrngbkPatentInfoList01';
-var orangeItems=[],orangeCurPg=1,ORANGE_PG=10;
-function fetchOrange(params){var url=EP_ORANGE+'?serviceKey='+KEY+'&numOfRows=100&pageNo=1&type=json';var pkeys=Object.keys(params||{});for(var i=0;i<pkeys.length;i++)if(params[pkeys[i]])url+='&'+pkeys[i]+'='+encodeURIComponent(params[pkeys[i]]);return fetch(url).then(function(r){return r.text();}).then(function(txt){var t=txt.trim();if(t.charAt(0)==='{')try{return parse1471JSON(JSON.parse(txt));}catch(e){}return parseGenXML(txt);}).catch(function(e){return{items:[],total:0,error:e.message};});}
-function renderOrangeTable(){var start=(orangeCurPg-1)*ORANGE_PG,end=Math.min(start+ORANGE_PG,orangeItems.length),rows='';for(var i=start;i<end;i++){var it=orangeItems[i];var sc=it.KOR_STATUS==='등록'?'color:#166534;background:#dcfce7':'color:#9a3412;background:#fff7ed';rows+='<tr style="cursor:pointer" onclick="showOrangeDetail(orangeItems['+i+'],this)"><td style="font-size:12px">'+esc(it.INGR_NAME||'-')+'</td><td style="font-weight:600">'+esc(it.PRT_NAME||'-')+'</td><td class="mono" style="font-size:11px">'+esc(it.KOR_PAT_NO||'-')+'</td><td class="mono" style="font-size:11px">'+esc(it.KOR_APPLY_NO||'-')+'</td><td class="mono" style="font-size:12px">'+esc(it.KOR_EXP_DATE||'-')+'</td><td><span style="font-size:11px;padding:2px 7px;border-radius:20px;font-weight:600;'+sc+'">'+esc(it.KOR_STATUS||'-')+'</span></td></tr>';}document.getElementById('orangeTableBody').innerHTML=rows||'<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--text3)">결과 없음</td></tr>';document.getElementById('orangePagination').innerHTML=mkPager(orangeCurPg,Math.ceil(orangeItems.length/ORANGE_PG),'goOrangePg',orangeItems.length);}
-function goOrangePg(pg){if(pg<1||pg>Math.ceil(orangeItems.length/ORANGE_PG))return;orangeCurPg=pg;document.getElementById('orangeDetail').style.display='none';renderOrangeTable();}
-function searchOrange(){var ingrQ=document.getElementById('orangeIngrQ').value.trim(),prtQ=document.getElementById('orangePrtQ').value.trim();if(!ingrQ&&!prtQ){alert('성분명 또는 제품명을 입력해주세요.');return;}var btn=document.getElementById('orangeBtn');btn.disabled=true;btn.textContent='검색 중...';document.getElementById('orangeDetail').style.display='none';document.getElementById('orangeMsg').style.display='none';document.getElementById('orangeResultWrap').style.display='block';document.getElementById('orangeTableBody').innerHTML='<tr><td colspan="6" style="text-align:center;padding:32px"><span class="spinner"></span></td></tr>';var params={};if(ingrQ)params.ingr_name=ingrQ;if(prtQ)params.prt_name=prtQ;fetchOrange(params).then(function(r){orangeItems=r.items||[];orangeCurPg=1;if(!orangeItems.length){document.getElementById('orangeMsg').textContent='검색 결과가 없습니다.';document.getElementById('orangeMsg').style.cssText='display:block;padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:14px;background:#fff7ed;color:#9a3412;border:1px solid #fed7aa';document.getElementById('orangeTableBody').innerHTML='<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--text3)">결과 없음</td></tr>';}else{document.getElementById('orangeResultTitle').textContent='"'+(ingrQ||prtQ)+'" 오렌지북 특허';document.getElementById('orangeResultSub').textContent=r.total.toLocaleString()+'건 - '+orangeItems.length+'건 표시';renderOrangeTable();}btn.disabled=false;btn.textContent='검색';});}
-function clearOrangeResult(){document.getElementById('orangeResultWrap').style.display='none';document.getElementById('orangeMsg').style.display='none';document.getElementById('orangeIngrQ').value='';document.getElementById('orangePrtQ').value='';orangeItems=[];}
-function showOrangeDetail(it,trEl){var trs=document.querySelectorAll('#orangeTable tbody tr');for(var r=0;r<trs.length;r++)trs[r].style.background='';if(trEl)trEl.style.background='var(--hover)';function or2(l,v){if(!v||v==='-')return '';return '<div style="padding:10px 18px;border-bottom:1px solid var(--border)"><div style="font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--text3);margin-bottom:4px">'+l+'</div><div style="font-size:13px;font-weight:600;line-height:1.5">'+v+'</div></div>';}
-var sc=it.KOR_STATUS==='등록'?'#166534':'#dc2626';var html='<div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:var(--hover);border-bottom:1px solid var(--border)"><div><div style="font-size:15px;font-weight:700">'+esc(it.PRT_NAME||'-')+'</div><div style="font-size:12px;color:var(--text2);margin-top:2px">'+esc(it.INGR_NAME||'-')+'</div></div><div style="display:flex;align-items:center;gap:10px">'+(it.KOR_STATUS?'<span style="font-size:12px;font-weight:700;color:'+sc+'">'+esc(it.KOR_STATUS)+'</span>':'')+'<button onclick="closeOrangePanel()" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:16px;padding:4px 8px">&#x2715;</button></div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:0"><div style="border-right:1px solid var(--border)">'+or2('한국 등록번호',it.KOR_PAT_NO)+or2('한국 출원번호',it.KOR_APPLY_NO)+or2('만료일',it.KOR_EXP_DATE)+'</div><div>'+or2('출원인',it.KOR_APPLICANT)+or2('발명의 명칭',it.KOR_NAME_OF_INVENTION)+'</div></div>';
-var panel=document.getElementById('orangeDetail');panel.innerHTML=html;panel.style.display='block';setTimeout(function(){panel.scrollIntoView({behavior:'smooth',block:'nearest'});},50);}
-function closeOrangePanel(){document.getElementById('orangeDetail').style.display='none';}
-
-/* ===== 대조약 ===== */
-var EP_COMP='https://apis.data.go.kr/1471000/MdcCompDrugInfoService04/getMdcCompDrugList04';
-var compItems=[],compCurPg=1,COMP_PG=10;
-function fetchComp(params){var url=EP_COMP+'?serviceKey='+KEY+'&numOfRows=100&pageNo=1&type=json';var pkeys=Object.keys(params||{});for(var i=0;i<pkeys.length;i++)if(params[pkeys[i]])url+='&'+pkeys[i]+'='+encodeURIComponent(params[pkeys[i]]);return fetch(url).then(function(r){return r.text();}).then(function(txt){var t=txt.trim();if(t.charAt(0)==='{')try{return parse1471JSON(JSON.parse(txt));}catch(e){}return parseGenXML(txt);}).catch(function(e){return{items:[],total:0,error:e.message};});}
-function renderCompTable(){var start=(compCurPg-1)*COMP_PG,end=Math.min(start+COMP_PG,compItems.length),rows='';for(var i=start;i<end;i++){var it=compItems[i];rows+='<tr style="cursor:pointer" onclick="showCompDetail(compItems['+i+'],this)"><td style="font-weight:600">'+esc(it.ITEM_NAME||'-')+'</td><td style="font-size:12px;color:var(--text2)">'+esc(it.INGR_KOR_NAME||it.INGR_NAME||'-')+'</td><td style="font-size:12px;color:var(--primary)">'+esc(it.ENTP_NAME||'-')+'</td><td style="font-size:12px">'+esc(it.MDC_COMP_DRUG_TYPE||it.COMP_DRG_TYPE||'-')+'</td><td style="font-size:12px">'+esc(it.FORM_CODE_NAME||'-')+'</td><td class="mono" style="font-size:12px">'+fmtDate(it.ANNS_DT||'')+'</td></tr>';}document.getElementById('compTableBody').innerHTML=rows||'<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--text3)">결과 없음</td></tr>';document.getElementById('compPagination').innerHTML=mkPager(compCurPg,Math.ceil(compItems.length/COMP_PG),'goCompPg',compItems.length);}
-function goCompPg(pg){if(pg<1||pg>Math.ceil(compItems.length/COMP_PG))return;compCurPg=pg;document.getElementById('compDetail').style.display='none';renderCompTable();}
-function searchComp(){var itemQ=document.getElementById('compItemQ').value.trim(),ingrQ=document.getElementById('compIngrQ').value.trim(),entpQ=document.getElementById('compEntpQ').value.trim();if(!itemQ&&!ingrQ&&!entpQ){alert('검색어를 하나 이상 입력해주세요.');return;}var btn=document.getElementById('compBtn');btn.disabled=true;btn.textContent='검색 중...';document.getElementById('compDetail').style.display='none';document.getElementById('compMsg').style.display='none';document.getElementById('compResultWrap').style.display='block';document.getElementById('compTableBody').innerHTML='<tr><td colspan="6" style="text-align:center;padding:32px"><span class="spinner"></span></td></tr>';var params={};if(itemQ)params.item_name=itemQ;if(ingrQ)params.ingr_name=ingrQ;if(entpQ)params.entp_name=entpQ;fetchComp(params).then(function(r){compItems=r.items||[];compCurPg=1;if(!compItems.length){document.getElementById('compMsg').textContent='검색 결과가 없습니다.';document.getElementById('compMsg').style.cssText='display:block;padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:14px;background:#fff7ed;color:#9a3412;border:1px solid #fed7aa';document.getElementById('compTableBody').innerHTML='<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--text3)">결과 없음</td></tr>';}else{document.getElementById('compResultTitle').textContent='"'+(itemQ||ingrQ||entpQ)+'" 대조약 검색';document.getElementById('compResultSub').textContent=r.total.toLocaleString()+'건 - '+compItems.length+'건 표시';renderCompTable();}btn.disabled=false;btn.textContent='검색';});}
-function clearCompResult(){document.getElementById('compResultWrap').style.display='none';document.getElementById('compMsg').style.display='none';document.getElementById('compItemQ').value='';document.getElementById('compIngrQ').value='';document.getElementById('compEntpQ').value='';compItems=[];}
-function showCompDetail(it,trEl){var trs=document.querySelectorAll('#compTable tbody tr');for(var r=0;r<trs.length;r++)trs[r].style.background='';if(trEl)trEl.style.background='var(--hover)';var seq=esc(it.ITEM_SEQ||'');var nedruUrl=seq?'https://nedrug.mfds.go.kr/pbp/CCBBB01/getItemDetail?itemSeq='+seq:'https://nedrug.mfds.go.kr/pbp/CCBBB01/getList';function cr(l,v){if(!v||v==='-'||v==='')return '';return '<div style="padding:10px 18px;border-bottom:1px solid var(--border)"><div style="font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--text3);margin-bottom:4px">'+l+'</div><div style="font-size:13px;font-weight:600;line-height:1.5">'+v+'</div></div>';}
-var html='<div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:var(--hover);border-bottom:1px solid var(--border)"><div><div style="font-size:15px;font-weight:700">'+esc(it.ITEM_NAME||'-')+'</div><div style="font-size:12px;color:var(--text2);margin-top:2px">'+esc(it.ENTP_NAME||'-')+'</div></div><button onclick="closeCompPanel()" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:16px;padding:4px 8px">&#x2715;</button></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:0"><div style="border-right:1px solid var(--border)">'+cr('성분명',it.INGR_KOR_NAME||it.INGR_NAME||'')+cr('대조약 구분',it.MDC_COMP_DRUG_TYPE||it.COMP_DRG_TYPE||'')+cr('제형',it.FORM_CODE_NAME||'')+'</div><div>'+cr('공고일',fmtDate(it.ANNS_DT||''))+cr('품목기준코드',seq)+'</div></div>'+(seq?'<div style="padding:12px 20px;border-top:1px solid var(--border)"><a href="'+nedruUrl+'" target="_blank" style="font-size:12px;color:var(--primary);font-weight:500;text-decoration:none">&#128279; 의약품안전나라 &#8594;</a></div>':'');
-var panel=document.getElementById('compDetail');panel.innerHTML=html;panel.style.display='block';setTimeout(function(){panel.scrollIntoView({behavior:'smooth',block:'nearest'});},50);}
-function closeCompPanel(){document.getElementById('compDetail').style.display='none';}
-
-/* ── 심평원 건강지도 iframe 차단 감지 ── */
-function checkHiramap(iframe) {
-  // 로딩 완료 시 로딩 스피너 숨기기
-  var loading = document.getElementById('hiramapLoading');
-  if (loading) loading.style.display = 'none';
-  // X-Frame-Options 차단 시 contentDocument가 비어있거나 about:blank
-  try {
-    var doc = iframe.contentDocument || iframe.contentWindow.document;
-    if (!doc || doc.URL === 'about:blank' || doc.body.innerHTML === '') {
-      showHiramapFallback();
-    }
-  } catch(e) {
-    // cross-origin 에러 = 실제로 로드됨 (iframe 허용)
-    // 아무것도 안 해도 됨
-  }
-}
-function showHiramapFallback() {
-  var loading  = document.getElementById('hiramapLoading');
-  var fallback = document.getElementById('hiramapFallback');
-  var iframe   = document.getElementById('hiramap');
-  if (loading)  loading.style.display  = 'none';
-  if (iframe)   iframe.style.display   = 'none';
-  if (fallback) {
-    fallback.style.display = 'flex';
-    fallback.style.height  = '400px';
-  }
-}
-
-function checkInsuFrame(iframe) {
-  var loading = document.getElementById('insuLoading');
-  if (loading) loading.style.display = 'none';
-  try {
-    var doc = iframe.contentDocument || iframe.contentWindow.document;
-    if (!doc || doc.URL === 'about:blank' || doc.body.innerHTML === '') {
-      showInsuFallback();
-    }
-  } catch(e) {
-    // cross-origin = 로드 성공
-  }
-}
-function showInsuFallback() {
-  var loading  = document.getElementById('insuLoading');
-  var fallback = document.getElementById('insuFallback');
-  var iframe   = document.getElementById('insuframe');
-  if (loading)  loading.style.display  = 'none';
-  if (iframe)   iframe.style.display   = 'none';
-  if (fallback) { fallback.style.display = 'flex'; }
-}
-
-function checkDruglistFrame(iframe) {
-  var loading = document.getElementById('druglistLoading');
-  if (loading) loading.style.display = 'none';
-  try {
-    var doc = iframe.contentDocument || iframe.contentWindow.document;
-    if (!doc || doc.URL === 'about:blank' || doc.body.innerHTML === '') {
-      showDruglistFallback();
-    }
-  } catch(e) {
-    // cross-origin = 로드 성공
-  }
-}
-function showDruglistFallback() {
-  var loading  = document.getElementById('druglistLoading');
-  var fallback = document.getElementById('druglistFallback');
-  var iframe   = document.getElementById('druglistframe');
-  if (loading)  loading.style.display = 'none';
-  if (iframe)   iframe.style.display  = 'none';
-  if (fallback) { fallback.style.display = 'flex'; }
-}
-
-/* ── 뷰 모드 전환 ── */
-var VIEW_KEY = 'drugapp_view_mode';
-function toggleViewMode() {
-  var body = document.body;
-  var isMobileForced = body.classList.contains('mobile-forced');
-  var isPcForced     = body.classList.contains('pc-forced');
-  var isAuto = !isMobileForced && !isPcForced;
-
-  // 순환: auto → mobile → pc → auto
-  if (isAuto) {
-    body.classList.add('mobile-forced');
-    localStorage.setItem(VIEW_KEY, 'mobile');
-  } else if (isMobileForced) {
-    body.classList.remove('mobile-forced');
-    body.classList.add('pc-forced');
-    localStorage.setItem(VIEW_KEY, 'pc');
-  } else {
-    body.classList.remove('pc-forced');
-    localStorage.removeItem(VIEW_KEY);
-  }
-  updateViewToggleBtn();
-}
-
-function updateViewToggleBtn() {
-  var btn   = document.getElementById('viewToggleBtn');
-  var icon  = document.getElementById('viewToggleIcon');
-  var label = document.getElementById('viewToggleLabel');
-  if (!btn) return;
-  var body = document.body;
-  if (body.classList.contains('mobile-forced')) {
-    icon.textContent  = '\u{1F4F1}'; btn.style.borderColor = 'var(--primary)';
-    btn.style.color = 'var(--primary)'; label.textContent = '모바일뷰';
-  } else if (body.classList.contains('pc-forced')) {
-    icon.textContent  = '\u{1F5A5}'; btn.style.borderColor = '#059669';
-    btn.style.color = '#059669'; label.textContent = 'PC뷰';
-  } else {
-    icon.innerHTML = '&#128257;'; btn.style.borderColor = 'var(--border)';
-    btn.style.color = 'var(--text2)'; label.textContent = '자동';
-  }
-}
-
-function initViewMode() {
-  var saved = localStorage.getItem(VIEW_KEY);
-  if (saved === 'mobile') {
-    document.body.classList.add('mobile-forced');
-  } else if (saved === 'pc') {
-    document.body.classList.add('pc-forced');
-  }
-  updateViewToggleBtn();
-}
 
 window.onload = function() {
   initViewMode();
   setupDrop();
   setupRecallDrop();
   updateFloat();
-  setSubTab('search','single');
-  setSubTab('safety','recall');
-  setSubTab('medical','hosp');
-  setSubTab('info','license');
+  setSubTab('search',  'single');
+  setSubTab('safety',  'recall');
+  setSubTab('medical', 'map');
+  setSubTab('info',    'license');
 };
-
 </script>
 </body>
 </html>
