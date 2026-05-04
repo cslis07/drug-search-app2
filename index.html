@@ -927,7 +927,7 @@ body.mobile-forced .sub-tab { padding: 7px 11px !important; font-size: 12px !imp
   <div class="tab-row">
     <button class="tab-btn on" id="btnSearch" onclick="setTab('search')"><span class="tab-icon">&#128269;</span> 의약품 검색</button>
     <button class="tab-btn" id="btnSafety" onclick="setTab('safety')"><span class="tab-icon">&#9888;&#65039;</span> 안전정보</button>
-    <button class="tab-btn" id="btnMedical" onclick="setTab('medical')"><span class="tab-icon">&#127973;</span> 의료기관검색(병의원&amp;약국)(병의원&amp;약국)</button>
+    <button class="tab-btn" id="btnMedical" onclick="setTab('medical')"><span class="tab-icon">&#127973;</span> 의료기관검색(병의원&amp;약국)</button>
     <button class="tab-btn" id="btnInfo" onclick="setTab('info')"><span class="tab-icon">&#128203;</span> 의약품 정보</button>
   </div>
 
@@ -1162,15 +1162,91 @@ function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').repl
 function sleep(ms) { return new Promise(function(r){setTimeout(r,ms);}); }
 
 function setTab(t) {
-  ['btnSingle','btnBulk','btnRecall'].forEach(function(id,i){
-    var key = ['single','bulk','recall'][i];
-    document.getElementById(id).className = 'tab-btn'+(t===key?' on':'');
+  ['btnSearch','btnSafety','btnMedical','btnInfo'].forEach(function(id,i){
+    var el=document.getElementById(id);
+    var key=['search','safety','medical','info'][i];
+    if(el) el.className='tab-btn'+(t===key?' on':'');
   });
-  ['tab-single','tab-bulk','tab-recall'].forEach(function(id,i){
-    var key = ['single','bulk','recall'][i];
-    document.getElementById(id).className = 'tab'+(t===key?' on':'');
+  ['tab-search','tab-safety','tab-medical','tab-info'].forEach(function(id,i){
+    var el=document.getElementById(id);
+    var key=['search','safety','medical','info'][i];
+    if(el) el.className='tab'+(t===key?' on':'');
   });
-  // recall tab: 사용자가 검색 또는 전체조회 버튼을 눌러서 진입
+  if(t==='search'  && !document.querySelector('.sub-tab.on[data-parent="search"]'))  setSubTab('search','single');
+  if(t==='safety'  && !document.querySelector('.sub-tab.on[data-parent="safety"]'))  setSubTab('safety','recall');
+  if(t==='medical' && !document.querySelector('.sub-tab.on[data-parent="medical"]')) setSubTab('medical','map');
+  if(t==='info'    && !document.querySelector('.sub-tab.on[data-parent="info"]'))    setSubTab('info','license');
+}
+
+function setSubTab(parent, sub) {
+  document.querySelectorAll('.sub-tab[data-parent="'+parent+'"]').forEach(function(btn){
+    btn.className='sub-tab'+(btn.dataset.sub===sub?' on':'');
+  });
+  document.querySelectorAll('.sub-content[data-parent="'+parent+'"]').forEach(function(div){
+    div.style.display=(div.dataset.sub===sub?'block':'none');
+  });
+  if(sub==='recall' && !recallRecentLoaded) loadRecentRecall();
+}
+
+function initViewMode() {
+  var saved = localStorage.getItem('drugapp_view_mode');
+  if (saved === 'mobile') document.body.classList.add('mobile-forced');
+  else if (saved === 'pc') document.body.classList.add('pc-forced');
+  updateViewToggleBtn();
+}
+
+function updateViewToggleBtn() {
+  var btn=document.getElementById('viewToggleBtn');
+  var icon=document.getElementById('viewToggleIcon');
+  var label=document.getElementById('viewToggleLabel');
+  if(!btn) return;
+  if(document.body.classList.contains('mobile-forced')){
+    icon.innerHTML='&#128241;'; btn.style.borderColor='var(--primary)'; btn.style.color='var(--primary)'; label.textContent='모바일뷰';
+  } else if(document.body.classList.contains('pc-forced')){
+    icon.innerHTML='&#128421;'; btn.style.borderColor='#059669'; btn.style.color='#059669'; label.textContent='PC뷰';
+  } else {
+    icon.innerHTML='&#128257;'; btn.style.borderColor='var(--border)'; btn.style.color='var(--text2)'; label.textContent='자동';
+  }
+}
+
+function toggleViewMode() {
+  var body=document.body;
+  if(body.classList.contains('mobile-forced')){
+    body.classList.remove('mobile-forced'); body.classList.add('pc-forced'); localStorage.setItem('drugapp_view_mode','pc');
+  } else if(body.classList.contains('pc-forced')){
+    body.classList.remove('pc-forced'); localStorage.removeItem('drugapp_view_mode');
+  } else {
+    body.classList.add('mobile-forced'); localStorage.setItem('drugapp_view_mode','mobile');
+  }
+  updateViewToggleBtn();
+}
+
+function checkHiramap(iframe) {
+  var loading=document.getElementById('hiramapLoading');
+  if(loading) loading.style.display='none';
+  try { var doc=iframe.contentDocument||iframe.contentWindow.document; if(!doc||doc.URL==='about:blank'||doc.body.innerHTML==='') showHiramapFallback(); } catch(e) {}
+}
+function showHiramapFallback() {
+  var loading=document.getElementById('hiramapLoading'),fallback=document.getElementById('hiramapFallback'),iframe=document.getElementById('hiramap');
+  if(loading)loading.style.display='none'; if(iframe)iframe.style.display='none'; if(fallback){fallback.style.display='flex';}
+}
+function checkInsuFrame(iframe) {
+  var loading=document.getElementById('insuLoading');
+  if(loading) loading.style.display='none';
+  try { var doc=iframe.contentDocument||iframe.contentWindow.document; if(!doc||doc.URL==='about:blank'||doc.body.innerHTML==='') showInsuFallback(); } catch(e) {}
+}
+function showInsuFallback() {
+  var loading=document.getElementById('insuLoading'),fallback=document.getElementById('insuFallback'),iframe=document.getElementById('insuframe');
+  if(loading)loading.style.display='none'; if(iframe)iframe.style.display='none'; if(fallback){fallback.style.display='flex';}
+}
+function checkDruglistFrame(iframe) {
+  var loading=document.getElementById('druglistLoading');
+  if(loading) loading.style.display='none';
+  try { var doc=iframe.contentDocument||iframe.contentWindow.document; if(!doc||doc.URL==='about:blank'||doc.body.innerHTML==='') showDruglistFallback(); } catch(e) {}
+}
+function showDruglistFallback() {
+  var loading=document.getElementById('druglistLoading'),fallback=document.getElementById('druglistFallback'),iframe=document.getElementById('druglistframe');
+  if(loading)loading.style.display='none'; if(iframe)iframe.style.display='none'; if(fallback){fallback.style.display='flex';}
 }
 
 /* ══════════════════════════════════════════════
@@ -1642,81 +1718,59 @@ function exportBulk() {
    회수·판매중지 기능
    API: MdcinRtrvlSleStpgeInfoService04
    목록: getMdcinRtrvlSleStpgelList03
-   실제 응답 필드: PRDUCT, ENTRPS, RTRVL_RESN,
-     RTRVL_CMND_DT, RECALL_COMMAND_DATE,
-     ENFRC_YN, ITEM_SEQ, MNFCTUR_NO, MNFCTUR_DT,
-     USGPD, PACKNG_UNIT, STD_CD, BIZRNO
-   검색 파라미터: Prduct(품목명), Entrps(업체명)
+   실제 필드: PRDUCT, ENTRPS, RTRVL_RESN,
+     ENFRC_YN, RTRVL_CMND_DT, RECALL_COMMAND_DATE,
+     ITEM_SEQ, OPEN_END_DATE, BIZRNO, STD_CD
+   검색 파라미터: Prduct, Entrps, Rtrvl_resn
 ══════════════════════════════════════════════ */
 var EP_RECALL_LIST = 'https://apis.data.go.kr/1471000/MdcinRtrvlSleStpgeInfoService04/getMdcinRtrvlSleStpgelList03';
 
 var recallRecentLoaded = false;
 var recallBulkData = [], recallBulkCols = [], recallStopFlag = false;
+var recallAllItems  = [];   /* 전체 데이터 캐시 */
+var recallPage      = 1;    /* 현재 페이지 */
+var RECALL_PER_PAGE = 10;   /* 페이지당 건수 */
 
-/* XML 응답에서 item 배열 추출 */
+/* ── XML 파싱 ── */
 function parseRecallXML(txt) {
   var parser = new DOMParser();
   var xml = parser.parseFromString(txt, 'application/xml');
   var errEl = xml.getElementsByTagName('errMsg')[0];
-  if (errEl) {
-    console.warn('[회수XML에러]', errEl.textContent);
-    return { items: [], total: 0 };
-  }
-  var tcEl = xml.getElementsByTagName('totalCount')[0];
+  if (errEl) { console.warn('[회수XML]', errEl.textContent); return { items:[], total:0 }; }
+  var tcEl  = xml.getElementsByTagName('totalCount')[0];
   var total = tcEl ? parseInt(tcEl.textContent) : 0;
   var nodes = xml.getElementsByTagName('item');
-  if (!nodes || nodes.length === 0) {
-    console.warn('[회수XML] item 없음. 앞200:', txt.substring(0, 200));
-    return { items: [], total: 0 };
-  }
+  if (!nodes || !nodes.length) { console.warn('[회수XML] item 없음'); return { items:[], total:0 }; }
   var items = [];
   for (var i = 0; i < nodes.length; i++) {
-    var obj = {};
-    var ch = nodes[i].childNodes;
+    var obj = {}, ch = nodes[i].childNodes;
     for (var j = 0; j < ch.length; j++) {
-      if (ch[j].nodeType === 1) {
-        obj[ch[j].tagName] = ch[j].textContent.trim();
-      }
+      if (ch[j].nodeType === 1) obj[ch[j].tagName] = ch[j].textContent.trim();
     }
     items.push(obj);
   }
-  console.log('[회수XML] total=' + total + ' items=' + items.length,
-    items.length > 0 ? Object.keys(items[0]) : '없음');
   return { items: items, total: total || items.length };
 }
 
-/* JSON 응답에서 item 배열 추출
-   실제 구조: body.items = [ {item:{PRDUCT:...,ENTRPS:...}}, {item:{...}}, ... ]
-   각 배열 요소가 {item:{...}} 형태로 한 번 더 감싸져 있음 */
+/* ── JSON 파싱 (실제 구조: body.items=[{item:{...}},...]) ── */
 function parseRecallJSON(j) {
-  if (!j || !j.body) return { items: [], total: 0 };
-  var body = j.body;
+  if (!j || !j.body) return { items:[], total:0 };
+  var body  = j.body;
   var total = parseInt(body.totalCount || 0);
   var items = [];
-
   if (Array.isArray(body.items)) {
-    /* body.items = [ {item:{...}}, {item:{...}}, ... ] */
     for (var i = 0; i < body.items.length; i++) {
-      var wrapper = body.items[i];
-      /* 래퍼 안의 item 꺼내기 */
-      if (wrapper && typeof wrapper.item === 'object') {
-        items.push(wrapper.item);
-      } else {
-        items.push(wrapper);
-      }
+      var w = body.items[i];
+      items.push((w && w.item && typeof w.item === 'object') ? w.item : w);
     }
-  } else if (body.items && typeof body.items === 'object') {
-    /* 단일 item인 경우 */
-    var single = body.items.item || body.items;
-    items = Array.isArray(single) ? single : [single];
+  } else if (body.items && body.items.item) {
+    var raw = body.items.item;
+    items = Array.isArray(raw) ? raw : [raw];
   }
-
-  console.log('[회수JSON] total=' + total + ' items=' + items.length,
-    items.length > 0 ? Object.keys(items[0]) : '없음');
   return { items: items, total: total };
 }
 
-/* 회수 API 호출: JSON 시도 → 실패시 XML 재시도 */
+/* ── API 호출 ── */
 function fetchRecall(params, numOfRows) {
   var base = EP_RECALL_LIST
     + '?serviceKey=' + KEY
@@ -1726,144 +1780,222 @@ function fetchRecall(params, numOfRows) {
   for (var i = 0; i < pkeys.length; i++) {
     base += '&' + pkeys[i] + '=' + encodeURIComponent(params[pkeys[i]]);
   }
-
-  return fetch(base + '&type=json')
+  return fetch(base)
     .then(function(r) { return r.text(); })
     .then(function(txt) {
-      console.log('[회수API응답앞200]', txt.substring(0, 200));
       var first = txt.trim().charAt(0);
-      if (first === '{' || first === '[') {
-        return parseRecallJSON(JSON.parse(txt));
-      }
+      if (first === '{' || first === '[') return parseRecallJSON(JSON.parse(txt));
       return parseRecallXML(txt);
     })
     .catch(function(e1) {
-      console.warn('[회수JSON실패→XML재시도]', e1.message);
       return fetch(base)
         .then(function(r) { return r.text(); })
         .then(function(txt) { return parseRecallXML(txt); })
-        .catch(function(e2) {
-          console.error('[회수API완전실패]', e2.message);
-          return { items: [], total: 0 };
-        });
+        .catch(function() { return { items:[], total:0 }; });
     });
 }
 
-/* 회수등급 스타일 */
-function gradeClass(g) {
-  if (!g) return 'badge-grade-x';
-  if (g.indexOf('1') >= 0) return 'badge-grade-1';
-  if (g.indexOf('2') >= 0) return 'badge-grade-2';
-  if (g.indexOf('3') >= 0) return 'badge-grade-3';
-  return 'badge-grade-x';
-}
-function cardTopClass(g) {
-  if (!g) return 'recall-card grade-x';
-  if (g.indexOf('1') >= 0) return 'recall-card grade-1';
-  if (g.indexOf('2') >= 0) return 'recall-card grade-2';
-  if (g.indexOf('3') >= 0) return 'recall-card grade-3';
-  return 'recall-card grade-x';
+/* ── 언래핑 헬퍼 ── */
+function unwrapItem(it) {
+  return (it && it.item && typeof it.item === 'object') ? it.item : it;
 }
 
-/* 카드 HTML 생성 (공식 필드명 기준) */
-function recallCardHtml(itemRaw) {
-  /* {item:{...}} 래퍼 방어 */
-  var item = (itemRaw && itemRaw.item && typeof itemRaw.item === 'object')
-    ? itemRaw.item : itemRaw;
+/* ── 테이블 행 HTML ── */
+function recallRowHtml(item, rowNum) {
+  var it      = unwrapItem(item);
+  var name    = esc(it.PRDUCT || '-');
+  var company = esc(it.ENTRPS || '-');
+  var reason  = esc(it.RTRVL_RESN || '-');
+  var cmdDate = fmtDate(it.RTRVL_CMND_DT || it.RECALL_COMMAND_DATE || '');
+  var endDate = fmtDate(it.OPEN_END_DATE || '');
+  /* 뱃지: 데스크탑용(7번째 td) + 모바일용(2번째 td 안에 포함) */
+  var enfrcLabel = it.ENFRC_YN === 'Y' ? '강제' : '자진';
+  var enfrcCls   = it.ENFRC_YN === 'Y' ? 'badge-grade-2' : 'badge-grade-x';
+  var enfrcBadge = '<span class="badge ' + enfrcCls + '" style="font-size:10px;padding:2px 7px;flex-shrink:0">' + enfrcLabel + '</span>';
+  return '<tr class="recall-tbl-row" onclick="showRecallDetail(recallAllItems[' + (rowNum - 1) + '])" style="cursor:pointer">'
+    /* 1: 순번 */
+    + '<td class="mono" style="color:var(--text3)">' + rowNum + '</td>'
+    /* 2: 제품명 (모바일에서는 뱃지도 포함) */
+    + '<td style="font-weight:500;max-width:180px">'
+    +   '<span class="mobile-badge-inline">' + enfrcBadge + '</span>'
+    +   '<span>' + name + '</span>'
+    + '</td>'
+    /* 3: 업체명 */
+    + '<td style="color:var(--primary);font-size:12px">' + company + '</td>'
+    /* 4: 회수사유 */
+    + '<td style="font-size:12px;max-width:200px;line-height:1.4">' + reason + '</td>'
+    /* 5: 회수명령일자 */
+    + '<td class="mono" style="font-size:12px">' + (cmdDate || '-') + '</td>'
+    /* 6: 공개마감일자 */
+    + '<td class="mono" style="font-size:12px">' + (endDate || '-') + '</td>'
+    /* 7: 구분 (데스크탑) */
+    + '<td>' + enfrcBadge + '</td>'
+    + '</tr>';
+}
 
-  /* 목록 API 실제 필드: PRDUCT, ENTRPS, RTRVL_RESN,
-     ENFRC_YN, RTRVL_CMND_DT, ITEM_SEQ, OPEN_END_DATE */
-  var name    = esc(item.PRDUCT || '-');
-  var company = esc(item.ENTRPS || '-');
-  var reason  = esc(item.RTRVL_RESN || '-');
-  var cmdDate = fmtDate(item.RTRVL_CMND_DT || item.RECALL_COMMAND_DATE || '');
-  var endDate = fmtDate(item.OPEN_END_DATE || '');
-  var itemSeq = esc(item.ITEM_SEQ || '');
-  var enfrc   = item.ENFRC_YN === 'Y' ? '강제회수' : (item.ENFRC_YN === 'N' ? '자진회수' : '회수·판매중지');
+/* ── 테이블 렌더링 (페이지 기준) ── */
+function renderRecallTable() {
+  var start = (recallPage - 1) * RECALL_PER_PAGE;
+  var end   = Math.min(start + RECALL_PER_PAGE, recallAllItems.length);
+  var rows  = '';
+  for (var i = start; i < end; i++) {
+    rows += recallRowHtml(recallAllItems[i], i + 1);
+  }
+  document.getElementById('recallTableBody').innerHTML = rows || '<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--text3)">결과가 없습니다</td></tr>';
+  renderRecallPagination();
+}
+
+/* ── 페이지네이션 ── */
+function renderRecallPagination() {
+  var total    = recallAllItems.length;
+  var totalPg  = Math.ceil(total / RECALL_PER_PAGE);
+  if (totalPg <= 1) { document.getElementById('recallPagination').innerHTML = ''; return; }
+
+  var btnStyle = 'padding:6px 12px;border:1px solid var(--border);border-radius:6px;background:var(--surface);cursor:pointer;font-family:inherit;font-size:13px;';
+  var activeSt = 'padding:6px 12px;border:1px solid var(--primary);border-radius:6px;background:var(--primary);color:#fff;cursor:default;font-family:inherit;font-size:13px;';
+
+  var html = '';
+  /* 이전 */
+  html += '<button style="' + btnStyle + '" onclick="goRecallPage(' + (recallPage-1) + ')" '
+    + (recallPage === 1 ? 'disabled style="opacity:.4;cursor:default;' + btnStyle + '"' : '') + '>◀</button>';
+
+  /* 페이지 번호 (앞 5, 현재 주변 2, 끝 5) */
+  var shown = {};
+  function addPg(p) {
+    if (p < 1 || p > totalPg || shown[p]) return;
+    shown[p] = true;
+  }
+  for (var p = 1; p <= Math.min(3, totalPg); p++) addPg(p);
+  for (var p = Math.max(1, recallPage-2); p <= Math.min(totalPg, recallPage+2); p++) addPg(p);
+  for (var p = Math.max(1, totalPg-2); p <= totalPg; p++) addPg(p);
+
+  var prev = 0;
+  var pages = Object.keys(shown).map(Number).sort(function(a,b){return a-b;});
+  for (var i = 0; i < pages.length; i++) {
+    var pg = pages[i];
+    if (prev && pg - prev > 1) html += '<span style="padding:0 4px;color:var(--text3)">…</span>';
+    html += '<button onclick="goRecallPage(' + pg + ')" style="' + (pg === recallPage ? activeSt : btnStyle) + '">' + pg + '</button>';
+    prev = pg;
+  }
+
+  /* 다음 */
+  html += '<button style="' + btnStyle + '" onclick="goRecallPage(' + (recallPage+1) + ')" '
+    + (recallPage === totalPg ? 'disabled style="opacity:.4;cursor:default;' + btnStyle + '"' : '') + '>▶</button>';
+
+  html += '<span style="font-size:12px;color:var(--text3);margin-left:8px">'
+    + recallPage + ' / ' + totalPg + ' 페이지 (총 ' + total + '건)</span>';
+
+  document.getElementById('recallPagination').innerHTML = html;
+}
+
+
+function closeRecallPanel() {
+  document.getElementById('recallDetail').style.display = 'none';
+}
+
+function goRecallPage(pg) {
+  var totalPg = Math.ceil(recallAllItems.length / RECALL_PER_PAGE);
+  if (pg < 1 || pg > totalPg) return;
+  recallPage = pg;
+  document.getElementById('recallDetail').style.display = 'none';
+  renderRecallTable();
+  /* 테이블 상단으로 스크롤 */
+  var tbl = document.getElementById('recallTable');
+  if (tbl) tbl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+/* ── 상세 패널 (테이블 아래에 표시) ── */
+function showRecallDetail(itemRaw) {
+  var it      = unwrapItem(itemRaw);
+  var name    = esc(it.PRDUCT || '-');
+  var company = esc(it.ENTRPS || '-');
+  var reason  = esc(it.RTRVL_RESN || '-');
+  var cmdDate = fmtDate(it.RTRVL_CMND_DT || it.RECALL_COMMAND_DATE || '');
+  var endDate = fmtDate(it.OPEN_END_DATE || '');
+  var itemSeq = esc(it.ITEM_SEQ || '');
+  var enfrc   = it.ENFRC_YN === 'Y' ? '강제회수' : (it.ENFRC_YN === 'N' ? '자진회수' : '회수·판매중지');
   var nedruUrl = 'https://nedrug.mfds.go.kr/pbp/CCBAI01' + (itemSeq ? '?item_seq=' + itemSeq : '');
 
-  return '<div class="recall-card grade-x">'
-    + '<div class="recall-top">'
-    +   '<div class="drug-info">'
-    +     '<div class="recall-name">' + name + '</div>'
-    +     '<div class="recall-company">' + company + '</div>'
+  /* 선택된 행 하이라이트 */
+  var rows = document.querySelectorAll('.recall-tbl-row');
+  for (var r = 0; r < rows.length; r++) rows[r].style.background = '';
+  if (event && event.currentTarget) event.currentTarget.style.background = 'var(--primary-lt)';
+
+  var html = '<div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;background:var(--hover);border-bottom:1px solid var(--border)">'
+    + '<div>'
+    +   '<div style="font-size:16px;font-weight:700;margin-bottom:3px">' + name + '</div>'
+    +   '<div style="font-size:13px;color:var(--text2)">' + company + '</div>'
+    + '</div>'
+    + '<div style="display:flex;align-items:center;gap:10px">'
+    +   '<span class="badge badge-grade-x">' + enfrc + '</span>'
+    +   '<button onclick="closeRecallPanel()" '
+    +   'style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:18px;line-height:1">✕</button>'
+    + '</div>'
+    + '</div>'
+    + '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:0">'
+    +   '<div style="padding:14px 20px;border-right:1px solid var(--border);border-bottom:1px solid var(--border)">'
+    +     '<div style="font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--text3);margin-bottom:5px">회수명령일자</div>'
+    +     '<div style="font-size:14px;font-weight:500">' + (cmdDate || '-') + '</div>'
     +   '</div>'
-    +   '<div class="badges">'
-    +     '<span class="badge badge-grade-x">' + enfrc + '</span>'
+    +   '<div style="padding:14px 20px;border-right:1px solid var(--border);border-bottom:1px solid var(--border)">'
+    +     '<div style="font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--text3);margin-bottom:5px">공개마감일자</div>'
+    +     '<div style="font-size:14px;font-weight:500">' + (endDate || '-') + '</div>'
+    +   '</div>'
+    +   '<div style="padding:14px 20px;border-bottom:1px solid var(--border)">'
+    +     '<div style="font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--text3);margin-bottom:5px">품목기준코드</div>'
+    +     '<div style="font-size:14px;font-weight:500;font-family:monospace">' + (itemSeq || '-') + '</div>'
     +   '</div>'
     + '</div>'
-    + '<div class="recall-fields">'
-    +   '<div class="recall-field"><label>회수명령일자</label><p>' + (cmdDate || '-') + '</p></div>'
-    +   '<div class="recall-field"><label>공개마감일자</label><p>' + (endDate || '-') + '</p></div>'
-    +   '<div class="recall-field"><label>품목기준코드</label><p class="mono">' + (itemSeq || '-') + '</p></div>'
-    +   '<div class="recall-field reason-field"><label>⚠ 회수·판매중지 사유</label><p>' + reason + '</p></div>'
+    + '<div style="padding:14px 20px;background:#fffbeb;border-bottom:1px solid var(--border)">'
+    +   '<div style="font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:#d97706;margin-bottom:6px">⚠ 회수·판매중지 사유</div>'
+    +   '<div style="font-size:13px;color:#7c2d12;line-height:1.7">' + reason + '</div>'
     + '</div>'
-    + '<div style="padding:12px 22px">'
-    +   '<a href="' + nedruUrl + '" target="_blank" '
-    +   'style="font-size:12px;color:var(--primary);text-decoration:none;font-weight:500">'
-    +   '🔗 의약품안전나라에서 상세 확인 →</a>'
-    + '</div>'
+    + '<div style="padding:12px 20px">'
+    +   '<a href="' + nedruUrl + '" target="_blank" style="font-size:12px;color:var(--primary);text-decoration:none;font-weight:500">🔗 의약품안전나라에서 상세 확인 →</a>'
     + '</div>';
+
+  var panel = document.getElementById('recallDetail');
+  panel.innerHTML = html;
+  panel.style.display = 'block';
+  /* 상세 패널로 스크롤 */
+  setTimeout(function() { panel.scrollIntoView({ behavior:'smooth', block:'nearest' }); }, 50);
 }
 
-
-/* 결과 목록 렌더링 */
-function renderRecallList(items, listEl) {
-  /* 항목 언래핑: {item:{...}} → {...} */
-  var unwrapped = [];
-  for (var i = 0; i < (items || []).length; i++) {
-    var it = items[i];
-    if (it && it.item && typeof it.item === 'object') {
-      unwrapped.push(it.item);
-    } else {
-      unwrapped.push(it);
-    }
-  }
-  console.log('[renderRecallList v3] 건수=' + unwrapped.length,
-    unwrapped.length > 0 ? Object.keys(unwrapped[0]) : '없음');
-
-  if (!unwrapped.length) {
-    listEl.innerHTML =
-      '<div class="recall-empty">'
-      + '<div class="recall-empty-icon">✅</div>'
-      + '회수·판매중지 이력이 없습니다.'
-      + '<br><span style="font-size:12px;color:var(--text3);margin-top:8px;display:block">'
-      + '<a href="https://nedrug.mfds.go.kr/pbp/CCBAI01" target="_blank" style="color:var(--primary)">'
-      + '의약품안전나라에서 전체 목록 확인 ↗</a></span></div>';
-    return;
-  }
-  var html = '';
-  for (var i = 0; i < unwrapped.length; i++) {
-    html += recallCardHtml(unwrapped[i]);
-  }
-  listEl.innerHTML = html;
+/* ── 결과 표시 공통 ── */
+function setRecallData(items, total, title, showRefresh) {
+  recallAllItems = items || [];
+  recallPage     = 1;
+  document.getElementById('recallResultTitle').textContent = title;
+  document.getElementById('recallResultSub').textContent =
+    '전체 ' + total.toLocaleString() + '건 · ' + recallAllItems.length + '건 표시';
+  document.getElementById('recallRefreshBtn').style.display = showRefresh ? 'inline-flex' : 'none';
+  document.getElementById('recallDetail').style.display = 'none';
+  document.getElementById('recallResultWrap').style.display = 'block';
+  document.getElementById('recallSearchHint').style.display = 'none';
+  renderRecallTable();
 }
 
-/* 전체 조회 */
+/* ── 전체 조회 ── */
 function showAllRecall() {
   document.getElementById('recallQ').value = '';
-  document.getElementById('recallSearchHint').style.display = 'none';
   document.getElementById('recallResultWrap').style.display = 'block';
-  document.getElementById('recallRefreshBtn').style.display = 'inline-flex';
+  document.getElementById('recallSearchHint').style.display = 'none';
   document.getElementById('recallResultTitle').textContent = '📋 전체 회수·판매중지 목록';
-  document.getElementById('recallResultSub').textContent = '불러오는 중...';
-  document.getElementById('recallResultList').innerHTML =
-    '<div class="state"><span class="spinner"></span>불러오는 중...</div>';
+  document.getElementById('recallResultSub').textContent   = '불러오는 중...';
+  document.getElementById('recallRefreshBtn').style.display = 'inline-flex';
+  document.getElementById('recallTableBody').innerHTML =
+    '<tr><td colspan="7" style="text-align:center;padding:32px"><span class="spinner"></span>불러오는 중...</td></tr>';
   loadRecentRecall();
 }
 
 function loadRecentRecall() {
   recallRecentLoaded = true;
   fetchRecall({}, 100).then(function(result) {
-    var items = result.items || [];
-    var total = result.total || 0;
-    document.getElementById('recallResultSub').textContent =
-      '전체 ' + total.toLocaleString() + '건 · 최근 ' + items.length + '건 표시';
-    renderRecallList(items, document.getElementById('recallResultList'));
+    setRecallData(result.items, result.total, '📋 전체 회수·판매중지 목록', true);
   });
 }
 
-/* 제품명 검색 */
+/* ── 제품명 검색 ── */
 function searchRecall() {
   var q = document.getElementById('recallQ').value.trim();
   if (!q) { alert('제품명을 입력해주세요.'); return; }
@@ -1872,22 +2004,19 @@ function searchRecall() {
   btn.innerHTML = '<span class="spinner"></span>조회 중...';
   document.getElementById('recallSearchHint').style.display = 'none';
   document.getElementById('recallResultWrap').style.display = 'block';
-  document.getElementById('recallRefreshBtn').style.display = 'none';
   document.getElementById('recallResultTitle').textContent = '"' + esc(q) + '" 검색 결과';
-  document.getElementById('recallResultSub').textContent = '조회 중...';
-  document.getElementById('recallResultList').innerHTML =
-    '<div class="state"><span class="spinner"></span>조회 중...</div>';
+  document.getElementById('recallResultSub').textContent   = '조회 중...';
+  document.getElementById('recallRefreshBtn').style.display = 'none';
+  document.getElementById('recallTableBody').innerHTML =
+    '<tr><td colspan="7" style="text-align:center;padding:32px"><span class="spinner"></span>조회 중...</td></tr>';
+
   fetchRecall({ Prduct: q }, 100)
     .then(function(result) {
-      var items = result.items || [];
-      document.getElementById('recallResultSub').textContent =
-        '총 ' + items.length + '건' +
-        (result.total > items.length ? ' (전체 ' + result.total + '건 중)' : '');
-      renderRecallList(items, document.getElementById('recallResultList'));
+      setRecallData(result.items, result.total, '"' + esc(q) + '" 검색 결과', false);
     })
     .catch(function() {
-      document.getElementById('recallResultList').innerHTML =
-        '<div class="state" style="color:var(--danger)">API 조회 오류. 잠시 후 다시 시도해주세요.</div>';
+      document.getElementById('recallTableBody').innerHTML =
+        '<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--danger)">API 오류. 잠시 후 다시 시도해주세요.</td></tr>';
     })
     .then(function() {
       btn.disabled = false;
@@ -1899,25 +2028,20 @@ function clearRecallResult() {
   document.getElementById('recallResultWrap').style.display = 'none';
   document.getElementById('recallSearchHint').style.display = 'block';
   document.getElementById('recallQ').value = '';
+  recallAllItems = [];
 }
 
-/* 엑셀 일괄 확인 */
-function onRecallFile(e) {
-  if (e.target.files[0]) procRecallFile(e.target.files[0]);
-}
+/* ── 엑셀 일괄 확인 ── */
+function onRecallFile(e) { if (e.target.files[0]) procRecallFile(e.target.files[0]); }
 function procRecallFile(file) {
   var r = new FileReader();
   r.onload = function(ev) {
     try {
-      var wb = XLSX.read(ev.target.result, { type: file.name.endsWith('.csv') ? 'string' : 'array' });
+      var wb   = XLSX.read(ev.target.result, { type: file.name.endsWith('.csv') ? 'string' : 'array' });
       var data = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header: 1 });
       if (!data || data.length < 2) { alert('데이터가 없습니다.'); return; }
-      recallBulkCols = data[0].map(function(col, i) {
-        return { idx: i, name: col || ('열' + (i + 1)) };
-      });
-      recallBulkData = data.slice(1).filter(function(row) {
-        return row.some(function(cell) { return cell; });
-      });
+      recallBulkCols = data[0].map(function(col, i) { return { idx: i, name: col || ('열' + (i+1)) }; });
+      recallBulkData = data.slice(1).filter(function(row) { return row.some(function(c) { return c; }); });
       var sel = document.getElementById('recallColSel');
       sel.innerHTML = recallBulkCols.map(function(col) {
         return '<option value="' + col.idx + '">' + esc(col.name) + '</option>';
@@ -1925,9 +2049,7 @@ function procRecallFile(file) {
       document.getElementById('recallExCtrl').style.display = 'flex';
       document.querySelector('#recallDropZone .drop-text').textContent =
         '✅ ' + file.name + ' (' + recallBulkData.length + '행)';
-    } catch (ex) {
-      alert('파일 읽기 실패: ' + ex.message);
-    }
+    } catch (ex) { alert('파일 읽기 실패: ' + ex.message); }
   };
   if (file.name.endsWith('.csv')) r.readAsText(file, 'UTF-8');
   else r.readAsArrayBuffer(file);
@@ -1945,125 +2067,85 @@ function runRecallBulk() {
   recallStopFlag = false;
   document.getElementById('recallProgWrap').style.display = 'block';
   document.getElementById('recallBulkResult').innerHTML = '';
-  var results = [];
-  var idx = 0;
+  var results = [], idx = 0;
 
   function nextItem() {
     if (idx >= names.length || recallStopFlag) {
-      document.getElementById('recallProgText').textContent =
-        recallStopFlag ? '⏹ 중지됨' : '✅ 완료';
+      document.getElementById('recallProgText').textContent = recallStopFlag ? '⏹ 중지됨' : '✅ 완료';
       document.getElementById('recallProgFill').style.width = '100%';
       return;
     }
     var name = names[idx];
     document.getElementById('recallProgText').textContent = name;
-    document.getElementById('recallProgCount').textContent = (idx + 1) + ' / ' + names.length;
-    document.getElementById('recallProgFill').style.width =
-      ((idx + 1) / names.length * 100) + '%';
+    document.getElementById('recallProgCount').textContent = (idx+1) + ' / ' + names.length;
+    document.getElementById('recallProgFill').style.width = ((idx+1)/names.length*100) + '%';
 
-    fetchRecall({ Prduct: name }, 5)
-      .then(function(result) {
-        var items = result.items || [];
-        var hasRecall = items.length > 0;
-        var firstRaw = hasRecall ? items[0] : {};
-        var first = (firstRaw && firstRaw.item && typeof firstRaw.item === 'object')
-          ? firstRaw.item : firstRaw;
-        results.push({
-          name:      name,
-          hasRecall: hasRecall,
-          count:     items.length,
-          cmdDate:   fmtDate(first.RTRVL_CMND_DT || first.RECALL_COMMAND_DATE || ''),
-          reason:    first.RTRVL_RESN || '-',
-          enfrcYn:   first.ENFRC_YN === 'Y' ? '강제회수' : (first.ENFRC_YN === 'N' ? '자진회수' : '-'),
-          lotNo:     first.MNFCTUR_NO || '-'
-        });
-        renderRecallBulk(results);
-      })
-      .catch(function() {
-        results.push({
-          name: name, hasRecall: false, count: 0,
-          cmdDate: '-', reason: '조회오류', enfrcYn: '-', lotNo: '-'
-        });
-        renderRecallBulk(results);
-      })
-      .then(function() {
-        idx++;
-        setTimeout(nextItem, 400);
+    fetchRecall({ Prduct: name }, 5).then(function(result) {
+      var items     = result.items || [];
+      var hasRecall = items.length > 0;
+      var first     = hasRecall ? unwrapItem(items[0]) : {};
+      results.push({
+        name:      name,
+        hasRecall: hasRecall,
+        count:     items.length,
+        cmdDate:   fmtDate(first.RTRVL_CMND_DT || first.RECALL_COMMAND_DATE || ''),
+        reason:    first.RTRVL_RESN || '-',
+        enfrc:     first.ENFRC_YN === 'Y' ? '강제회수' : (first.ENFRC_YN === 'N' ? '자진회수' : '-')
       });
+      renderRecallBulk(results);
+    }).catch(function() {
+      results.push({ name:name, hasRecall:false, count:0, cmdDate:'-', reason:'조회오류', enfrc:'-' });
+      renderRecallBulk(results);
+    }).then(function() { idx++; setTimeout(nextItem, 400); });
   }
   nextItem();
 }
 
 function renderRecallBulk(results) {
   var recalled = 0;
-  for (var i = 0; i < results.length; i++) {
-    if (results[i].hasRecall) recalled++;
-  }
+  for (var i = 0; i < results.length; i++) { if (results[i].hasRecall) recalled++; }
   var rows = '';
   for (var i = 0; i < results.length; i++) {
     var r = results[i];
-    var statusCell = r.hasRecall
-      ? '<span class="badge badge-grade-2">' + esc(r.enfrcYn) + ' (' + r.count + '건)</span>'
+    var st = r.hasRecall
+      ? '<span class="badge badge-grade-2">' + esc(r.enfrc) + ' (' + r.count + '건)</span>'
       : '<span style="color:var(--self);font-weight:600">✓ 이상없음</span>';
-    var reasonText = r.hasRecall
-      ? esc(r.reason.substring(0, 60)) + (r.reason.length > 60 ? '…' : '')
-      : '-';
     rows += '<tr class="' + (r.hasRecall ? 'recall-row' : 'safe-row') + '">'
-      + '<td class="mono">' + (i + 1) + '</td>'
+      + '<td class="mono">' + (i+1) + '</td>'
       + '<td style="font-weight:500">' + esc(r.name) + '</td>'
-      + '<td>' + statusCell + '</td>'
+      + '<td>' + st + '</td>'
       + '<td class="mono">' + esc(r.cmdDate) + '</td>'
-      + '<td style="font-size:12px;color:var(--text2)">' + esc(r.lotNo) + '</td>'
-      + '<td style="font-size:12px;color:#9a3412">' + reasonText + '</td>'
-      + '</tr>';
+      + '<td style="font-size:12px;color:#9a3412">'
+      + (r.hasRecall ? esc(r.reason.substring(0,60)) + (r.reason.length>60?'…':'') : '-')
+      + '</td></tr>';
   }
   document.getElementById('recallBulkResult').innerHTML =
-    '<div class="tbl-wrap-outer">'
-    + '<div class="tbl-head">'
-    +   '<span class="tbl-title">일괄 확인 결과 (' + results.length + '건)'
-    +   ' <span style="font-size:12px;color:var(--danger);font-weight:500">· 회수해당 ' + recalled + '건</span>'
-    +   ' <span style="font-size:12px;color:var(--self)">· 이상없음 ' + (results.length - recalled) + '건</span>'
-    +   '</span>'
-    +   '<button class="btn btn-ghost btn-sm" onclick="exportRecallBulk()">⬇ 엑셀 다운로드</button>'
-    + '</div>'
-    + '<div class="tbl-scroll"><table class="bulk-recall-table">'
-    + '<thead><tr>'
-    +   '<th>#</th><th>제품명</th><th>회수 여부</th>'
-    +   '<th>회수명령일</th><th>LOT번호</th><th>회수사유</th>'
-    + '</tr></thead>'
-    + '<tbody>' + rows + '</tbody>'
-    + '</table></div></div>';
+    '<div class="tbl-wrap-outer"><div class="tbl-head">'
+    + '<span class="tbl-title">일괄 확인 결과 (' + results.length + '건)'
+    + ' <span style="font-size:12px;color:var(--danger);font-weight:500">· 회수해당 ' + recalled + '건</span>'
+    + ' <span style="font-size:12px;color:var(--self)">· 이상없음 ' + (results.length-recalled) + '건</span></span>'
+    + '<button class="btn btn-ghost btn-sm" onclick="exportRecallBulk()">⬇ 엑셀 다운로드</button></div>'
+    + '<div class="tbl-scroll"><table class="bulk-recall-table"><thead><tr>'
+    + '<th>#</th><th>제품명</th><th>회수 여부</th><th>회수명령일</th><th>회수사유</th>'
+    + '</tr></thead><tbody>' + rows + '</tbody></table></div></div>';
 }
 
 function exportRecallBulk() {
   var t = document.querySelector('#recallBulkResult table');
   if (!t) return;
-  XLSX.writeFile(
-    XLSX.utils.table_to_book(t),
-    '회수판매중지_일괄확인_' + new Date().toISOString().slice(0, 10) + '.xlsx'
-  );
+  XLSX.writeFile(XLSX.utils.table_to_book(t), '회수판매중지_일괄확인_' + new Date().toISOString().slice(0,10) + '.xlsx');
 }
 
 function setupRecallDrop() {
   var dz = document.getElementById('recallDropZone');
   if (!dz) return;
-  dz.addEventListener('dragover', function(e) {
-    e.preventDefault();
-    dz.style.borderColor = 'var(--primary)';
-    dz.classList.add('over');
-  });
-  dz.addEventListener('dragleave', function() {
-    dz.style.borderColor = '';
-    dz.classList.remove('over');
-  });
+  dz.addEventListener('dragover', function(e) { e.preventDefault(); dz.style.borderColor='var(--primary)'; dz.classList.add('over'); });
+  dz.addEventListener('dragleave', function() { dz.style.borderColor=''; dz.classList.remove('over'); });
   dz.addEventListener('drop', function(e) {
-    e.preventDefault();
-    dz.style.borderColor = '';
-    dz.classList.remove('over');
+    e.preventDefault(); dz.style.borderColor=''; dz.classList.remove('over');
     if (e.dataTransfer.files[0]) procRecallFile(e.dataTransfer.files[0]);
   });
 }
-
 
 /* ── 공통 파싱 유틸 ── */
 function parse1471JSON(j){var body=j&&j.body?j.body:{};var total=parseInt(body.totalCount||0);var raw=null;if(Array.isArray(body.items))raw=body.items.map(function(w){return w&&w.item&&typeof w.item==='object'?w.item:w;});else if(body.items&&body.items.item!==undefined){var r2=body.items.item;raw=Array.isArray(r2)?r2:[r2];}else raw=[];return{items:raw,total:total};}
@@ -2113,10 +2195,10 @@ window.onload = function() {
   setupDrop();
   setupRecallDrop();
   updateFloat();
-  setSubTab('search','single');
-  setSubTab('safety','recall');
-  setSubTab('medical','map');
-  setSubTab('info','license');
+  setSubTab('search',  'single');
+  setSubTab('safety',  'recall');
+  setSubTab('medical', 'map');
+  setSubTab('info',    'license');
 };
 </script>
 </body>
