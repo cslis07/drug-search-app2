@@ -1510,24 +1510,43 @@ body.mobile-forced .sub-tab { padding: 7px 11px !important; font-size: 12px !imp
 
   .card-ingr { padding: 8px 14px; }
 
-  /* 버튼 6개 → 2행 × 3열 균등 배치 (아이콘 + 텍스트 유지) */
+  /* 버튼 2단 레이아웃: 1행=상세보기+제네릭(주요), 2행=⭐⚖️📤＋🔗(보조·아이콘전용) */
   .card-actions {
     padding: 8px 10px;
     gap: 5px;
     flex-wrap: wrap;
   }
-  .fav-btn, .cmp-btn, .share-btn,
-  .detail-btn, .add-btn, .link-btn {
-    flex: 1 1 calc(33.33% - 4px);
-    min-width: 0;
-    flex-shrink: 1;
-    padding: 9px 6px;
-    font-size: 11px;
-    gap: 3px;
+  /* 1행: 주요 액션 - 50/50 너비 */
+  .detail-btn, .generic-btn {
+    flex: 0 0 calc(50% - 3px);
+    order: 1;
+    padding: 10px 6px;
+    font-size: 12px;
+    font-weight: 600;
+    justify-content: center;
     white-space: nowrap;
+  }
+  /* 2행: 보조 액션 - 아이콘 + 최소 텍스트 */
+  .fav-btn, .cmp-btn, .share-btn, .add-btn, .link-btn {
+    flex: 1;
+    order: 2;
+    padding: 7px 3px;
+    font-size: 10px;
+    gap: 2px;
+    justify-content: center;
+    flex-direction: column;
+    min-width: 0;
+  }
+  .fav-btn .btn-label,
+  .cmp-btn .btn-label,
+  .share-btn .btn-label,
+  .add-btn .btn-label,
+  .link-btn .btn-label {
+    font-size: 9px;
     overflow: hidden;
     text-overflow: ellipsis;
-    justify-content: center;
+    white-space: nowrap;
+    max-width: 100%;
   }
 
   /* ── 회수·판매중지 검색행 ───────────────── */
@@ -1542,6 +1561,231 @@ body.mobile-forced .sub-tab { padding: 7px 11px !important; font-size: 12px !imp
     font-size: 12px;
     margin-bottom: 14px;
   }
+}
+
+/* ══════════════════════════════════════════════
+   다크모드
+   ══════════════════════════════════════════════ */
+body.dark {
+  --bg:          #0f172a;
+  --surface:     #1e293b;
+  --surface2:    #263348;
+  --hover:       #2d3f56;
+  --border:      #334155;
+  --border-md:   #475569;
+  --text:        #f1f5f9;
+  --text2:       #94a3b8;
+  --text3:       #64748b;
+  --primary-lt:  #1e3a5f;
+  --primary-md:  #1d4ed8;
+  --self-bg:     #052e16;
+  --self-border: #166534;
+  --contract-bg: #0c2744;
+  --contract-border:#1e40af;
+  --bio-bg:      #2e1065;
+  --bio-border:  #6d28d9;
+  --unk-bg:      #2d1a00;
+  --unk-border:  #92400e;
+  --danger-bg:   #2d0a0a;
+  --shadow-sm:   0 1px 3px rgba(0,0,0,.4);
+  --shadow:      0 4px 12px rgba(0,0,0,.5);
+  --shadow-md:   0 8px 24px rgba(0,0,0,.6);
+}
+body.dark input, body.dark select { color-scheme: dark; }
+body.dark .result-card, body.dark .list-card { box-shadow: 0 1px 4px rgba(0,0,0,.4); }
+
+#darkToggleBtn {
+  display: flex; align-items: center; gap: 5px;
+  padding: 6px 12px;
+  border: 1px solid var(--border); border-radius: 20px;
+  background: var(--surface); cursor: pointer;
+  font-family: inherit; font-size: 12px; font-weight: 600;
+  color: var(--text2); white-space: nowrap; transition: all .15s;
+}
+#darkToggleBtn:hover { border-color: var(--primary); color: var(--primary); }
+
+/* ══════════════════════════════════════════════
+   스켈레톤 로딩
+   ══════════════════════════════════════════════ */
+.skeleton-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 14px;
+}
+@media (max-width: 640px) { .skeleton-grid { grid-template-columns: 1fr; } }
+.skeleton-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r-lg); overflow: hidden; min-height: 180px;
+}
+.skeleton-line {
+  background: linear-gradient(90deg,var(--surface2) 25%,var(--hover) 50%,var(--surface2) 75%);
+  background-size: 200% 100%; animation: shimmer 1.4s infinite;
+  border-radius: 6px; height: 14px;
+}
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+.skeleton-header { padding: 14px 14px 10px; border-bottom: 1px solid var(--border); }
+.skeleton-body   { padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; }
+.skeleton-actions { padding: 10px 14px; border-top: 1px solid var(--border); display: flex; gap: 6px; }
+.skeleton-btn {
+  background: linear-gradient(90deg,var(--surface2) 25%,var(--hover) 50%,var(--surface2) 75%);
+  background-size: 200% 100%; animation: shimmer 1.4s infinite;
+  border-radius: 8px; height: 34px; flex: 1;
+}
+
+/* ══════════════════════════════════════════════
+   결과 뷰 토글 바
+   ══════════════════════════════════════════════ */
+.result-view-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 10px; flex-wrap: wrap; gap: 8px;
+}
+.result-count-label { font-size: 13px; color: var(--text2); font-weight: 500; }
+.result-count-label strong { color: var(--primary); }
+.view-toggle-btns { display: flex; gap: 4px; }
+.view-toggle-btn {
+  padding: 5px 10px; border: 1.5px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text3); cursor: pointer; font-size: 14px; transition: all .15s;
+}
+.view-toggle-btn.on { border-color: var(--primary); background: var(--primary-lt); color: var(--primary); }
+
+/* 리스트뷰 */
+.result-grid.list-view {
+  display: flex; flex-direction: column; gap: 0;
+  border: 1px solid var(--border); border-radius: var(--r-lg); overflow: hidden;
+}
+.result-grid.list-view .result-card {
+  display: grid; grid-template-columns: 1fr auto;
+  grid-template-rows: auto auto;
+  border-radius: 0; border: none; border-bottom: 1px solid var(--border);
+  box-shadow: none; min-height: unset;
+}
+.result-grid.list-view .result-card:last-child { border-bottom: none; }
+.result-grid.list-view .card-top  { grid-column:1; grid-row:1; padding: 10px 14px 4px; }
+.result-grid.list-view .card-meta { grid-column:1; grid-row:2; border-top:none; padding: 0 14px 8px; grid-template-columns: repeat(3,auto); gap:14px; justify-content:flex-start; }
+.result-grid.list-view .card-ingr { display: none; }
+.result-grid.list-view .card-actions {
+  grid-column:2; grid-row:1/3; display:flex; flex-direction:column;
+  justify-content:center; padding:8px 10px; gap:5px;
+  border-top:none; border-left:1px solid var(--border); min-width:110px;
+}
+.result-grid.list-view .card-actions > * { width:100%; justify-content:center; flex:unset; }
+
+/* ══════════════════════════════════════════════
+   PC 상세 사이드패널
+   ══════════════════════════════════════════════ */
+#pcDetailSidebar {
+  position: fixed; top: 58px; right: 0;
+  width: 480px; height: calc(100vh - 58px);
+  background: var(--surface); border-left: 1px solid var(--border);
+  box-shadow: -6px 0 30px rgba(15,23,42,.1);
+  overflow-y: auto; display: none;
+  transform: translateX(100%);
+  transition: transform .28s cubic-bezier(.4,0,.2,1); z-index: 200;
+}
+body.sidebar-open #pcDetailSidebar { display: block; }
+body.sidebar-open #pcDetailSidebar { transform: translateX(0); }
+body.sidebar-open .wrap { padding-right: calc(480px + 24px); }
+.pds-top {
+  position: sticky; top: 0; background: var(--surface);
+  border-bottom: 1px solid var(--border); padding: 12px 16px;
+  display: flex; align-items: center; justify-content: space-between; z-index: 1;
+}
+.pds-title { font-size: 13px; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: calc(100% - 44px); }
+.pds-close {
+  background: var(--surface2); border: 1px solid var(--border); border-radius: 50%;
+  width: 28px; height: 28px; font-size: 14px; cursor: pointer; color: var(--text3);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.pds-close:hover { background: var(--danger-bg); color: var(--danger); }
+.pds-body { padding: 16px; }
+.pds-body .sheet-top { display: none; }
+.pds-body .detail-tab-btn { font-size: 12px; padding: 8px 12px; }
+
+/* ══════════════════════════════════════════════
+   PC sticky 검색 + 너비 확장
+   ══════════════════════════════════════════════ */
+@media (min-width: 1280px) {
+  .wrap { max-width: 1320px; }
+  .result-grid { grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); }
+}
+@media (min-width: 900px) {
+  .search-card { position: sticky; top: 58px; z-index: 90; }
+}
+
+/* ══════════════════════════════════════════════
+   약가 차트 통계 카드
+   ══════════════════════════════════════════════ */
+.price-chart-stats {
+  display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap;
+}
+.pcs-card {
+  flex: 1; min-width: 80px;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 8px 12px; text-align: center;
+}
+.pcs-card.pcs-min { border-color: #86efac; background: #f0fdf4; }
+.pcs-card.pcs-max { border-color: #fca5a5; background: #fef2f2; }
+.pcs-card.pcs-now { border-color: var(--primary-md); background: var(--primary-lt); }
+body.dark .pcs-card.pcs-min { background: #052e16; }
+body.dark .pcs-card.pcs-max { background: #2d0a0a; }
+body.dark .pcs-card.pcs-now { background: var(--primary-lt); }
+.pcs-label { font-size: 10px; font-weight: 600; color: var(--text3); margin-bottom: 4px; letter-spacing: .5px; text-transform: uppercase; }
+.pcs-value { font-size: 15px; font-weight: 700; }
+.pcs-card.pcs-min .pcs-value { color: #16a34a; }
+.pcs-card.pcs-max .pcs-value { color: #dc2626; }
+.pcs-card.pcs-now .pcs-value { color: var(--primary); }
+.pcs-date  { font-size: 10px; color: var(--text3); margin-top: 2px; }
+
+/* ══════════════════════════════════════════════
+   빈 결과 개선
+   ══════════════════════════════════════════════ */
+.empty-state {
+  text-align: center; padding: 48px 24px;
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg);
+}
+.empty-icon { font-size: 40px; margin-bottom: 12px; }
+.empty-title { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+.empty-desc  { font-size: 13px; color: var(--text3); margin-bottom: 18px; }
+.empty-suggestions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 16px; }
+.empty-sugg-btn {
+  padding: 6px 14px; border: 1.5px solid var(--border); border-radius: 50px;
+  background: var(--surface); color: var(--text2); font-size: 12px;
+  font-weight: 500; cursor: pointer; font-family: inherit; transition: all .15s;
+}
+.empty-sugg-btn:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-lt); }
+
+/* ══════════════════════════════════════════════
+   키보드 단축키 힌트
+   ══════════════════════════════════════════════ */
+kbd {
+  background: var(--surface2); border: 1px solid var(--border-md);
+  border-radius: 4px; padding: 1px 5px; font-size: 11px;
+  font-family: 'JetBrains Mono', monospace; color: var(--text3); line-height: 1.6;
+}
+.kbd-hint {
+  display: none; align-items: center; gap: 3px;
+  position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+  pointer-events: none;
+}
+@media (min-width: 900px) {
+  .recent-wrap { position: relative; }
+  .kbd-hint { display: flex; }
+  .sinput#q { padding-right: 80px; }
+}
+
+/* ══════════════════════════════════════════════
+   모바일 상세 모달 풀스크린
+   ══════════════════════════════════════════════ */
+@media (max-width: 640px) {
+  #detailModal { align-items: flex-start; }
+  #detailModal .sheet {
+    border-radius: 0; max-height: 100dvh; height: 100dvh;
+    padding: 16px 14px; max-width: 100%;
+  }
+  #detailModal .sheet-top { padding-top: env(safe-area-inset-top, 8px); }
 }
 
 /* ══════════════════════════════════════════════
@@ -1803,6 +2047,10 @@ body.mobile-forced .sub-tab { padding: 7px 11px !important; font-size: 12px !imp
       <span id="authUserName" style="font-size:12px;color:var(--text2);font-weight:600"></span>
       <button id="adminUploadBtn" onclick="openAdminUpload()" style="display:none;padding:5px 12px;border:1px solid var(--primary-md);border-radius:20px;background:var(--primary-lt);cursor:pointer;font-size:12px;color:var(--primary);font-family:inherit;font-weight:600">📂 약가이력</button>
       <button onclick="doLogout()" style="padding:5px 12px;border:1px solid var(--border);border-radius:20px;background:var(--surface);cursor:pointer;font-size:12px;color:var(--text2);font-family:inherit">로그아웃</button>
+      <button id="darkToggleBtn" onclick="toggleDarkMode()" title="다크모드 전환">
+        <span id="darkIcon">🌙</span>
+        <span id="darkLabel" style="display:none">다크</span>
+      </button>
       <button id="viewToggleBtn" onclick="toggleViewMode()"
         style="display:flex;align-items:center;gap:5px;padding:6px 12px;border:1px solid var(--border);border-radius:20px;background:var(--surface);cursor:pointer;font-family:inherit;font-size:12px;font-weight:600;color:var(--text2);white-space:nowrap">
         <span id="viewToggleIcon">&#128241;</span>
@@ -1967,6 +2215,7 @@ body.mobile-forced .sub-tab { padding: 7px 11px !important; font-size: 12px !imp
             onfocus="openRecent()"
             oninput="onSearchInput(this.value)"
             autocomplete="off">
+          <span class="kbd-hint"><kbd>Ctrl</kbd><kbd>K</kbd></span>
           <!-- 최근 검색어 드롭다운 -->
           <div id="recentDropdown">
             <div class="recent-header">
@@ -2030,6 +2279,13 @@ body.mobile-forced .sub-tab { padding: 7px 11px !important; font-size: 12px !imp
       <div id="filterCount" style="margin-top:10px;font-size:12px;color:var(--text3);display:none;"></div>
     </div>
     <div id="inlineCompareBar" style="display:none;margin-bottom:14px;"></div>
+    <div id="resultViewBar" class="result-view-bar" style="display:none;">
+      <div class="result-count-label" id="resultCountLabel"></div>
+      <div class="view-toggle-btns">
+        <button class="view-toggle-btn on" id="viewBtnGrid" onclick="setResultView('grid')" title="카드 보기">⊞</button>
+        <button class="view-toggle-btn" id="viewBtnList" onclick="setResultView('list')" title="목록 보기">☰</button>
+      </div>
+    </div>
     <div id="result"></div>
   
     </div
@@ -2328,6 +2584,15 @@ body.mobile-forced .sub-tab { padding: 7px 11px !important; font-size: 12px !imp
   </button>
 </div>
 <div id="mobileMoreOverlay" onclick="closeMobileMore()"></div>
+
+<!-- PC 상세 사이드패널 -->
+<div id="pcDetailSidebar">
+  <div class="pds-top">
+    <div class="pds-title" id="pdsTitle">의약품 상세정보</div>
+    <button class="pds-close" onclick="closePcSidebar()">✕</button>
+  </div>
+  <div class="pds-body" id="pdsBody"></div>
+</div>
 
 <!-- 제네릭 목록 모달 -->
 <div id="genericModal" onclick="if(event.target===this)closeGenericModal()">
@@ -3016,13 +3281,12 @@ function go() {
   currentSearchExportRows = [];
   var btn = document.getElementById('goBtn');
   btn.disabled = true; btn.textContent = '조회 중...';
-  document.getElementById('result').innerHTML = '<div class="state"><span class="spinner"></span>조회 중...</div>';
+  showSkeleton(6);
 
   // 1단계: 목록 조회
   fetchList(q).then(function(listItems) {
     if (!listItems.length) {
-      document.getElementById('result').innerHTML =
-        '<div class="result-card"><div class="state">"'+esc(q)+'" 검색 결과가 없습니다.</div></div>';
+      showEmptyState(q);
       btn.disabled=false; btn.textContent='검색';
       return;
     }
@@ -3203,10 +3467,15 @@ function go() {
       applyFavButtons();
       applyCmpButtons();
       initFilters(); // 필터 초기화
+      // 결과 뷰 바 표시 + 저장된 뷰 적용
+      var totalCount = document.querySelectorAll('#result .result-card').length;
+      showResultViewBar(totalCount);
+      applyResultView();
     });
   }).catch(function(e) {
     document.getElementById('result').innerHTML =
-      '<div class="result-card"><div class="state" style="color:var(--danger)">오류: '+esc(e.message)+'</div></div>';
+      '<div class="empty-state"><div class="empty-icon">⚠️</div><div class="empty-title">오류가 발생했습니다</div><div class="empty-desc">' + esc(e.message) + '</div></div>';
+    document.getElementById('resultViewBar').style.display = 'none';
   }).then(function() {
     btn.disabled=false; btn.textContent='검색';
   });
@@ -4865,38 +5134,7 @@ function showAuthMsg(msg, type) {
 var currentDetailDrug = null;
 
 // 상세보기 모달 열기
-function openDetailModal(seq, name, seller, maker, pack, ingr, chart, apprDate, mfgLabel, bioStatus) {
-  currentDetailDrug = {
-    seq: seq,
-    name: name,
-    seller: seller,
-    maker: maker,
-    pack: pack,
-    ingr: ingr,
-    chart: chart,
-    apprDate: apprDate,
-    mfgLabel: mfgLabel,
-    bioStatus: bioStatus
-  };
-  
-  // 제목 설정
-  document.getElementById('detailModalTitle').textContent = '📄 ' + name;
-  
-  // 상세정보 탭 표시
-  renderDetailInfo();
-  
-  // 탭 초기화 (상세정보 탭 활성화)
-  switchDetailTab('info');
-  
-  // 모달 표시
-  document.getElementById('detailModal').classList.add('open');
-}
-
-// 상세보기 모달 닫기
-function closeDetailModal() {
-  document.getElementById('detailModal').classList.remove('open');
-  currentDetailDrug = null;
-}
+/* openDetailModal / closeDetailModal → 파일 하단에 재정의 */
 
 /* ══════════════════════════════════════════════
    약품 이미지 조회 (낱알식별 API)
@@ -5372,6 +5610,9 @@ function renderPriceChartCanvas(history) {
   document.getElementById('priceChartNote').innerHTML =
     '※ 출처: 관리자 업로드 심평원 약제급여목록 스냅샷 ' + n + '건 | '
     + '<a href="https://www.hira.or.kr" target="_blank" style="color:var(--primary)">심평원 홈페이지 ↗</a>';
+
+  // 통계 카드 주입
+  _injectPriceStats(history);
 }
 
 // 상세정보 렌더링
@@ -5943,6 +6184,259 @@ function getHiraPrice(seq) {
   if (!entry && PRICE_DB[seq]) entry = PRICE_DB[seq];
   if (!entry) return null;
   return Array.isArray(entry) ? entry[0] : (typeof entry === 'number' ? entry : null);
+}
+
+/* ══════════════════════════════════════════════
+   다크모드
+   ══════════════════════════════════════════════ */
+(function initDarkMode() {
+  var saved = localStorage.getItem('darkMode');
+  if (saved === 'on' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+    document.body.classList.add('dark');
+    var icon = document.getElementById('darkIcon');
+    if (icon) icon.textContent = '☀️';
+  }
+})();
+
+function toggleDarkMode() {
+  var isDark = document.body.classList.toggle('dark');
+  localStorage.setItem('darkMode', isDark ? 'on' : 'off');
+  var icon = document.getElementById('darkIcon');
+  if (icon) icon.textContent = isDark ? '☀️' : '🌙';
+  // Chart.js 차트 색상 갱신
+  if (window._priceChart) {
+    window._priceChart.options.scales.x.ticks.color = isDark ? '#94a3b8' : '#64748b';
+    window._priceChart.options.scales.y.ticks.color = isDark ? '#94a3b8' : '#64748b';
+    window._priceChart.options.scales.x.grid.color  = isDark ? '#334155' : '#f1f5f9';
+    window._priceChart.options.scales.y.grid.color  = isDark ? '#334155' : '#f1f5f9';
+    window._priceChart.update();
+  }
+}
+
+/* ══════════════════════════════════════════════
+   키보드 단축키
+   ══════════════════════════════════════════════ */
+document.addEventListener('keydown', function(e) {
+  // Ctrl+K / ⌘K → 검색창 포커스
+  if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+    e.preventDefault();
+    var inp = document.getElementById('q');
+    if (inp) { inp.focus(); inp.select(); }
+    return;
+  }
+  // Esc → 열린 모달 닫기 (우선순위: 제네릭>PC사이드패널>상세모달>더보기패널)
+  if (e.key === 'Escape') {
+    var gm = document.getElementById('genericModal');
+    if (gm && gm.classList.contains('open')) { closeGenericModal(); return; }
+    if (document.body.classList.contains('sidebar-open')) { closePcSidebar(); return; }
+    var dm = document.getElementById('detailModal');
+    if (dm && dm.classList.contains('open')) { closeDetailModal(); return; }
+    closeRecent();
+    return;
+  }
+});
+
+/* ══════════════════════════════════════════════
+   결과 뷰 토글 (카드/목록)
+   ══════════════════════════════════════════════ */
+var _resultView = localStorage.getItem('resultView') || 'grid';
+
+function setResultView(mode) {
+  _resultView = mode;
+  localStorage.setItem('resultView', mode);
+  var grid = document.getElementById('result');
+  var rg = grid ? grid.querySelector('.result-grid') : null;
+  if (rg) {
+    rg.classList.toggle('list-view', mode === 'list');
+  }
+  var btnG = document.getElementById('viewBtnGrid');
+  var btnL = document.getElementById('viewBtnList');
+  if (btnG) btnG.classList.toggle('on', mode === 'grid');
+  if (btnL) btnL.classList.toggle('on', mode === 'list');
+}
+
+function applyResultView() {
+  setResultView(_resultView);
+}
+
+function showResultViewBar(count) {
+  var bar   = document.getElementById('resultViewBar');
+  var label = document.getElementById('resultCountLabel');
+  if (!bar) return;
+  bar.style.display = count > 0 ? 'flex' : 'none';
+  if (label) label.innerHTML = '총 <strong>' + count + '개</strong> 검색됨';
+  // 저장된 뷰 상태 반영
+  var btnG = document.getElementById('viewBtnGrid');
+  var btnL = document.getElementById('viewBtnList');
+  if (btnG) btnG.classList.toggle('on', _resultView === 'grid');
+  if (btnL) btnL.classList.toggle('on', _resultView === 'list');
+}
+
+/* ══════════════════════════════════════════════
+   스켈레톤 로딩
+   ══════════════════════════════════════════════ */
+function showSkeleton(n) {
+  var html = '<div class="skeleton-grid">';
+  for (var i = 0; i < (n || 6); i++) {
+    html += '<div class="skeleton-card">'
+      + '<div class="skeleton-header">'
+      +   '<div class="skeleton-line" style="width:60%;margin-bottom:8px"></div>'
+      +   '<div class="skeleton-line" style="width:40%;height:11px"></div>'
+      + '</div>'
+      + '<div class="skeleton-body">'
+      +   '<div class="skeleton-line" style="width:90%"></div>'
+      +   '<div class="skeleton-line" style="width:75%;height:11px"></div>'
+      +   '<div class="skeleton-line" style="width:85%;height:11px"></div>'
+      + '</div>'
+      + '<div class="skeleton-actions">'
+      +   '<div class="skeleton-btn"></div>'
+      +   '<div class="skeleton-btn"></div>'
+      +   '<div class="skeleton-btn" style="flex:.5"></div>'
+      + '</div>'
+      + '</div>';
+  }
+  html += '</div>';
+  document.getElementById('result').innerHTML = html;
+  document.getElementById('resultViewBar').style.display = 'none';
+}
+
+/* ══════════════════════════════════════════════
+   빈 결과 개선
+   ══════════════════════════════════════════════ */
+function showEmptyState(query) {
+  var q = query || '';
+  // 자모 분리된 글자로 유사어 제안
+  var suggestions = [];
+  if (q.length >= 2) {
+    suggestions.push(q.slice(0, Math.ceil(q.length / 2)));  // 앞 절반
+    if (q.length >= 3) suggestions.push(q.slice(-2));         // 뒤 2글자
+  }
+
+  var suggHtml = suggestions.map(function(s) {
+    return '<button class="empty-sugg-btn" onclick="document.getElementById(\'q\').value=\'' + esc(s) + '\';go()">' + esc(s) + ' 검색</button>';
+  }).join('');
+
+  document.getElementById('result').innerHTML =
+    '<div class="empty-state">'
+    + '<div class="empty-icon">🔍</div>'
+    + '<div class="empty-title">"' + esc(q) + '" 검색 결과가 없습니다</div>'
+    + '<div class="empty-desc">제품명, 성분명, 제조사명으로 다시 시도해 보세요.</div>'
+    + (suggHtml ? '<div class="empty-suggestions">' + suggHtml + '</div>' : '')
+    + '<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">'
+    + '<a href="https://nedrug.mfds.go.kr/pbp/CCBBB01/getList" target="_blank" class="empty-sugg-btn" style="text-decoration:none">🔗 의약품안전나라에서 검색</a>'
+    + '</div>'
+    + '</div>';
+  document.getElementById('resultViewBar').style.display = 'none';
+}
+
+/* ══════════════════════════════════════════════
+   PC 상세 사이드패널
+   ══════════════════════════════════════════════ */
+var _pcSidebarOpen = false;
+
+function openDetailModal(seq, name, seller, maker, pack, ingr, chart, apprDate, mfgLabel, bioStatus) {
+  currentDetailDrug = { seq:seq, name:name, seller:seller, maker:maker,
+    pack:pack, ingr:ingr, chart:chart, apprDate:apprDate,
+    mfgLabel:mfgLabel, bioStatus:bioStatus };
+
+  document.getElementById('detailModalTitle').textContent = '📄 ' + name;
+  renderDetailInfo();
+  switchDetailTab('info');
+
+  // PC(≥960px): 사이드패널 / 모바일: 기존 모달
+  if (window.innerWidth >= 960) {
+    _openPcSidebar(name);
+  } else {
+    document.getElementById('detailModal').classList.add('open');
+  }
+}
+
+function _openPcSidebar(name) {
+  var sidebar = document.getElementById('pcDetailSidebar');
+  var pdsBody = document.getElementById('pdsBody');
+  var pdsTitle = document.getElementById('pdsTitle');
+
+  if (!sidebar || !pdsBody) return;
+
+  // 상세 내용 복사 (detailModal의 sheet 내용을 clone)
+  var sheetContent = document.getElementById('detailModal').querySelector('.sheet');
+  if (sheetContent) {
+    pdsBody.innerHTML = '';
+    var clone = sheetContent.cloneNode(true);
+    // 닫기 버튼 숨김
+    var closeBtn = clone.querySelector('.sheet-top');
+    if (closeBtn) closeBtn.style.display = 'none';
+    pdsBody.appendChild(clone);
+    // clone 안의 탭 버튼 onclick을 다시 바인딩
+    clone.querySelectorAll('.detail-tab-btn').forEach(function(btn) {
+      var tab = btn.id.replace('detailTab','').toLowerCase();
+      if (tab) btn.onclick = function() { switchDetailTab(tab); };
+    });
+  }
+
+  if (pdsTitle) pdsTitle.textContent = name;
+  document.body.classList.add('sidebar-open');
+  requestAnimationFrame(function() {
+    sidebar.style.transform = 'translateX(0)';
+  });
+  _pcSidebarOpen = true;
+}
+
+function closeDetailModal() {
+  document.getElementById('detailModal').classList.remove('open');
+  currentDetailDrug = null;
+}
+
+function closePcSidebar() {
+  var sidebar = document.getElementById('pcDetailSidebar');
+  if (sidebar) sidebar.style.transform = 'translateX(100%)';
+  document.body.classList.remove('sidebar-open');
+  _pcSidebarOpen = false;
+  currentDetailDrug = null;
+  setTimeout(function() {
+    var pdsBody = document.getElementById('pdsBody');
+    if (pdsBody) pdsBody.innerHTML = '';
+  }, 300);
+}
+
+/* ══════════════════════════════════════════════
+   약가 차트 통계 카드 주입
+   ══════════════════════════════════════════════ */
+
+function _injectPriceStats(history) {
+  if (!history || history.length < 2) return;
+  var prices = history.map(function(h) { return h.price; });
+  var minPrice = Math.min.apply(null, prices);
+  var maxPrice = Math.max.apply(null, prices);
+  var nowPrice = prices[prices.length - 1];
+  var minEntry = history.find(function(h) { return h.price === minPrice; });
+  var maxEntry = history.find(function(h) { return h.price === maxPrice; });
+  var nowEntry = history[history.length - 1];
+
+  var statsHtml = '<div class="price-chart-stats">'
+    + '<div class="pcs-card pcs-min">'
+    +   '<div class="pcs-label">최저가</div>'
+    +   '<div class="pcs-value">' + minPrice.toLocaleString() + '원</div>'
+    +   '<div class="pcs-date">' + (minEntry ? minEntry.label || minEntry.date : '') + '</div>'
+    + '</div>'
+    + '<div class="pcs-card pcs-now">'
+    +   '<div class="pcs-label">현재가</div>'
+    +   '<div class="pcs-value">' + nowPrice.toLocaleString() + '원</div>'
+    +   '<div class="pcs-date">' + (nowEntry ? nowEntry.label || nowEntry.date : '') + '</div>'
+    + '</div>'
+    + '<div class="pcs-card pcs-max">'
+    +   '<div class="pcs-label">최고가</div>'
+    +   '<div class="pcs-value">' + maxPrice.toLocaleString() + '원</div>'
+    +   '<div class="pcs-date">' + (maxEntry ? maxEntry.label || maxEntry.date : '') + '</div>'
+    + '</div>'
+    + '</div>';
+
+  var chartContent = document.getElementById('detailPricechartContent');
+  if (chartContent) {
+    var existing = chartContent.querySelector('.price-chart-stats');
+    if (existing) existing.remove();
+    chartContent.insertAdjacentHTML('afterbegin', statsHtml);
+  }
 }
 
 </script>
