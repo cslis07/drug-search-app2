@@ -324,7 +324,7 @@ header {
   margin-top: auto;
 }
 .link-btn {
-  flex: 1; min-width: 0;
+  flex: 1; order: 2; min-width: 0;
   display: flex; align-items: center; justify-content: center; gap: 5px;
   padding: 9px 12px;
   background: var(--primary-lt);
@@ -335,7 +335,7 @@ header {
 }
 .link-btn:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
 .add-btn {
-  flex: 1; min-width: 0;
+  flex: 1; order: 2; min-width: 0;
   display: flex; align-items: center; justify-content: center;
   padding: 9px 12px;
   background: var(--self-bg);
@@ -349,13 +349,13 @@ header {
 
 /* 상세보기 버튼 (카드 전용) */
 .detail-btn {
-  flex: 1; min-width: 0;
+  flex: 0 1 calc(50% - 4px); order: 1; min-width: 0;
   display: flex; align-items: center; justify-content: center; gap: 5px;
   padding: 9px 12px;
   background: var(--surface2);
   border: 1.5px solid var(--border);
   border-radius: var(--r); color: var(--text);
-  font-size: 12px; font-weight: 500;
+  font-size: 12px; font-weight: 600;
   font-family: inherit; cursor: pointer; transition: all .15s; white-space: nowrap;
 }
 .detail-btn:hover { background: var(--border); }
@@ -392,7 +392,7 @@ header {
   gap: 5px; padding: 9px 12px; border-radius: var(--r);
   background: var(--surface2); border: 1.5px solid var(--border);
   font-size: 12px; font-weight: 500; cursor: pointer; transition: all .15s;
-  flex-shrink: 0; color: var(--text2); font-family: inherit; white-space: nowrap;
+  flex: 1; order: 2; color: var(--text2); font-family: inherit; white-space: nowrap;
 }
 .fav-btn:hover { border-color: #f59e0b; background: #fff7ed; color: #b45309; }
 .fav-btn.faved { background: #fff7ed; border-color: #f59e0b; color: #b45309; font-weight: 600; }
@@ -420,7 +420,7 @@ header {
   gap: 5px; padding: 9px 12px; border-radius: var(--r);
   background: var(--surface2); border: 1.5px solid var(--border);
   font-size: 12px; font-weight: 500; cursor: pointer; transition: all .15s;
-  flex-shrink: 0; color: var(--text2); font-family: inherit; white-space: nowrap;
+  flex: 1; order: 2; color: var(--text2); font-family: inherit; white-space: nowrap;
 }
 .cmp-btn:hover  { border-color: #8b5cf6; background: #f5f3ff; color: #6d28d9; }
 .cmp-btn.cmped  { background: #f5f3ff; border-color: #8b5cf6; color: #6d28d9; font-weight: 600; }
@@ -430,7 +430,7 @@ header {
   gap: 5px; padding: 9px 12px; border-radius: var(--r);
   background: #eff6ff; border: 1.5px solid #bfdbfe;
   font-size: 12px; font-weight: 500; cursor: pointer; transition: all .15s;
-  flex-shrink: 0; color: #1d4ed8; font-family: inherit; white-space: nowrap;
+  flex: 1; order: 2; color: #1d4ed8; font-family: inherit; white-space: nowrap;
 }
 .share-btn:hover { border-color: #60a5fa; background: #dbeafe; color: #1d4ed8; }
 
@@ -1685,9 +1685,7 @@ body.dark .result-card, body.dark .list-card { box-shadow: 0 1px 4px rgba(0,0,0,
   transform: translateX(100%);
   transition: transform .28s cubic-bezier(.4,0,.2,1); z-index: 200;
 }
-body.sidebar-open #pcDetailSidebar { display: block; }
-body.sidebar-open #pcDetailSidebar { transform: translateX(0); }
-body.sidebar-open .wrap { padding-right: calc(480px + 24px); }
+/* #pcDetailSidebar — DOM 클론 방식 제거됨, 이 패널은 미사용 */
 .pds-top {
   position: sticky; top: 0; background: var(--surface);
   border-bottom: 1px solid var(--border); padding: 12px 16px;
@@ -1777,6 +1775,23 @@ kbd {
 }
 
 /* ══════════════════════════════════════════════
+   PC 상세 모달 → 우측 패널
+   ══════════════════════════════════════════════ */
+@media (min-width: 641px) {
+  #detailModal { justify-content: flex-end; align-items: stretch; }
+  #detailModal .sheet {
+    border-radius: 20px 0 0 20px;
+    max-height: 100vh; height: 100vh;
+    max-width: 520px; width: 100%;
+    animation: slideInRight .25s cubic-bezier(.4,0,.2,1);
+  }
+}
+@keyframes slideInRight {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
+}
+
+/* ══════════════════════════════════════════════
    모바일 상세 모달 풀스크린
    ══════════════════════════════════════════════ */
 @media (max-width: 640px) {
@@ -1860,16 +1875,18 @@ kbd {
 }
 /* 제네릭 버튼 (카드용) */
 .generic-btn {
+  flex: 0 1 calc(50% - 4px); order: 1;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 4px;
-  padding: 8px 12px;
-  border-radius: 8px;
+  padding: 9px 12px;
+  border-radius: var(--r);
   border: 1.5px solid #d1d5db;
   background: var(--surface);
   color: var(--text2);
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
   font-family: inherit;
   transition: background .15s, border-color .15s, color .15s;
@@ -6224,11 +6241,10 @@ document.addEventListener('keydown', function(e) {
     if (inp) { inp.focus(); inp.select(); }
     return;
   }
-  // Esc → 열린 모달 닫기 (우선순위: 제네릭>PC사이드패널>상세모달>더보기패널)
+  // Esc → 열린 모달 닫기 (우선순위: 제네릭 > 상세모달 > 더보기패널)
   if (e.key === 'Escape') {
     var gm = document.getElementById('genericModal');
     if (gm && gm.classList.contains('open')) { closeGenericModal(); return; }
-    if (document.body.classList.contains('sidebar-open')) { closePcSidebar(); return; }
     var dm = document.getElementById('detailModal');
     if (dm && dm.classList.contains('open')) { closeDetailModal(); return; }
     closeRecent();
@@ -6330,10 +6346,9 @@ function showEmptyState(query) {
 }
 
 /* ══════════════════════════════════════════════
-   PC 상세 사이드패널
+   상세보기 모달 (PC: 우측 패널 / 모바일: 풀스크린)
+   — DOM 클론 방식 제거, 원본 #detailModal 사용
    ══════════════════════════════════════════════ */
-var _pcSidebarOpen = false;
-
 function openDetailModal(seq, name, seller, maker, pack, ingr, chart, apprDate, mfgLabel, bioStatus) {
   currentDetailDrug = { seq:seq, name:name, seller:seller, maker:maker,
     pack:pack, ingr:ingr, chart:chart, apprDate:apprDate,
@@ -6342,44 +6357,7 @@ function openDetailModal(seq, name, seller, maker, pack, ingr, chart, apprDate, 
   document.getElementById('detailModalTitle').textContent = '📄 ' + name;
   renderDetailInfo();
   switchDetailTab('info');
-
-  // PC(≥960px): 사이드패널 / 모바일: 기존 모달
-  if (window.innerWidth >= 960) {
-    _openPcSidebar(name);
-  } else {
-    document.getElementById('detailModal').classList.add('open');
-  }
-}
-
-function _openPcSidebar(name) {
-  var sidebar = document.getElementById('pcDetailSidebar');
-  var pdsBody = document.getElementById('pdsBody');
-  var pdsTitle = document.getElementById('pdsTitle');
-
-  if (!sidebar || !pdsBody) return;
-
-  // 상세 내용 복사 (detailModal의 sheet 내용을 clone)
-  var sheetContent = document.getElementById('detailModal').querySelector('.sheet');
-  if (sheetContent) {
-    pdsBody.innerHTML = '';
-    var clone = sheetContent.cloneNode(true);
-    // 닫기 버튼 숨김
-    var closeBtn = clone.querySelector('.sheet-top');
-    if (closeBtn) closeBtn.style.display = 'none';
-    pdsBody.appendChild(clone);
-    // clone 안의 탭 버튼 onclick을 다시 바인딩
-    clone.querySelectorAll('.detail-tab-btn').forEach(function(btn) {
-      var tab = btn.id.replace('detailTab','').toLowerCase();
-      if (tab) btn.onclick = function() { switchDetailTab(tab); };
-    });
-  }
-
-  if (pdsTitle) pdsTitle.textContent = name;
-  document.body.classList.add('sidebar-open');
-  requestAnimationFrame(function() {
-    sidebar.style.transform = 'translateX(0)';
-  });
-  _pcSidebarOpen = true;
+  document.getElementById('detailModal').classList.add('open');
 }
 
 function closeDetailModal() {
@@ -6387,16 +6365,10 @@ function closeDetailModal() {
   currentDetailDrug = null;
 }
 
+/* 구형 PC 사이드패널 함수 — 호환성 유지용 (실제로 호출 안 됨) */
 function closePcSidebar() {
-  var sidebar = document.getElementById('pcDetailSidebar');
-  if (sidebar) sidebar.style.transform = 'translateX(100%)';
   document.body.classList.remove('sidebar-open');
-  _pcSidebarOpen = false;
-  currentDetailDrug = null;
-  setTimeout(function() {
-    var pdsBody = document.getElementById('pdsBody');
-    if (pdsBody) pdsBody.innerHTML = '';
-  }, 300);
+  closeDetailModal();
 }
 
 /* ══════════════════════════════════════════════
